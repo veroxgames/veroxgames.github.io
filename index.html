@@ -1738,6 +1738,7 @@ function viewClub() {
 // botga yuboriladi. Bot hisobni yaratadi va keyin shu login+parol bilan kirishni tekshiradi.
 const LOGIN_OK = /^[a-z0-9_]{3,20}$/;   // bot bilan bir xil qoida
 const PBKDF2_ITER = 100000;             // bot.py dagi PBKDF_ITER bilan BIR XIL bo'lishi shart
+const BOT_USERNAME = "VeroxGameBot";  // botingiz username'i, @ belgisisiz
 function loadAccount() {
   try {
     const a = JSON.parse(localStorage.getItem(ACC_KEY) || "null");
@@ -1769,16 +1770,25 @@ function doRegister() {
   else if (pass.length < 6 || pass !== pass.trim()) msg = "Parol kamida 6 belgi bo'lsin (boshida va oxirida bo'sh joy bo'lmasin)";
   else if (pass !== pass2) msg = "Parollar bir xil emas";
   if (msg) { ui.err = { k: "reg", msg }; return; }
-  if (!TG || typeof TG.sendData !== "function") {
-    ui.err = { k: "reg", msg: "Ro'yxatdan o'tish uchun sahifani Telegram ichida, botdagi 📝 tugma orqali oching" };
+  if (!BOT_USERNAME || BOT_USERNAME.indexOf("SHU_YERGA") >= 0) {
+    ui.err = { k: "reg", msg: "Sayt sozlanmagan: BOT_USERNAME yozilmagan" };
     return;
   }
   ui.err = null;
   pbkdf2Hex(pass, login).then((hash) => {
-    TG.sendData(JSON.stringify({ action: "register", login, hash }));  // Mini App shu zahoti yopiladi
+    // 32 bayt xesh -> base64url (43 belgi). Start-parametr: LOGIN-XESH (eng ko'pi 64 belgi)
+    const bytes = hash.match(/../g).map((h) => parseInt(h, 16));
+    const b64 = btoa(String.fromCharCode(...bytes)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+    const url = "https://t.me/" + BOT_USERNAME + "?start=" + login + "-" + b64;
     saveAccount({ login, at: Date.now() });  // mahalliy belgi; haqiqiy tasdiq botdan keladi
+    if (TG && typeof TG.openTelegramLink === "function") {
+      TG.openTelegramLink(url);   // bot chati ochiladi va hisob botda avtomatik yaratiladi
+      setTimeout(() => { try { TG.close(); } catch (e) { /* ignore */ } }, 400);
+    } else {
+      window.location.href = url; // oddiy brauzerda: Telegram ochiladi
+    }
   }).catch(() => {
-    ui.err = { k: "reg", msg: "Xatolik: ma'lumot yuborilmadi. Botdagi 📝 tugma orqali qayta urinib ko'ring" };
+    ui.err = { k: "reg", msg: "Xatolik: ma'lumot tayyorlanmadi. Qayta urinib ko'ring" };
     render();
   });
 }
@@ -1836,7 +1846,7 @@ function viewAccount() {
       </div>
       ${errLine("reg")}
       <div class="mt">${btn("📝 Hisob yaratish", "reg:go", { cls: "btn-gold", block: true })}</div>
-      <p class="hint mt">Ro'yxatdan o'tish Telegram ichida ishlaydi (botdagi 📝 tugma orqali ochiladi).</p>
+      <p class="hint mt">Hisob yaratilgach bot chati ochiladi va hisobingiz botda avtomatik tayyor bo'ladi.</p>
     </section>`;
 }
 
