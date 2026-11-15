@@ -1,0 +1,2273 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>VEROX GAMES — o'ynash</title>
+<meta name="description" content="VEROX GAMES: kafe oching, taomlar sotib oling, franchayzing qiling va Game club'ni brauzerda o'ynang." />
+<meta name="theme-color" content="#0b0806" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Ctext y=%27.9em%27 font-size=%2790%27%3E%F0%9F%8E%AE%3C/text%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Orbitron:wght@600;800&family=Rajdhani:wght@500;600;700&family=Noto+Color+Emoji&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#0b0806; --panel:#17110d; --panel2:#20170f; --line:rgba(246,234,215,.10);
+    --cream:#f6ead7; --muted:#a99a88; --gold:#f2b441; --gold2:#ff8a3d;
+    --teal:#2dd4bf; --red:#f87171; --green:#4ade80; --r:16px;
+  }
+  i.ic{font-style:normal}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{font-family:Inter,system-ui,-apple-system,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji",sans-serif;background:var(--bg);color:var(--cream);font-size:15px;line-height:1.5;min-height:100vh;-webkit-tap-highlight-color:transparent}
+  body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+    background:radial-gradient(900px 500px at 85% -10%,rgba(242,180,65,.14),transparent 60%),
+               radial-gradient(760px 500px at -10% 40%,rgba(45,212,191,.07),transparent 62%)}
+  h1,h2,h3{font-family:Orbitron,Inter,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji",sans-serif;letter-spacing:.02em;line-height:1.2}
+  h2{font-size:1.35rem}
+  h3{font-size:.95rem;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+  h3 i{color:var(--gold)}
+  button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+  button:disabled{opacity:.45;cursor:not-allowed}
+  .muted{color:var(--muted)}
+  .hint{font-size:.87rem;color:var(--muted);margin-bottom:10px}
+  .mt{margin-top:12px}
+  .pos{color:var(--green)!important}
+  .neg{color:var(--red)!important}
+
+  /* ---------- ustki panel ---------- */
+  .top{position:sticky;top:0;z-index:40;background:rgba(11,8,6,.88);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+  .top-in{max-width:1080px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .brand{font-family:Orbitron,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji",sans-serif;font-weight:800;letter-spacing:.06em;font-size:.92rem;display:flex;align-items:center;gap:8px;margin-right:auto}
+  .brand i{color:var(--gold)}
+  .brand b{color:var(--gold)}
+  .tabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;width:100%}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{padding:8px 12px;border-radius:10px;color:var(--muted);white-space:nowrap;font-weight:600;font-size:.9rem;border:1px solid transparent;display:flex;align-items:center;gap:6px}
+  .tab.on{color:#1b1007;background:var(--gold)}
+  @media (min-width:700px){.tabs{width:auto}}
+
+  main{max-width:1080px;margin:0 auto;padding:18px 16px 90px}
+
+  /* ---------- umumiy komponentlar ---------- */
+  .panel{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:var(--r);padding:18px;margin-bottom:16px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+  @media (max-width:760px){.grid2{grid-template-columns:1fr}}
+  .row{display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--line)}
+  .row:first-of-type{border-top:0;padding-top:2px}
+  .row .info{flex:1;min-width:0}
+  .row .name{font-weight:600;display:flex;align-items:center;flex-wrap:wrap;gap:4px}
+  .row .sub{font-size:.84rem;color:var(--muted);margin-top:2px}
+  .ico{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:rgba(242,180,65,.12);font-size:1.15rem;flex-shrink:0}
+  .lv{color:var(--muted);font-weight:500;font-size:.84rem;margin-left:6px}
+  .chip{display:inline-block;padding:3px 9px;border-radius:99px;font-size:.74rem;font-weight:700;background:rgba(255,255,255,.07);color:var(--muted);white-space:nowrap}
+  .chip.ok{background:rgba(74,222,128,.14);color:var(--green)}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 14px;border-radius:12px;font-family:Rajdhani,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji",sans-serif;font-weight:700;font-size:1rem;letter-spacing:.02em;white-space:nowrap;border:1px solid var(--line);background:rgba(255,255,255,.04);transition:transform .15s,filter .15s}
+  .btn:not(:disabled):hover{filter:brightness(1.12)}
+  .btn:not(:disabled):active{transform:scale(.97)}
+  .btn-sm{padding:7px 11px;font-size:.92rem}
+  .btn-block{width:100%;padding:13px}
+  .btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#1b1007;border-color:transparent}
+  .btn-teal{background:linear-gradient(135deg,var(--teal),#0ea5a4);color:#04201c;border-color:transparent}
+  .btn-dim{opacity:.55}
+  .btn-ghost{background:transparent}
+  .btn-danger{color:var(--red)}
+  .bar{height:12px;border-radius:99px;background:rgba(255,255,255,.07);overflow:hidden}
+  .bar.small{height:7px;margin:6px 0}
+  .bar i{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,var(--gold),var(--gold2));transition:width .45s linear}
+  .club .bar i{background:linear-gradient(90deg,var(--teal),#38bdf8)}
+  .kv{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+  .kv div{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+  .kv span{display:block;font-size:.76rem;color:var(--muted)}
+  .kv b{font-size:1rem}
+  .seg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .seg button{padding:11px 6px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.03);text-align:center;font-size:.9rem;font-weight:600}
+  .seg button small{display:block;font-size:.68rem;color:var(--muted);font-weight:400;margin-top:3px;line-height:1.3}
+  .seg button.on{border-color:var(--gold);background:rgba(242,180,65,.14);color:var(--gold)}
+  .club .seg button.on{border-color:var(--teal);background:rgba(45,212,191,.12);color:var(--teal)}
+  .field{display:flex;gap:8px;flex-wrap:wrap}
+  .input{flex:1;min-width:150px;padding:11px 13px;border-radius:12px;background:rgba(0,0,0,.35);border:1px solid var(--line);color:var(--cream);outline:none;font:inherit}
+  .input:focus{border-color:var(--gold)}
+  .input.invalid{border-color:var(--red);box-shadow:0 0 0 3px rgba(248,113,113,.15)}
+  .err{color:var(--red);font-size:.85rem;margin-top:6px;width:100%}
+  .cd{font-variant-numeric:tabular-nums;color:var(--cream);font-weight:600}
+  .cd-line{color:var(--muted);font-size:.92rem}
+  .spinning{text-align:center;padding:14px;font-family:Orbitron,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji",sans-serif;color:var(--gold);animation:pulse 1s infinite}
+  @keyframes pulse{50%{opacity:.45}}
+  .checks div{padding:6px 0;font-size:.92rem}
+  .checks .no{color:var(--muted)}
+  .pill{display:inline-flex;align-items:center;gap:6px;padding:6px 11px;border-radius:99px;background:rgba(255,255,255,.05);border:1px solid var(--line);font-size:.84rem;font-weight:600}
+  .head-kv{display:flex;gap:8px;flex-wrap:wrap}
+
+  /* ---------- ekranlar ---------- */
+  .hero-home{padding:18px 0 6px}
+  .hero-home h1{font-size:clamp(2rem,6vw,3.1rem);margin:6px 0 10px}
+  .hero-home h1 span{color:var(--gold)}
+  .eyebrow{font-family:Rajdhani,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji",sans-serif;font-weight:700;font-size:.82rem;letter-spacing:.16em;text-transform:uppercase;color:var(--gold)}
+  .club .eyebrow{color:var(--teal)}
+  .game-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:18px 0}
+  @media (max-width:640px){.game-grid{grid-template-columns:1fr}}
+  .game-card{text-align:left;padding:22px;border-radius:20px;border:1px solid rgba(242,180,65,.3);background:linear-gradient(145deg,rgba(242,180,65,.16),rgba(255,138,61,.02) 60%,transparent),var(--panel);transition:transform .2s}
+  .game-card:hover{transform:translateY(-3px)}
+  .game-card.club{border-color:rgba(45,212,191,.3);background:linear-gradient(145deg,rgba(45,212,191,.16),rgba(56,189,248,.02) 60%,transparent),var(--panel)}
+  .game-card span{display:block}
+  .gc-ico{font-size:1.5rem;color:var(--gold);margin-bottom:8px}
+  .game-card.club .gc-ico{color:var(--teal)}
+  .gc-title{font-family:Orbitron,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji",sans-serif;font-weight:800;font-size:1.2rem}
+  .gc-bal{font-family:Orbitron,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji",sans-serif;color:var(--gold);margin-top:6px;font-size:1.02rem}
+  .game-card.club .gc-bal{color:var(--teal)}
+  .gc-sub{color:var(--muted);font-size:.84rem;margin-top:4px}
+
+  .screen-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+  .subtabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin-bottom:14px}
+  .subtabs::-webkit-scrollbar{display:none}
+  .subtabs button{flex-shrink:0;padding:9px 13px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--muted);font-weight:600;font-size:.88rem;white-space:nowrap}
+  .subtabs button.on{color:#1b1007;background:var(--gold);border-color:transparent}
+  .club .subtabs button.on{background:var(--teal);color:#04201c}
+
+  .live-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+  .badge{font-family:Rajdhani,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji",sans-serif;font-weight:700;letter-spacing:.08em;color:var(--green)}
+  .badge::before{content:"● ";animation:pulse 1s infinite}
+  .club .badge{color:var(--teal)}
+  .live .meta{display:flex;justify-content:space-between;gap:8px;font-size:.88rem;color:var(--muted);margin:10px 0}
+  .live .kv{margin-top:6px}
+  .feed{display:grid;gap:6px;margin-top:12px}
+  .feed div{font-size:.86rem;padding:8px 11px;border-radius:10px;background:rgba(255,255,255,.035);border:1px solid var(--line)}
+  .feed div.new{animation:pop .35s ease both}
+  @keyframes pop{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+  .ach-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  @media (max-width:640px){.ach-grid{grid-template-columns:1fr}}
+  .ach-row{display:flex;gap:10px;align-items:flex-start;padding:11px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.02)}
+  .ach-row.got{border-color:rgba(74,222,128,.35);background:rgba(74,222,128,.05)}
+  .ach-row .e{font-size:1.3rem;line-height:1.2}
+  .ach-row .n{font-weight:600;font-size:.92rem}
+  .ach-row .d{font-size:.8rem;color:var(--muted)}
+  .ach-row .r{font-size:.8rem;color:var(--gold);margin-top:2px}
+
+  .help h3{margin:18px 0 8px;color:var(--gold)}
+  .help p,.help li{color:var(--cream);font-size:.93rem;margin-bottom:8px}
+  .help ul{padding-left:18px}
+  .help .muted{color:var(--muted)}
+
+  /* ---------- xabarlar va oyna ---------- */
+  .toasts{position:fixed;left:50%;transform:translateX(-50%);bottom:16px;z-index:100;display:grid;gap:8px;width:min(92vw,420px);pointer-events:none}
+  .toast{background:#241a12;border:1px solid var(--line);border-radius:12px;padding:12px 14px;box-shadow:0 10px 30px rgba(0,0,0,.5);font-size:.92rem;animation:tin .25s ease,tout .4s ease 3.2s forwards}
+  .toast.good{border-color:rgba(74,222,128,.55)}
+  .toast.bad{border-color:rgba(248,113,113,.55)}
+  .toast.info{border-color:rgba(242,180,65,.5)}
+  @keyframes tin{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  @keyframes tout{to{opacity:0;transform:translateY(6px)}}
+  .modal{position:fixed;inset:0;background:rgba(0,0,0,.62);display:grid;place-items:center;z-index:90;padding:16px}
+  .modal[hidden]{display:none}
+  .modal-box{width:min(440px,100%);max-height:88vh;overflow:auto;background:linear-gradient(180deg,#27190f,#15100b);border:1px solid rgba(242,180,65,.35);border-radius:20px;padding:22px}
+  .modal-box h2{margin-bottom:12px;font-size:1.15rem}
+  .lines{display:grid;gap:0}
+  .lines div{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px dashed var(--line);font-size:.93rem}
+  .lines div span{color:var(--muted)}
+  .lines b{text-align:right}
+  .modal-box .hint{margin-top:12px}
+
+
+  /* ---------- animatsiyalar ---------- */
+  .btn,.tab,.subtabs button,.seg button,.game-card,.row,.ach-row,.chip,.pill,.ico{transition:transform .2s cubic-bezier(.2,.8,.2,1),box-shadow .25s,background-color .25s,border-color .25s,color .25s,filter .15s}
+  .btn:not(:disabled):hover{transform:translateY(-2px);box-shadow:0 8px 18px rgba(0,0,0,.35)}
+  .btn:not(:disabled):active,.tab:active,.subtabs button:active,.seg button:active,.game-card:active{transform:scale(.93)}
+  .tab:hover,.subtabs button:hover,.seg button:hover{transform:translateY(-2px)}
+  .seg button:hover{border-color:rgba(242,180,65,.45)}
+  .row:hover{background:rgba(255,255,255,.035);transform:translateX(4px);border-radius:12px}
+  .row:hover .ico{transform:rotate(-10deg) scale(1.15);background:rgba(242,180,65,.24)}
+  .ach-row:hover{transform:translateY(-3px);box-shadow:0 10px 22px rgba(0,0,0,.35)}
+  .panel{transition:border-color .3s,box-shadow .3s}
+  .panel:hover{border-color:rgba(242,180,65,.28);box-shadow:0 12px 30px rgba(0,0,0,.28)}
+  .club .panel:hover{border-color:rgba(45,212,191,.3)}
+  .game-card:hover .gc-ico{animation:wiggle .6s ease}
+  .game-card:hover{box-shadow:0 16px 36px rgba(0,0,0,.4)}
+  .kv div{transition:transform .2s,border-color .2s}
+  .kv div:hover{transform:translateY(-2px);border-color:rgba(242,180,65,.35)}
+  .pill:hover{transform:scale(1.07)}
+  .chip.ok{box-shadow:0 0 0 0 rgba(74,222,128,.4)}
+  i.ic{display:inline-block}
+  .brand i{animation:floaty 3s ease-in-out infinite}
+  .tab.on i{animation:wiggle .6s ease}
+  .bar{position:relative}
+  .bar i{position:relative;overflow:hidden}
+  .bar i::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.4),transparent);transform:translateX(-100%);animation:shim 1.8s linear infinite}
+  .eyebrow{animation:glow 3s ease-in-out infinite}
+  .hero-home h1 span{display:inline-block;animation:floaty 3.5s ease-in-out infinite}
+  .gc-ico{display:inline-block;animation:floaty 3.2s ease-in-out infinite}
+  .spinning{animation:pulse 1s infinite,spinwob .8s ease-in-out infinite}
+  .modal:not([hidden]){animation:fadein .2s ease}
+  .modal-box{animation:zoomin .35s cubic-bezier(.2,1.2,.3,1)}
+  .toast{transform-origin:bottom center}
+  .toast.bad{animation:tin .25s ease,shake .4s ease .1s,tout .4s ease 3.2s forwards}
+  .live .badge{display:inline-block}
+
+  .enter .panel,.enter .game-card,.enter .hero-home,.enter .screen-head,.enter .subtabs,.enter .bar.small{animation:rise .55s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i,0)*70ms)}
+  .enter .row,.enter .ach-row,.enter .kv>div,.enter .seg button,.enter .lines>div{animation:slidein .45s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i,0)*45ms + 120ms)}
+
+  .pop{animation:pop2 .4s cubic-bezier(.2,1.4,.4,1)}
+  .shake{animation:shake .45s ease}
+  .bump{animation:bump .55s ease}
+
+  .ripple{position:fixed;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;border:2px solid var(--gold);background:rgba(242,180,65,.25);pointer-events:none;z-index:120;animation:rip .6s ease-out forwards}
+  .club-mode .ripple{border-color:var(--teal);background:rgba(45,212,191,.22)}
+  .spark{position:fixed;pointer-events:none;z-index:120;font-size:18px;line-height:1;animation:spark .85s cubic-bezier(.2,.7,.3,1) forwards}
+
+  @keyframes rise{from{opacity:0;transform:translateY(18px) scale(.97)}to{opacity:1;transform:none}}
+  @keyframes slidein{from{opacity:0;transform:translateX(-16px)}to{opacity:1;transform:none}}
+  @keyframes pop2{0%{transform:scale(1)}40%{transform:scale(1.14)}100%{transform:scale(1)}}
+  @keyframes shake{20%,60%{transform:translateX(-7px)}40%,80%{transform:translateX(7px)}}
+  @keyframes bump{0%{transform:scale(1)}35%{transform:scale(1.22);filter:brightness(1.4)}100%{transform:scale(1)}}
+  @keyframes rip{to{transform:scale(6);opacity:0}}
+  @keyframes spark{to{transform:translate(var(--dx),var(--dy)) scale(.4) rotate(var(--r));opacity:0}}
+  @keyframes wiggle{0%,100%{transform:rotate(0)}25%{transform:rotate(-14deg) scale(1.15)}60%{transform:rotate(10deg) scale(1.1)}}
+  @keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+  @keyframes shim{to{transform:translateX(100%)}}
+  @keyframes glow{50%{opacity:.6}}
+  @keyframes fadein{from{opacity:0}to{opacity:1}}
+  @keyframes zoomin{from{opacity:0;transform:scale(.85) translateY(14px)}to{opacity:1;transform:none}}
+  @keyframes spinwob{50%{transform:scale(1.06) rotate(1.5deg)}}
+
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+  .pwm{height:6px;border-radius:6px;background:rgba(255,255,255,.08);overflow:hidden;margin:8px 2px 2px}
+  .pwm i{display:block;height:100%;border-radius:6px;transition:width .25s,background-color .25s}
+  .tab.dim{opacity:.35;filter:grayscale(.6);cursor:not-allowed}
+</style>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+
+<header class="top">
+  <div class="top-in">
+    <div class="brand"><i class="ic">🎮</i><span>VEROX <b>GAMES</b></span></div>
+    <nav class="tabs">
+      <button class="tab" data-screen="home" data-act="go:home"><i class="ic">🏠</i> Bosh</button>
+      <button class="tab" data-screen="cafe" data-act="go:cafe"><i class="ic">🍴</i> Kafe</button>
+      <button class="tab" data-screen="club" data-act="go:club"><i class="ic">🎮</i> Club</button>
+      <button class="tab" data-screen="help" data-act="go:help"><i class="ic">❓</i> Qoidalar</button>
+      <button class="tab" data-screen="acc" data-act="go:acc"><i class="ic">👤</i> Hisob</button>
+    </nav>
+  </div>
+</header>
+
+<main id="app"></main>
+<div class="toasts" id="toasts"></div>
+<div class="modal" id="modal" hidden><div class="modal-box" id="modalBox"></div></div>
+
+<script>
+
+/* ===================== KONSTANTALAR ===================== */
+const TG = (window.Telegram && window.Telegram.WebApp) || null; // Telegram Mini App (brauzerda null)
+const ACC_KEY = "kafe-hisob-v1";  // mahalliy hisob belgisi (login)
+const CFG = {
+  DAY_MIN: 90, DAY_MAX: 120,              // kun davomiyligi, soniya (real vaqt)
+  START_MONEY: 100000,
+  LOAN_MIN: 2500000, LOAN_MAX: 50000000, LOAN_MAX_ACTIVE: 3, LOAN_REMIND_H: 12,
+  LOAN_TERMS: { 1: 0.05, 3: 0.10, 7: 0.20 },
+  BONUS_H: 24, SPIN_H: 8,
+  PRESTIGE_MONEY: 375000000, PRESTIGE_CUST: 0.30, PRESTIGE_INC: 0.20,
+  DEPOSIT_RATE: 1.01,
+  TRUST_MIN: -5,                          // shu ballgacha ishonch tushsa, bank krediti berilmaydi
+  CLUB_PRESTIGE_MONEY: 250000000, CLUB_START_MONEY: 1500000, CLUB_HOURS: 12, CLUB_START_PCS: 4,
+  CLUB_RENT: 50000, CLUB_RENT_PER_PC: 6000, CLUB_ADMIN_SALARY: 40000,
+  CLUB_SNACK_COST: 0.45, CLUB_SNACK_RANGE: [8000, 25000],
+};
+
+// Promokodlar (brauzer ichida ishlaydi, har kod har o'yinda bir marta)
+const PROMOS = {
+  cafe: { START: { reward: 100000, text: "Boshlang'ich sovg'a" }, KAFE2026: { reward: 1000000, text: "2026 aksiyasi" } },
+  club: { CLUB: { reward: 150000, text: "Club ochilish sovg'asi" }, CLUB2026: { reward: 500000, text: "2026 club aksiyasi" } },
+};
+
+/* ===================== KAFE MA'LUMOTLARI ===================== */
+// price - menyuga qo'shish narxi (bir marta), cost - 1 porsiya xarajati,
+// sell - 1 porsiya sotilish narxi, w - mijozlar orasida mashhurligi
+const DISH_LIST = [
+  { k: "choy", e: "☕", n: "Choy", price: 0, cost: 500, sell: 3000, w: 3.0 },
+  { k: "samsa", e: "🥟", n: "Samsa", price: 80000, cost: 2500, sell: 7000, w: 3.0 },
+  { k: "non", e: "🥖", n: "Non", price: 150000, cost: 3000, sell: 7500, w: 3.0 },
+  { k: "lavash", e: "🌯", n: "Lavash", price: 300000, cost: 6000, sell: 15000, w: 2.5 },
+  { k: "salat", e: "🥗", n: "Salat", price: 450000, cost: 4500, sell: 11000, w: 2.5 },
+  { k: "burger", e: "🍔", n: "Burger", price: 900000, cost: 10000, sell: 25000, w: 2.5 },
+  { k: "hotdog", e: "🌭", n: "Hot-dog", price: 1500000, cost: 9000, sell: 22000, w: 2.5 },
+  { k: "pitsa", e: "🍕", n: "Pitsa", price: 2500000, cost: 18000, sell: 45000, w: 2.0 },
+  { k: "manti", e: "🥟", n: "Manti", price: 4000000, cost: 20000, sell: 50000, w: 2.0 },
+  { k: "lagmon", e: "🍜", n: "Lag'mon", price: 6000000, cost: 25000, sell: 65000, w: 2.0 },
+  { k: "shorva", e: "🍲", n: "Sho'rva", price: 9000000, cost: 35000, sell: 85000, w: 2.0 },
+  { k: "osh", e: "🍛", n: "Osh (palov)", price: 13000000, cost: 45000, sell: 110000, w: 2.0 },
+  { k: "shashlik", e: "🍢", n: "Shashlik", price: 28000000, cost: 80000, sell: 190000, w: 1.5 },
+  { k: "pirojnoe", e: "🍰", n: "Pirojnoe", price: 40000000, cost: 110000, sell: 260000, w: 1.0 },
+  { k: "steyk", e: "🥩", n: "Steyk", price: 60000000, cost: 150000, sell: 350000, w: 1.0 },
+];
+const DISHES = {};
+for (const d of DISH_LIST) {
+  d.price = Math.round((d.price * 0.75 * 0.9) / 1000) * 1000; // menyu chegirmasi
+  DISHES[d.k] = d;
+}
+
+// daraja narxi = base * mult^daraja
+const UPGRADES = {
+  staff: { e: "👨‍🍳", n: "Xodimlar", base: 144000, mult: 1.6, max: 23, info: "har biri +8 mijozga xizmat qiladi (oyligi kuniga 15 000)" },
+  ads: { e: "📣", n: "Reklama", base: 96000, mult: 1.7, max: 20, info: "har bir daraja kuniga ~3 mijoz ko'proq olib keladi" },
+  decor: { e: "🛋️", n: "Interyer", base: 240000, mult: 1.9, max: 15, info: "mijozlar, choychaqa va reputatsiya oshadi (ijara qimmatlashadi)" },
+  delivery: { e: "🛵", n: "Yetkazib berish", base: 480000, mult: 2.0, max: 10, info: "har daraja kuniga +4 ta yetkazib berish buyurtmasi" },
+  equip: { e: "🔧", n: "Jihozlar", base: 360000, mult: 2.2, max: 10, info: "taom xarajati -5%, buzilish xavfi kamayadi" },
+};
+
+const POLICIES = {
+  cheap: { e: "🏷️", n: "Arzon", price: 0.85, demand: 1.2, info: "narxlar -15%, mijozlar +20%. Xodimlar ko'p bo'lsa foydali" },
+  normal: { e: "⚖️", n: "Normal", price: 1.0, demand: 1.0, info: "o'rtacha narx va mijozlar" },
+  premium: { e: "💎", n: "Qimmat", price: 1.2, demand: 0.85, info: "narxlar +20%, mijozlar -15%. Navbat uzun bo'lsa foydali" },
+};
+
+// bir martalik kuchaytirgichlar: keyingi kun uchun sotib olinadi, narxi daromadga qarab o'zgaradi
+const BOOSTS = {
+  promo: { e: "📢", n: "Aksiya", factor: 0.20, info: "mijozlar +35% (sig'im yetishi kerak!)" },
+  chef: { e: "👨‍🍳", n: "Mohir oshpaz", factor: 0.05, info: "taom xarajati -25%" },
+  music: { e: "🎷", n: "Jonli musiqa", factor: 0.08, info: "choychaqa ko'payadi, reputatsiya +0.05" },
+  vip: { e: "🎩", n: "VIP taklif", factor: 0.10, info: "kunda albatta VIP mehmon keladi" },
+};
+
+const QUEST_TYPES = {
+  days: { e: "📅", t: "{n} ta kunni yakunlang", mult: 0.8 },
+  serve: { e: "👥", t: "{n} ta mijozga xizmat qiling", mult: 0.6 },
+  profit: { e: "📈", t: "{n} sof foyda qiling", mult: 1.0 },
+  buy: { e: "🛒", t: "Do'kondan {n} ta narsa sotib oling", mult: 0.5 },
+};
+
+const MOODS = [ // [nomi, mijozlar koeffitsiyenti, og'irlik]
+  ["☀️ Oddiy kun", 1.0, 60],
+  ["🌧 Yomg'irli kun: mijozlar kamroq", 0.75, 20],
+  ["🎉 Dam olish kuni: mijozlar ko'proq", 1.3, 20],
+];
+
+const NAMES = ["Aziz", "Malika", "Jasur", "Dilnoza", "Sardor", "Madina", "Bekzod", "Nilufar",
+  "Otabek", "Zarina", "Shahzod", "Gulnora", "Javlon", "Sevara", "Rustam", "Kamola",
+  "Sherzod", "Lola", "Ulug'bek", "Mohira", "Doston", "Feruza", "Akmal", "Shahlo"];
+const GOOD_REVIEWS = ["Taomlar juda mazali, albatta yana kelaman!", "Xizmat a'lo darajada!",
+  "Narxi ham, sifati ham yoqdi.", "Do'stlarimga ham tavsiya qilaman!", "Shinam joy, mazali taom. Rahmat!"];
+const BAD_REVIEWS = ["Navbat juda uzun edi, ancha kutdim.", "Taom yaxshi, lekin xizmat sekin.",
+  "Joy yetishmadi, boshqa safar kelaman.", "Ko'proq xodim kerak ekan."];
+
+// yutuqlar: [kod, emoji, nomi, shart, mukofot, tekshiruv(p, s)]
+const ACHS = [
+  ["day1", "🌱", "Birinchi kun", "1 ta kunni yakunlang", 20000, (p) => p.days >= 1],
+  ["day10", "📅", "Tajribali", "10 ta kun ishlang", 50000, (p) => p.days >= 10],
+  ["day50", "🗓️", "Doimiy ish", "50 ta kun ishlang", 250000, (p) => p.days >= 50],
+  ["menu3", "📋", "Xilma-xillik", "menyuda 3 ta taom bo'lsin", 50000, (p) => p.dishes.length >= 3],
+  ["menu9", "👑", "To'liq menyu", "barcha taomlarni oching", 2000000, (p) => p.dishes.length >= DISH_LIST.length],
+  ["staff5", "👥", "Jamoa", "5 ta xodim yollang", 150000, (p) => p.staff >= 5],
+  ["rep45", "⭐", "Yulduzli kafe", "reputatsiya 4.5 ga yetsin", 300000, (p) => p.rep >= 4.5],
+  ["money1m", "💵", "Millioner", "hisobda 1 000 000 so'm", 100000, (p) => p.money >= 1000000],
+  ["money50m", "💰", "Boy tadbirkor", "hisobda 50 000 000 so'm", 2000000, (p) => p.money >= 50000000],
+  ["served1k", "👥", "Mashhur kafe", "1000 ta mijozga xizmat qiling", 300000, (p, s) => (s.served || 0) >= 1000],
+  ["prest1", "🏢", "Franchayzing", "birinchi franchayzingni boshlang", 5000000, (p) => p.prestige >= 1],
+];
+
+/* ===================== GAME CLUB MA'LUMOTLARI ===================== */
+// rate - soatbay tarif, power - soatiga elektr xarajati, w - mijozlar tanlashi
+const ZONES = {
+  std: { e: "💻", n: "Oddiy PC", rate: 6000, power: 1500, w: 60 },
+  pro: { e: "🖥️", n: "Pro PC", rate: 12000, power: 2500, w: 20 },
+  vip: { e: "👑", n: "VIP xona", rate: 20000, power: 3500, w: 8 },
+  ps: { e: "🎮", n: "PlayStation", rate: 15000, power: 3000, w: 12 },
+};
+const ZONE_KEYS = ["std", "pro", "vip", "ps"];
+
+const CUPGRADES = {
+  std: { e: "💻", n: "Oddiy PC", base: 400000, mult: 1.12, max: 30, info: "soatiga 6 000 so'm, eng ko'p talab" },
+  pro: { e: "🖥️", n: "Pro PC", base: 1200000, mult: 1.15, max: 15, info: "soatiga 12 000 so'm, kuchli kompyuter" },
+  vip: { e: "👑", n: "VIP xona", base: 3000000, mult: 1.2, max: 6, info: "soatiga 20 000 so'm, alohida xona" },
+  ps: { e: "🎮", n: "PlayStation", base: 2000000, mult: 1.18, max: 8, info: "soatiga 15 000 so'm, konsol o'yinlari" },
+  snack: { e: "🥤", n: "Bufet", base: 700000, mult: 1.6, max: 8, info: "mijozlar ichimlik va snack sotib olishadi" },
+  ads: { e: "📣", n: "Reklama", base: 300000, mult: 1.6, max: 15, info: "har daraja kuniga ~1 mijoz ko'proq" },
+  admin: { e: "👔", n: "Administrator", base: 500000, mult: 1.5, max: 6, info: "kunlik oyligi 40 000; buzilish va shikoyatlarni kamaytiradi" },
+  cool: { e: "❄️", n: "Konditsioner", base: 900000, mult: 1.7, max: 5, info: "PC'lar qizib qolmaydi: buzilish xavfi kamayadi" },
+};
+
+const CPOLICIES = {
+  cheap: { e: "🏷️", n: "Arzon", price: 0.8, demand: 1.25, info: "soatbay narx -20%, mijozlar +25%" },
+  normal: { e: "⚖️", n: "Normal", price: 1.0, demand: 1.0, info: "standart tarif" },
+  premium: { e: "💎", n: "Qimmat", price: 1.25, demand: 0.85, info: "narx +25%, mijozlar -15%" },
+};
+
+const CBOOSTS = {
+  tourney: { e: "🏆", n: "Turnir", factor: 0.25, demand: 1.5, price: 1.0, info: "mijozlar +50% (bir kunlik turnir)" },
+  happy: { e: "🎉", n: "Happy hour", factor: 0.12, demand: 1.3, price: 0.75, info: "tarif -25%, mijozlar +30%" },
+};
+
+const CQ_TYPES = {
+  days: { e: "📅", t: "Club kunini yakunlang: {n}", mult: 0.8 },
+  serve: { e: "👥", t: "Mijozlarga xizmat qiling: {n}", mult: 0.6 },
+  hours: { e: "🕐", t: "O'yin soatlarini soting: {n}", mult: 0.5 },
+  profit: { e: "📈", t: "Sof foyda qiling: {n}", mult: 1.0 },
+};
+
+const CACHS = [
+  ["cl_day1", "🎮", "Birinchi o'yin", "1 ta club kunini yakunlang", 30000, (c) => c.days >= 1],
+  ["cl_day10", "🕹️", "Doimiy o'yinchi", "10 ta club kunini yakunlang", 150000, (c) => c.days >= 10],
+  ["cl_seats10", "🖥️", "To'liq zal", "10 ta o'yin joyiga ega bo'ling", 200000, (c) => seatsOf(c) >= 10],
+  ["cl_vip", "👑", "VIP mehmon", "VIP xonani oching", 300000, (c) => c.vip >= 1],
+  ["cl_ps", "🎮", "Konsol ishqibozi", "PlayStation qo'shing", 200000, (c) => c.ps >= 1],
+  ["cl_snack", "🥤", "Bufet ustasi", "bufetni 3-darajaga yetkazing", 150000, (c) => c.snack >= 3],
+  ["cl_rep45", "⭐", "Yulduzli club", "reputatsiya 4.5 ga yetsin", 300000, (c) => c.rep >= 4.5],
+  ["cl_served1k", "👥", "Mashhur club", "1000 ta mijozga xizmat qiling", 300000, (c, s) => (s.served || 0) >= 1000],
+  ["cl_profit1m", "💵", "Million o'yin", "bir kunda 1 000 000 so'm sof foyda", 400000, (c, s) => (s.best || 0) >= 1000000],
+];
+
+/* ===================== YORDAMCHI FUNKSIYALAR ===================== */
+const rnd = (a, b) => a + Math.random() * (b - a);
+const rint = (a, b) => Math.floor(rnd(a, b + 1));
+const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+function wpick(items, weights) {
+  const tot = weights.reduce((a, b) => a + b, 0);
+  let r = Math.random() * tot;
+  for (let i = 0; i < items.length; i++) {
+    r -= weights[i];
+    if (r < 0) return items[i];
+  }
+  return items[items.length - 1];
+}
+function sample(arr, n) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a.slice(0, n);
+}
+// uchburchak taqsimot (random.triangular ning o'xshashi)
+function triang(lo, hi, mode) {
+  const u = Math.random();
+  const c = (mode - lo) / (hi - lo);
+  return u < c ? lo + Math.sqrt(u * (hi - lo) * (mode - lo)) : hi - Math.sqrt((1 - u) * (hi - lo) * (hi - mode));
+}
+const r1000 = (x) => Math.round(x / 1000) * 1000;
+const r100 = (x) => Math.round(x / 100) * 100;
+const fmt = (n) => {
+  n = Math.trunc(n);
+  return (n < 0 ? "-" : "") + String(Math.abs(n)).replace(/\B(?=(\d{3})+(?!\d))/g, " ") + " so'm";
+};
+const sgn = (n) => (n >= 0 ? "+" : "−") + fmt(Math.abs(n));
+const mmss = (s) => {
+  s = Math.max(0, Math.floor(s));
+  return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0");
+};
+const hm = (s) => {
+  s = Math.max(0, Math.floor(s));
+  return Math.floor(s / 3600) + " soat " + Math.floor((s % 3600) / 60) + " daqiqa";
+};
+const levelOf = (xp) => 1 + Math.floor(Math.sqrt(Math.max(0, xp) / 100));
+const xpFor = (lv) => (lv - 1) ** 2 * 100;
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const todayNo = () => Math.floor((Date.now() / 1000 + 5 * 3600) / 86400); // O'zbekiston vaqti bo'yicha kun
+const bar = (f) => Math.round(Math.max(0, Math.min(1, f)) * 100);
+const dishLine = (keys) => {
+  const cnt = {};
+  for (const k of keys) cnt[k] = (cnt[k] || 0) + 1;
+  return Object.keys(cnt).map((k) => DISHES[k].e + " " + DISHES[k].n + (cnt[k] > 1 ? " ×" + cnt[k] : "")).join(", ");
+};
+
+/* ===================== HOLAT (STATE) ===================== */
+let S = null;
+const ui = { screen: "home", cTab: "day", lTab: "day", draft: {}, err: "", spinning: null, modalQ: [], modalOpen: false };
+
+function newCafe() {
+  return {
+    money: CFG.START_MONEY, days: 0, xp: 0, rep: 3.0, staff: 0, ads: 0, decor: 0, equip: 0, delivery: 0,
+    dishes: ["choy"], policy: "normal", ach: [], stats: {}, bonusAt: 0, streak: 0, spinAt: 0,
+    deposit: 0, trust: 0, prestige: 0, quests: { d: -1, q: [] }, boosts: [], day: null,
+  };
+}
+function newClub() {
+  return {
+    open: false, money: 0, days: 0, rep: 3.0, std: 0, pro: 0, vip: 0, ps: 0, snack: 0, ads: 0, admin: 0, cool: 0,
+    policy: "normal", prestige: 0, deposit: 0, boosts: [], stats: {}, ach: [], quests: { d: -1, q: [] },
+    bonusAt: 0, streak: 0, spinAt: 0, day: null,
+  };
+}
+function freshState() {
+  return { v: 1, cafe: newCafe(), club: newClub(), loans: [], nextLoan: 1, promo: { cafe: [], club: [] } };
+}
+function loadState() {
+  try {
+    const raw = localStorage.getItem("kafe-imperiyasi-oyin-v1");
+    if (raw) {
+      const s = JSON.parse(raw);
+      if (s && s.v === 1) return s;
+    }
+  } catch (e) { /* saqlangan ma'lumot o'qilmadi: yangi o'yin */ }
+  return freshState();
+}
+function saveState() {
+  try {
+    localStorage.setItem("kafe-imperiyasi-oyin-v1", JSON.stringify(S));
+  } catch (e) { /* xotira to'lgan yoki yopiq: o'yin ishlayveradi */ }
+}
+
+function seatsOf(c) { return c.std + c.pro + c.vip + c.ps; }
+function capacity(p) { return 12 + p.staff * 8; }
+function upgradePrice(key, lv) { const u = UPGRADES[key]; return r1000(u.base * Math.pow(u.mult, lv)); }
+function clubUpgradePrice(key, lv) { const u = CUPGRADES[key]; return r1000(u.base * Math.pow(u.mult, lv)); }
+function sellPrice(key, pm) { return Math.round((DISHES[key].sell * pm) / 100) * 100; }
+function dishCost(key, equip) { return Math.floor(DISHES[key].cost * (1 - 0.05 * equip)); }
+function incomeScale(p) { return Math.max(40000, (p.stats && p.stats.last_rev) || 0); }
+function boostPrice(p, key) { return Math.max(20000, r1000(incomeScale(p) * BOOSTS[key].factor)); }
+function clubScale(c) { return Math.max(40000, (c.stats && c.stats.last_rev) || 0); }
+function clubBoostPrice(c, key) { return Math.max(60000, r1000(clubScale(c) * CBOOSTS[key].factor)); }
+function clubClock(t) {
+  t = Math.min(Math.max(t, 0), CFG.CLUB_HOURS - 0.01);
+  return String(12 + Math.floor(t)).padStart(2, "0") + ":" + String(Math.floor((t - Math.floor(t)) * 60)).padStart(2, "0");
+}
+function ownsDish(p, k) { return p.dishes.indexOf(k) >= 0; }
+
+/* ===================== XABAR (TOAST) VA OYNA ===================== */
+function toast(text, kind) {
+  const box = document.getElementById("toasts");
+  if (!box) return;
+  const el = document.createElement("div");
+  el.className = "toast " + (kind || "info");
+  el.textContent = text;
+  box.appendChild(el);
+  setTimeout(() => el.remove(), 3800);
+}
+
+function openModal(title, bodyHtml, actionsHtml) {
+  ui.modalQ.push({ title, bodyHtml, actionsHtml: actionsHtml || "" });
+  if (!ui.modalOpen) showNextModal();
+}
+function showNextModal() {
+  const next = ui.modalQ.shift();
+  const modal = document.getElementById("modal");
+  const box = document.getElementById("modalBox");
+  if (!next) {
+    ui.modalOpen = false;
+    modal.hidden = true;
+    return;
+  }
+  ui.modalOpen = true;
+  box.innerHTML = `<h2>${next.title}</h2>${next.bodyHtml}` +
+    `<div class="mt">${next.actionsHtml || '<button class="btn btn-gold btn-block" data-act="modal:ok">Tushunarli</button>'}</div>`;
+  modal.hidden = false;
+}
+
+/* ===================== KAFE: VAZIFALAR ===================== */
+function makeQuests(p) {
+  const Sc = incomeScale(p);
+  const qs = [];
+  for (const kind of sample(Object.keys(QUEST_TYPES), 3)) {
+    let n;
+    if (kind === "days") n = pick([2, 3]);
+    else if (kind === "serve") n = Math.max(20, Math.floor(Math.floor(capacity(p) * 1.5) / 5) * 5);
+    else if (kind === "profit") n = Math.max(30000, Math.floor(Sc / 1000) * 1000);
+    else n = pick([1, 2]);
+    const mult = QUEST_TYPES[kind].mult * (kind === "days" ? n / 2 : 1);
+    const reward = Math.max(20000, r1000(Sc * mult));
+    qs.push([kind, n, 0, reward, 0]); // tur, maqsad, jarayon, mukofot, olingan
+  }
+  return qs;
+}
+function ensureQuests() {
+  const p = S.cafe;
+  if (!p.quests || p.quests.d !== todayNo()) p.quests = { d: todayNo(), q: makeQuests(p) };
+  return p.quests;
+}
+function questProgress(inc) {
+  const data = ensureQuests();
+  for (const q of data.q) {
+    const v = inc[q[0]] || 0;
+    if (v && q[2] < q[1]) q[2] = Math.min(q[1], q[2] + v);
+  }
+}
+function questTitle(q) {
+  const t = QUEST_TYPES[q[0]];
+  const n = q[0] === "profit" ? fmt(q[1]) : String(q[1]);
+  return t.e + " " + t.t.replace("{n}", n);
+}
+function questStatus(q) {
+  const isMoney = q[0] === "profit";
+  return isMoney ? fmt(q[2]) + " / " + fmt(q[1]) : q[2] + " / " + q[1];
+}
+function claimQuest(i) {
+  const q = ensureQuests().q[i];
+  if (q && q[2] >= q[1] && !q[4]) {
+    q[4] = 1;
+    S.cafe.money += q[3];
+    return q[3];
+  }
+  return 0;
+}
+
+/* ===================== KAFE: YUTUQLAR ===================== */
+function checkCafeAch() {
+  const p = S.cafe;
+  const have = new Set(p.ach);
+  const got = [];
+  for (const a of ACHS) {
+    if (!have.has(a[0]) && a[5](p, p.stats || {})) {
+      have.add(a[0]);
+      p.money += a[4];
+      got.push(a);
+    }
+  }
+  p.ach = [...have];
+  return got;
+}
+
+/* ===================== KAFE: KUNNI YARATISH (oldindan hisoblanadi) ===================== */
+function buildCafeDay(now) {
+  const p = S.cafe;
+  const L = rint(CFG.DAY_MIN, CFG.DAY_MAX);
+  const owned = p.dishes.slice();
+  const pm = POLICIES[p.policy].price;
+  const level = levelOf(p.xp);
+  const boosts = p.boosts.slice();
+  const mood = wpick(MOODS, MOODS.map((m) => m[2]));
+
+  let demand = 8 + p.ads * 3 + p.decor * 2 + owned.length * 1.5 + level;
+  demand *= (0.7 + p.rep * 0.12) * POLICIES[p.policy].demand * mood[1] * rnd(0.85, 1.15);
+  demand *= 1 + CFG.PRESTIGE_CUST * p.prestige;
+  const incomeK = 1 + CFG.PRESTIGE_INC * p.prestige;
+  if (boosts.includes("promo")) demand *= 1.35;
+  let D = Math.max(4, Math.round(demand));
+  const cap = capacity(p);
+
+  // --- tasodifiy voqealar ---
+  const ev = [];
+  let burst = null, vipT = null;
+  const nEv = wpick([0, 1, 2], [25, 50, 25]);
+  const t1 = (a, b) => Math.round(rnd(a, b) * 10) / 10;
+  for (const kind of sample(["blogger", "vip", "breakdown", "inspection", "tip", "rush", "complaint", "regular"], nEv)) {
+    const t = t1(0.15 * L, 0.8 * L);
+    if (kind === "blogger" || kind === "rush") {
+      if (burst) continue;
+      const extra = Math.max(3, Math.round(D * 0.3));
+      burst = [t, extra];
+      D += extra;
+      ev.push({ t, text: kind === "blogger" ? "🌟 Mashhur bloger kafengizga keldi! Mijozlar oqimi oshdi" : "🍽 Tushlik vaqti! Mijozlar oqimi kuchaydi", money: 0, rep: 0 });
+    } else if (kind === "vip") {
+      vipT = t;
+      ev.push({ t, text: "🎩 VIP mehmon keldi!", money: 0, rep: 0 });
+    } else if (kind === "breakdown") {
+      if (Math.random() < p.equip * 0.15) continue; // sifatli jihoz buzilmadi
+      const fee = 15000 + 8000 * level;
+      ev.push({ t, text: `🔧 Qahva mashinasi buzildi! Ta'mir: −${fmt(fee)}`, money: -fee, rep: 0 });
+    } else if (kind === "inspection") {
+      const amt = 15000 + 5000 * level;
+      if (p.decor >= 3) ev.push({ t, text: `🧾 Sanitariya tekshiruvi: hammasi a'lo! Mukofot: +${fmt(amt)}`, money: amt, rep: 0.1 });
+      else ev.push({ t, text: `🧾 Tekshiruv kamchilik topdi. Jarima: −${fmt(amt)}`, money: -amt, rep: -0.1 });
+    } else if (kind === "complaint") {
+      const amt = 8000 + 2000 * level;
+      ev.push({ t, text: `😤 Mijoz shikoyat qildi. Pul qaytarildi: −${fmt(amt)}`, money: -amt, rep: -0.03 });
+    } else if (kind === "regular") {
+      const amt = 12000 + 4000 * level;
+      ev.push({ t, text: `🤝 Doimiy mijozlar do'stlari bilan keldi: +${fmt(amt)}`, money: amt, rep: 0.03 });
+    } else if (kind === "tip") {
+      const amt = 10000 + 3000 * level;
+      ev.push({ t, text: `💝 ${pick(NAMES)} katta choychaqa qoldirdi: +${fmt(amt)}`, money: amt, rep: 0 });
+    }
+  }
+  if (boosts.includes("vip") && vipT === null) {
+    vipT = t1(0.2 * L, 0.7 * L);
+    ev.push({ t: vipT, text: "🎩 Taklif qilingan VIP mehmon keldi!", money: 0, rep: 0 });
+  }
+  if (boosts.includes("music")) ev.push({ t: Math.round(0.1 * L * 10) / 10, text: "🎷 Jonli musiqa mijozlarga juda yoqdi!", money: 0, rep: 0.05 });
+
+  // --- mijozlar kelish vaqtlari ---
+  const nBase = D - (burst ? burst[1] : 0);
+  const arr = [];
+  for (let i = 0; i < nBase; i++) arr.push(rnd(1, L - 4));
+  if (burst) {
+    const [bt, extra] = burst;
+    for (let i = 0; i < extra; i++) arr.push(rnd(bt, Math.min(L - 4, bt + 0.2 * L)));
+  }
+  arr.sort((a, b) => a - b);
+
+  const nServed = Math.min(D, cap);
+  const lostIdx = new Set(sample([...Array(D).keys()], D - nServed));
+  const special = owned.length > 1 ? pick(owned) : null;
+  const weights = owned.map((d) => DISHES[d].w * (d === special ? 2 : 1));
+  const tipProb = boosts.includes("music") ? 1.0 : 0.3 + 0.04 * p.decor;
+  const tipMax = boosts.includes("music") ? 0.24 : 0.12;
+  const costK = boosts.includes("chef") ? 0.75 : 1.0;
+  const pickDish = () => wpick(owned, weights);
+
+  const makeOrder = (t, name, dishes) => {
+    let amount = 0;
+    for (const d of dishes) amount += Math.floor((sellPrice(d, pm) * (d === special ? 1.15 : 1)) / 100) * 100;
+    amount = Math.floor((amount * incomeK) / 100) * 100;
+    if (Math.random() < tipProb) amount += Math.round((amount * rnd(0.03, tipMax)) / 100) * 100; // choychaqa
+    const cost = Math.trunc(dishes.reduce((s, d) => s + dishCost(d, p.equip), 0) * costK);
+    return { t: Math.round(t * 10) / 10, name, dishes, amount, cost };
+  };
+
+  const cust = [], lost = [];
+  arr.forEach((t, i) => {
+    if (lostIdx.has(i)) {
+      lost.push(Math.round(t * 10) / 10);
+      return;
+    }
+    const k = 1 + (Math.random() < 0.45 ? 1 : 0) + (Math.random() < 0.12 ? 1 : 0);
+    cust.push(makeOrder(t, pick(NAMES), Array.from({ length: k }, pickDish)));
+  });
+
+  // yetkazib berish buyurtmalari
+  for (let i = 0; i < p.delivery * 4; i++) {
+    const o = makeOrder(rnd(2, L - 4), "🛵 " + pick(NAMES), Array.from({ length: 1 + (Math.random() < 0.4 ? 1 : 0) }, pickDish));
+    o.cost += 2000; // kuryer xarajati
+    cust.push(o);
+  }
+
+  if (vipT !== null) {
+    const top = owned.reduce((a, b) => (DISHES[b].sell > DISHES[a].sell ? b : a));
+    cust.push(makeOrder(vipT + 1, "VIP mehmon", [top, top, top]));
+  }
+  cust.sort((a, b) => a.t - b.t);
+  ev.sort((a, b) => a.t - b.t);
+
+  return {
+    no: p.days + 1, start: now, end: now + L * 1000, len: L, special, mood: mood[0], cap, boosts,
+    cust, lost, ev, rent: 10000 + p.decor * 3000, salary: p.staff * 15000,
+  };
+}
+
+function startCafeDay() {
+  const p = S.cafe;
+  if (p.day) return;
+  p.day = buildCafeDay(Date.now());
+  p.boosts = []; // kuchaytirgichlar shu kunda sarflandi
+  saveState();
+}
+
+// kun holati: el - o'tgan soniya
+function cafeProgress(day, now) {
+  const el = Math.min(day.len, Math.max(0, (now - day.start) / 1000));
+  const arrived = day.cust.filter((c) => c.t <= el);
+  const lostNow = day.lost.filter((t) => t <= el);
+  const evNow = day.ev.filter((e) => e.t <= el);
+  const rev = arrived.reduce((s, c) => s + c.amount, 0);
+  const feed = [];
+  for (const c of arrived) feed.push({ t: c.t, text: `👤 ${c.name}: ${dishLine(c.dishes)} — ${fmt(c.amount)}` });
+  for (const e of evNow) feed.push({ t: e.t, text: e.text });
+  for (const t of lostNow) feed.push({ t, text: "😔 Navbat uzun, mijoz ketib qoldi" });
+  feed.sort((a, b) => a.t - b.t);
+  return { el, frac: el / day.len, arrived: arrived.length, total: day.cust.length, lost: lostNow.length, rev, feed: feed.slice(-5).reverse() };
+}
+
+// kun yakuni: hisob-kitob, natijalar matni
+function finishCafeDay() {
+  const p = S.cafe;
+  const day = p.day;
+  if (!day) return;
+  const cust = day.cust;
+  const served = cust.length, lost = day.lost.length;
+  const D = served + lost;
+  const rev = cust.reduce((s, c) => s + c.amount, 0);
+  const cost = cust.reduce((s, c) => s + c.cost, 0);
+  const evDelta = day.ev.reduce((s, e) => s + e.money, 0);
+  const evRep = day.ev.reduce((s, e) => s + e.rep, 0);
+  const profit = rev - cost + evDelta - day.rent - day.salary;
+
+  // reputatsiya
+  const oldRep = p.rep;
+  let rep = oldRep + evRep;
+  const ratio = D ? lost / D : 0;
+  if (ratio > 0.25) rep -= Math.min(0.2, ratio * 0.4);
+  else if (lost === 0) rep += 0.02 + 0.005 * p.decor;
+  rep = Math.round(Math.max(1, Math.min(5, rep)) * 100) / 100;
+
+  // tajriba va daraja
+  const oldLv = levelOf(p.xp);
+  const xp = p.xp + served + 10;
+  const newLv = levelOf(xp);
+  let lvReward = 0;
+  for (let lv = oldLv + 1; lv <= newLv; lv++) lvReward += 50000 * lv;
+
+  // statistika
+  const st = p.stats || {};
+  st.served = (st.served || 0) + served;
+  st.lost = (st.lost || 0) + lost;
+  st.revenue = (st.revenue || 0) + rev;
+  st.best = Math.max(st.best || 0, profit);
+  st.last_lost = lost;
+  st.last_rev = rev;
+  st.dishes = st.dishes || {};
+  const daySold = {};
+  for (const c of cust) for (const d of c.dishes) {
+    daySold[d] = (daySold[d] || 0) + 1;
+    st.dishes[d] = (st.dishes[d] || 0) + 1;
+  }
+  p.stats = st;
+
+  const interest = Math.floor((p.deposit || 0) * (CFG.DEPOSIT_RATE - 1));
+  p.money = Math.max(0, p.money + profit + lvReward);
+  p.days += 1;
+  p.xp = xp;
+  p.rep = rep;
+  p.deposit = (p.deposit || 0) + interest;
+  p.day = null;
+
+  questProgress({ days: 1, serve: served, profit: Math.max(0, profit) });
+  const newAch = checkCafeAch();
+
+  const topSold = Object.entries(daySold).sort((a, b) => b[1] - a[1])[0];
+  const bad = (lost > 0 && Math.random() < 0.7) || rep < 2.5;
+  const review = pick(bad ? BAD_REVIEWS : GOOD_REVIEWS);
+  return {
+    no: day.no, served, lost, rev, cost, profit, evDelta, rent: day.rent, salary: day.salary, rep, oldRep,
+    xpGain: served + 10, interest, lvReward, newLv, oldLv, topSold, review, reviewer: pick(NAMES), newAch,
+    money: p.money,
+  };
+}
+
+/* ===================== KAFE: XARIDLAR VA SOZLAMALAR ===================== */
+function buyUpgrade(key) {
+  const p = S.cafe, u = UPGRADES[key], lv = p[key];
+  if (lv >= u.max) return toast("Maksimal darajaga yetgansiz ✅", "info");
+  const price = upgradePrice(key, lv);
+  if (p.money < price) return toast(`Pul yetmaydi. Yana ${fmt(price - p.money)} kerak`, "bad");
+  p.money -= price;
+  p[key] = lv + 1;
+  toast(`${u.e} ${u.n}: daraja ${lv + 1} ✅ (keyingi kundan kuchga kiradi)`, "good");
+  questProgress({ buy: 1 });
+  notifyAch(checkCafeAch());
+}
+function fireStaff() {
+  const p = S.cafe;
+  if (p.staff > 0) {
+    p.staff -= 1;
+    toast("Bitta xodim bo'shatildi. Oylik xarajat kamaydi (keyingi kundan)", "info");
+  }
+}
+function buyDish(key) {
+  const p = S.cafe, d = DISHES[key];
+  if (ownsDish(p, key)) return toast("Bu taom allaqachon menyuda ✅", "info");
+  if (p.money < d.price) return toast(`Pul yetmaydi. Yana ${fmt(d.price - p.money)} kerak`, "bad");
+  p.money -= d.price;
+  p.dishes.push(key);
+  toast(`${d.e} ${d.n} menyuga qo'shildi! ✅`, "good");
+  questProgress({ buy: 1 });
+  notifyAch(checkCafeAch());
+}
+function buyBoost(key) {
+  const p = S.cafe, price = boostPrice(p, key);
+  if (p.boosts.includes(key)) return toast("Bu kuchaytirgich allaqachon tayyor ✅", "info");
+  if (p.money < price) return toast(`Pul yetmaydi. Yana ${fmt(price - p.money)} kerak`, "bad");
+  p.money -= price;
+  p.boosts.push(key);
+  toast(`${BOOSTS[key].e} ${BOOSTS[key].n} keyingi kunga tayyor ✅`, "good");
+  questProgress({ buy: 1 });
+}
+function setCafePolicy(key) {
+  S.cafe.policy = key;
+  toast(`${POLICIES[key].e} ${POLICIES[key].n} narx siyosati tanlandi (keyingi kundan kuchga kiradi)`, "good");
+}
+
+function canPrestige(p) {
+  return !p.day && p.dishes.length === DISH_LIST.length && p.money >= CFG.PRESTIGE_MONEY;
+}
+function doPrestige() {
+  const p = S.cafe;
+  if (!canPrestige(p)) return toast("Shartlar bajarilmagan", "bad");
+  const n = p.prestige + 1;
+  const st = p.stats || {};
+  st.last_rev = 0;
+  st.last_lost = 0;
+  Object.assign(p, {
+    prestige: n, money: CFG.START_MONEY + 500000 * n, dishes: ["choy"], deposit: 0,
+    staff: 0, ads: 0, decor: 0, equip: 0, delivery: 0, rep: 3.0, policy: "normal", boosts: [], stats: st,
+  });
+  toast(`🏢 Franchayzing ${n} boshlandi!`, "good");
+  notifyAch(checkCafeAch());
+}
+
+/* ===================== KAFE: BONUS, G'ILDIRAK, OMONAT ===================== */
+function claimCafeBonus() {
+  const p = S.cafe, now = Date.now();
+  const since = (now - p.bonusAt) / 1000;
+  if (since < CFG.BONUS_H * 3600) return toast(`🎁 Keyingi bonus ${hm(CFG.BONUS_H * 3600 - since)}dan keyin`, "info");
+  const streak = since < 48 * 3600 ? p.streak + 1 : 1;
+  const amount = 20000 + 10000 * Math.min(streak, 10) + 5000 * levelOf(p.xp);
+  p.money += amount;
+  p.bonusAt = now;
+  p.streak = streak;
+  openModal("🎁 Kunlik bonus", `<p class="hint">Har kuni kirsangiz bonus oshadi.</p>
+    <div class="lines"><div><span>Bonus</span><b class="pos">+${fmt(amount)}</b></div>
+    <div><span>Ketma-ket kunlar</span><b>${streak}</b></div>
+    <div><span>Hisobingiz</span><b>${fmt(p.money)}</b></div></div>`);
+}
+function canSpin(spinAt) { return (Date.now() - spinAt) / 1000 >= CFG.SPIN_H * 3600; }
+// g'ildirak natijasi: pul darhol hisoblanadi, animatsiya faqat ko'rsatish uchun
+function spinCafe() {
+  const p = S.cafe, now = Date.now();
+  if (!canSpin(p.spinAt)) {
+    const since = (now - p.spinAt) / 1000;
+    return toast(`🎡 Keyingi aylantirish ${hm(CFG.SPIN_H * 3600 - since)}dan keyin`, "info");
+  }
+  const unit = Math.max(30000, incomeScale(p) * 0.3);
+  const mult = wpick([0.5, 1, 2, 4, 10, 25], [30, 30, 20, 12, 6, 2]);
+  const amount = Math.max(10000, r1000(unit * mult));
+  p.money += amount;
+  p.spinAt = now;
+  ui.spinning = { game: "cafe", amount, jackpot: mult >= 10 };
+  saveState();
+  render();
+  setTimeout(() => {
+    ui.spinning = null;
+    render();
+    openModal(mult >= 10 ? "🎰 JEKPOT!" : "🎉 Tabriklaymiz!",
+      `<p class="hint">Siz yutdingiz:</p><div class="lines"><div><span>Yutuq</span><b class="pos">+${fmt(amount)}</b></div>
+       <div><span>Hisobingiz</span><b>${fmt(p.money)}</b></div></div>
+       <p class="hint">Keyingi aylantirish ${CFG.SPIN_H} soatdan keyin.</p>`);
+  }, 1200);
+}
+function depositAdd(pct) {
+  const p = S.cafe;
+  const amt = Math.floor(Math.floor((p.money * pct) / 100) / 1000) * 1000;
+  if (amt < 1000) return toast("Omonat uchun pul yetarli emas", "bad");
+  p.money -= amt;
+  p.deposit = (p.deposit || 0) + amt;
+  toast(`🏦 Omonatga qo'yildi: ${fmt(amt)}`, "good");
+}
+function depositOut() {
+  const p = S.cafe;
+  if ((p.deposit || 0) > 0) {
+    p.money += p.deposit;
+    toast(`💰 Hisobga qaytarildi: ${fmt(p.deposit)}`, "good");
+    p.deposit = 0;
+  }
+}
+
+/* ===================== KAFE: BANK KREDITI ===================== */
+function activeLoans() { return S.loans.filter((l) => l.status === "active"); }
+function loanOwed(amount, days) { return r1000(amount * (1 + CFG.LOAN_TERMS[days])); }
+function loanLeft(l) { return Math.max(0, l.owed - l.paid); }
+
+// xato matnini qaytaradi, muvaffaqiyatli bo'lsa ""
+function takeLoan(amount, days) {
+  const p = S.cafe;
+  if (!Number.isInteger(amount) || amount < CFG.LOAN_MIN)
+    return `Kredit eng kamida ${fmt(CFG.LOAN_MIN)} bo'lishi kerak`;
+  if (amount > CFG.LOAN_MAX) return `Kredit eng ko'pi bilan ${fmt(CFG.LOAN_MAX)} bo'lishi mumkin`;
+  if (!CFG.LOAN_TERMS[days]) return "Muddat noto'g'ri";
+  if (activeLoans().length >= CFG.LOAN_MAX_ACTIVE) return `Bir vaqtda ${CFG.LOAN_MAX_ACTIVE} tadan ortiq faol kredit bo'lmaydi`;
+  if (p.trust < CFG.TRUST_MIN) return "Ishonchingiz past: hozircha bank kredit bermaydi";
+  const now = Date.now();
+  S.loans.push({
+    id: S.nextLoan++, amount, owed: loanOwed(amount, days), paid: 0, created: now,
+    due: now + days * 86400000, days, warned: false, status: "active",
+  });
+  p.money += amount;
+  return "";
+}
+
+function repayLoan(id, want) {
+  const l = S.loans.find((x) => x.id === id);
+  const p = S.cafe;
+  if (!l || l.status !== "active") return "Bu kredit faol emas";
+  const pay = Math.min(p.money, loanLeft(l), want);
+  if (pay <= 0) return "Hisobingizda pul yetarli emas";
+  p.money -= pay;
+  l.paid += pay;
+  if (loanLeft(l) === 0) l.status = "paid";
+  return "";
+}
+
+// muddati o'tgan kreditlarni undirish va eslatma (har tikda chaqiriladi)
+function collectLoans(now) {
+  const p = S.cafe;
+  const msgs = [];
+  for (const l of S.loans) {
+    if (l.status !== "active") continue;
+    if (l.due <= now) {
+      const rem = loanLeft(l);
+      const take = Math.min(p.money, rem);
+      const full = take >= rem;
+      p.money -= take;
+      l.paid += take;
+      if (full) p.trust -= 1;
+      else {
+        p.trust -= 3;
+        p.rep = Math.round(Math.max(1, p.rep - 0.5) * 100) / 100;
+      }
+      l.status = full ? "paid" : "defaulted";
+      msgs.push({ kind: full ? "info" : "bad", text: `⏰ Kredit #${l.id} muddati tugadi. Avtomatik to'landi: −${fmt(take)}` +
+        (full ? "" : ". To'liq to'lanmadi: 🛡️ −3, ⭐ −0.5") });
+    } else if (!l.warned && l.due - now <= CFG.LOAN_REMIND_H * 3600000) {
+      l.warned = true;
+      msgs.push({ kind: "info", text: `⏰ Eslatma: kredit #${l.id} muddati yaqinlashmoqda. To'lash kerak: ${fmt(loanLeft(l))}` });
+    }
+  }
+  return msgs;
+}
+
+/* ===================== PROMOKODLAR ===================== */
+function redeemPromo(game, raw) {
+  const code = (raw || "").trim().toUpperCase();
+  if (!/^[A-Z0-9_-]{3,20}$/.test(code)) return { error: "Promokod 3–20 ta lotin harf, raqam, _ yoki - dan iborat bo'lishi kerak" };
+  const def = PROMOS[game][code];
+  if (!def) return { error: "❌ Bunday promokod topilmadi" };
+  if (S.promo[game].includes(code)) return { error: "❌ Siz bu promokodni allaqachon ishlatgansiz" };
+  S.promo[game].push(code);
+  if (game === "cafe") S.cafe.money += def.reward;
+  else S.club.money += def.reward;
+  return { ok: true, text: `🎫 ${def.text}: +${fmt(def.reward)}`, code };
+}
+
+function notifyAch(list) {
+  if (!list || !list.length) return;
+  const reward = list.reduce((s, a) => s + a[4], 0);
+  toast("🏅 Yangi yutuq: " + list.map((a) => a[2]).join(", ") + ` (+${fmt(reward)})`, "good");
+}
+
+/* ===================== CLUB: VAZIFALAR VA YUTUQLAR ===================== */
+function makeClubQuests(c) {
+  const seats = Math.max(1, seatsOf(c));
+  const Sc = clubScale(c);
+  const qs = [];
+  for (const kind of sample(Object.keys(CQ_TYPES), 3)) {
+    let n;
+    if (kind === "days") n = pick([1, 2]);
+    else if (kind === "serve") n = Math.max(10, Math.floor(Math.floor(seats * 2) / 5) * 5);
+    else if (kind === "hours") n = Math.max(10, Math.floor(Math.floor(seats * 4) / 5) * 5);
+    else n = Math.max(30000, Math.floor(Sc / 1000) * 1000);
+    const mult = CQ_TYPES[kind].mult * (kind === "days" ? n / 2 : 1);
+    const reward = Math.max(20000, r1000(Sc * mult));
+    qs.push([kind, n, 0, reward, 0]);
+  }
+  return qs;
+}
+function ensureClubQuests() {
+  const c = S.club;
+  if (!c.quests || c.quests.d !== todayNo()) c.quests = { d: todayNo(), q: makeClubQuests(c) };
+  return c.quests;
+}
+function clubQuestProgress(inc) {
+  const data = ensureClubQuests();
+  for (const q of data.q) {
+    const v = inc[q[0]] || 0;
+    if (v && q[2] < q[1]) q[2] = Math.min(q[1], q[2] + v);
+  }
+}
+function clubQuestTitle(q) {
+  const t = CQ_TYPES[q[0]];
+  const n = q[0] === "profit" ? fmt(q[1]) : String(q[1]);
+  return t.e + " " + t.t.replace("{n}", n);
+}
+function claimClubQuest(i) {
+  const q = ensureClubQuests().q[i];
+  if (q && q[2] >= q[1] && !q[4]) {
+    q[4] = 1;
+    S.club.money += q[3];
+    return q[3];
+  }
+  return 0;
+}
+function checkClubAch() {
+  const c = S.club;
+  const have = new Set(c.ach);
+  const got = [];
+  for (const a of CACHS) {
+    if (!have.has(a[0]) && a[5](c, c.stats || {})) {
+      have.add(a[0]);
+      c.money += a[4];
+      got.push(a);
+    }
+  }
+  c.ach = [...have];
+  return got;
+}
+
+/* ===================== CLUB: KUNNI YARATISH ===================== */
+function t1(a, b) { return Math.round(rnd(a, b) * 10) / 10; }
+
+function buildClubDay(now) {
+  const c = S.club;
+  const L = rint(CFG.DAY_MIN, CFG.DAY_MAX);
+  const H = CFG.CLUB_HOURS;
+  const mach = { std: c.std, pro: c.pro, vip: c.vip, ps: c.ps };
+  const seats = seatsOf(c);
+  const pol = CPOLICIES[c.policy];
+  const boosts = c.boosts.slice();
+  let demandK = pol.demand, priceK = pol.price;
+  for (const b of boosts) {
+    demandK *= CBOOSTS[b].demand;
+    priceK *= CBOOSTS[b].price;
+  }
+  let demand = (3 + 1.8 * seats + 1.2 * c.ads) * (0.6 + c.rep * 0.12) * demandK;
+  demand *= (1 + CFG.PRESTIGE_CUST * c.prestige) * rnd(0.85, 1.15);
+  const D = Math.max(3, Math.round(demand));
+  const incomeK = 1 + CFG.PRESTIGE_INC * c.prestige;
+
+  // --- tasodifiy voqealar ---
+  const ev = [];
+  const extra = [];
+  let outage = null;
+  const nEv = wpick([0, 1, 2], [25, 50, 25]);
+  for (const kind of sample(["breakdown", "outage", "burst", "complaint"], nEv)) {
+    const t = t1(0.15 * H, 0.8 * H);
+    if (kind === "breakdown") {
+      // administrator va konditsioner buzilish xavfini kamaytiradi
+      if (Math.random() < 0.5 * Math.pow(0.85, c.admin) * (c.cool ? 0.7 : 1.0)) {
+        const fee = 30000;
+        ev.push({ t, text: `🔧 Kompyuter ishlamay qoldi! Ta'mir: −${fmt(fee)}`, money: -fee, rep: -0.02 });
+      }
+    } else if (kind === "outage") {
+      outage = [t, Math.round((t + 1) * 10) / 10];
+      ev.push({ t, text: "⚡ Elektr o'chdi! 1 soat mijoz qabul qilinmaydi", money: 0, rep: -0.05 });
+    } else if (kind === "burst") {
+      const n = Math.max(3, Math.round(D * 0.4));
+      for (let i = 0; i < n; i++) extra.push(rnd(t, Math.min(H - 1, t + 1.5)));
+      ev.push({ t, text: "🌟 Mashhur bloger keldi! Mijozlar oqimi oshdi", money: 0, rep: 0.02 });
+    } else {
+      const amt = 15000;
+      ev.push({ t, text: `😤 Mijoz shikoyat qildi. Pul qaytarildi: −${fmt(amt)}`, money: -amt, rep: -0.03 });
+    }
+  }
+
+  // --- kelish vaqtlari (kechqurun ko'proq) ---
+  const arr = [];
+  for (let i = 0; i < D; i++) arr.push(triang(0, H - 1, 0.65 * H));
+  for (const a of extra) arr.push(Math.min(Math.max(0, a), H - 1));
+  arr.sort((a, b) => a - b);
+
+  // --- o'yin joylariga joylashtirish ---
+  const zones = ZONE_KEYS.filter((z) => mach[z] > 0);
+  const free = {};
+  for (const z of zones) free[z] = Array(mach[z]).fill(0);
+  const sess = [], lost = [];
+  for (let t of arr) {
+    t = Math.round(t * 100) / 100;
+    if (outage && outage[0] <= t && t < outage[1]) {
+      lost.push([t, "outage"]);
+      continue;
+    }
+    if (!zones.length) {
+      lost.push([t, "seat"]);
+      continue;
+    }
+    const first = wpick(zones, zones.map((z) => ZONES[z].w));
+    const order = [first, ...zones.filter((z) => z !== first).sort((a, b) => ZONES[b].w - ZONES[a].w)];
+    const hrs = wpick([1, 2, 3, 4], [40, 35, 15, 10]);
+    let spot = null;
+    for (const z of order) {
+      const i = free[z].findIndex((f) => f <= t);
+      if (i >= 0) {
+        spot = [z, i];
+        break;
+      }
+    }
+    if (!spot) {
+      lost.push([t, "seat"]);
+      continue;
+    }
+    const [z, i] = spot;
+    const end = Math.min(t + hrs, H);
+    const billed = Math.max(1, Math.round(end - t));
+    free[z][i] = end;
+    const amount = Math.round((ZONES[z].rate * priceK * billed * incomeK) / 100) * 100;
+    const power = ZONES[z].power * billed;
+    let sAmt = 0, sCost = 0;
+    if (c.snack && Math.random() < Math.min(0.8, 0.12 + 0.07 * c.snack)) {
+      sAmt = Math.round((rnd(CFG.CLUB_SNACK_RANGE[0], CFG.CLUB_SNACK_RANGE[1]) * incomeK) / 1000) * 1000;
+      sCost = Math.trunc(sAmt * CFG.CLUB_SNACK_COST);
+    }
+    sess.push({ t, name: pick(NAMES), z, billed, amount, power, sAmt, sCost, end: Math.round(end * 100) / 100 });
+  }
+
+  ev.sort((a, b) => a.t - b.t);
+  return {
+    no: c.days + 1, start: now, end: now + L * 1000, len: L, cap: seats, boosts,
+    sess, lost, ev, outage,
+    rent: CFG.CLUB_RENT + CFG.CLUB_RENT_PER_PC * seats,
+    salary: CFG.CLUB_ADMIN_SALARY * c.admin,
+  };
+}
+
+function startClubDay() {
+  const c = S.club;
+  if (!c.open || c.day) return;
+  c.day = buildClubDay(Date.now());
+  c.boosts = [];
+  saveState();
+}
+
+function clubProgress(day, now) {
+  const el = Math.min(day.len, Math.max(0, (now - day.start) / 1000));
+  const frac = el / day.len;
+  const g = frac * CFG.CLUB_HOURS; // o'yin soati
+  const arrived = day.sess.filter((s) => s.t <= g);
+  const lostNow = day.lost.filter((x) => x[0] <= g);
+  const busy = day.sess.filter((s) => s.t <= g && g < s.end).length;
+  const rev = arrived.reduce((a, s) => a + s.amount + s.sAmt, 0);
+  const feed = arrived.map((s) => ({ t: s.t, text: `👤 ${s.name}: ${ZONES[s.z].e} ${ZONES[s.z].n}, ${s.billed} soat — ${fmt(s.amount)}` }));
+  for (const e of day.ev) if (e.t <= g) feed.push({ t: e.t, text: e.text });
+  feed.sort((a, b) => a.t - b.t);
+  return { el, frac, g, arrived: arrived.length, total: day.sess.length, lost: lostNow.length, busy, rev, feed: feed.slice(-5).reverse() };
+}
+
+function finishClubDay() {
+  const c = S.club;
+  const day = c.day;
+  if (!day) return null;
+  const sess = day.sess;
+  const served = sess.length, lostN = day.lost.length;
+  const rev = sess.reduce((a, s) => a + s.amount + s.sAmt, 0);
+  const power = sess.reduce((a, s) => a + s.power, 0);
+  const snackCost = sess.reduce((a, s) => a + s.sCost, 0);
+  const evDelta = day.ev.reduce((a, e) => a + e.money, 0);
+  const evRep = day.ev.reduce((a, e) => a + e.rep, 0);
+  const profit = rev - power - snackCost + evDelta - day.rent - day.salary;
+  const hours = sess.reduce((a, s) => a + s.billed, 0);
+
+  const oldRep = c.rep;
+  const D = served + lostN;
+  let rep = oldRep + evRep;
+  const ratio = D ? lostN / D : 0;
+  if (ratio > 0.25) rep -= Math.min(0.2, ratio * 0.4);
+  else if (lostN === 0) rep += 0.02;
+  rep = Math.round(Math.max(1, Math.min(5, rep)) * 100) / 100;
+
+  const st = c.stats || {};
+  st.served = (st.served || 0) + served;
+  st.lost = (st.lost || 0) + lostN;
+  st.revenue = (st.revenue || 0) + rev;
+  st.hours = (st.hours || 0) + hours;
+  st.best = Math.max(st.best || 0, profit);
+  st.last_rev = rev;
+  st.last_lost = lostN;
+  c.stats = st;
+
+  const interest = Math.floor((c.deposit || 0) * (CFG.DEPOSIT_RATE - 1));
+  c.money = Math.max(0, c.money + profit);
+  c.deposit = (c.deposit || 0) + interest;
+  c.days += 1;
+  c.rep = rep;
+  c.day = null;
+
+  clubQuestProgress({ days: 1, serve: served, hours, profit: Math.max(0, profit) });
+  const newAch = checkClubAch();
+  return {
+    no: day.no, served, lost: lostN, rev, power, snackCost, rent: day.rent, salary: day.salary,
+    evDelta, profit, rep, oldRep, interest, money: c.money, newAch,
+  };
+}
+
+/* ===================== CLUB: OCHISH, YAXSHILASH, TARIF, AKSIYA ===================== */
+function openClub() {
+  const c = S.club;
+  if (c.open) return;
+  Object.assign(c, { open: true, money: CFG.CLUB_START_MONEY, std: CFG.CLUB_START_PCS, rep: 3.0, policy: "normal" });
+  toast("🎮 Game club ochildi!", "good");
+}
+function buyClubUpgrade(key) {
+  const c = S.club, u = CUPGRADES[key], lv = c[key];
+  if (lv >= u.max) return toast("Maksimal darajaga yetgansiz ✅", "info");
+  const price = clubUpgradePrice(key, lv);
+  if (c.money < price) return toast(`Club hisobida pul yetmaydi. Yana ${fmt(price - c.money)} kerak`, "bad");
+  c.money -= price;
+  c[key] = lv + 1;
+  toast(`${u.e} ${u.n}: daraja ${lv + 1} ✅ (keyingi kundan kuchga kiradi)`, "good");
+}
+function setClubPolicy(key) {
+  S.club.policy = key;
+  toast(`${CPOLICIES[key].e} ${CPOLICIES[key].n} tarif tanlandi (keyingi kundan kuchga kiradi)`, "good");
+}
+function buyClubBoost(key) {
+  const c = S.club, price = clubBoostPrice(c, key);
+  if (c.boosts.includes(key)) return toast("Bu aksiya allaqachon tayyor ✅", "info");
+  if (c.money < price) return toast(`Club hisobida pul yetmaydi. Yana ${fmt(price - c.money)} kerak`, "bad");
+  c.money -= price;
+  c.boosts.push(key);
+  toast(`${CBOOSTS[key].e} ${CBOOSTS[key].n} keyingi club kuniga tayyor ✅`, "good");
+}
+function canClubPrestige(c) {
+  return c.open && !c.day && Math.min(c.pro, c.vip, c.ps) >= 1 && c.money >= CFG.CLUB_PRESTIGE_MONEY;
+}
+function doClubPrestige() {
+  const c = S.club;
+  if (!canClubPrestige(c)) return toast("Shartlar bajarilmagan", "bad");
+  const n = c.prestige + 1;
+  const st = c.stats || {};
+  st.last_rev = 0;
+  Object.assign(c, {
+    prestige: n, money: CFG.CLUB_START_MONEY + 500000 * n, deposit: 0, std: CFG.CLUB_START_PCS,
+    pro: 0, vip: 0, ps: 0, snack: 0, ads: 0, admin: 0, cool: 0, rep: 3.0, policy: "normal", boosts: [], stats: st,
+  });
+  toast(`🏢 Club franchayzingi ${n} boshlandi!`, "good");
+  notifyClubAch(checkClubAch());
+}
+
+/* ===================== CLUB: BONUS, G'ILDIRAK, OMONAT ===================== */
+function claimClubBonus() {
+  const c = S.club, now = Date.now();
+  const since = (now - c.bonusAt) / 1000;
+  if (since < CFG.BONUS_H * 3600) return toast(`🎁 Keyingi club bonusi ${hm(CFG.BONUS_H * 3600 - since)}dan keyin`, "info");
+  const streak = since < 48 * 3600 ? c.streak + 1 : 1;
+  const amount = 20000 + 10000 * Math.min(streak, 10) + 3000 * Math.min(c.days, 50);
+  c.money += amount;
+  c.bonusAt = now;
+  c.streak = streak;
+  openModal("🎁 Club bonusi", `<div class="lines"><div><span>Bonus</span><b class="pos">+${fmt(amount)}</b></div>
+    <div><span>Ketma-ket kunlar</span><b>${streak}</b></div><div><span>Club hisobi</span><b>${fmt(c.money)}</b></div></div>`);
+}
+function spinClub() {
+  const c = S.club, now = Date.now();
+  if (!canSpin(c.spinAt)) {
+    const since = (now - c.spinAt) / 1000;
+    return toast(`🎡 Keyingi aylantirish ${hm(CFG.SPIN_H * 3600 - since)}dan keyin`, "info");
+  }
+  const unit = Math.max(30000, clubScale(c) * 0.3);
+  const mult = wpick([0.5, 1, 2, 4, 10, 25], [30, 30, 20, 12, 6, 2]);
+  const amount = Math.max(10000, r1000(unit * mult));
+  c.money += amount;
+  c.spinAt = now;
+  ui.spinning = { game: "club", amount, jackpot: mult >= 10 };
+  saveState();
+  render();
+  setTimeout(() => {
+    ui.spinning = null;
+    render();
+    openModal(mult >= 10 ? "🎰 JEKPOT!" : "🎉 Tabriklaymiz!",
+      `<div class="lines"><div><span>Yutuq</span><b class="pos">+${fmt(amount)}</b></div>
+       <div><span>Club hisobi</span><b>${fmt(c.money)}</b></div></div>
+       <p class="hint">Keyingi aylantirish ${CFG.SPIN_H} soatdan keyin.</p>`);
+  }, 1200);
+}
+function clubDepositAdd(pct) {
+  const c = S.club;
+  const amt = Math.floor(Math.floor((c.money * pct) / 100) / 1000) * 1000;
+  if (amt < 1000) return toast("Omonat uchun club hisobida pul yetarli emas", "bad");
+  c.money -= amt;
+  c.deposit = (c.deposit || 0) + amt;
+  toast(`🏦 Club omonatiga qo'yildi: ${fmt(amt)}`, "good");
+}
+function clubDepositOut() {
+  const c = S.club;
+  if ((c.deposit || 0) > 0) {
+    c.money += c.deposit;
+    toast(`💰 Club hisobiga qaytarildi: ${fmt(c.deposit)}`, "good");
+    c.deposit = 0;
+  }
+}
+function notifyClubAch(list) {
+  if (!list || !list.length) return;
+  const reward = list.reduce((s, a) => s + a[4], 0);
+  toast("🏅 Club: yangi yutuq: " + list.map((a) => a[2]).join(", ") + ` (+${fmt(reward)})`, "good");
+}
+
+/* ===================== EKRANLAR: YORDAMCHILAR ===================== */
+const DAY_MS = 86400000;
+function btn(label, act, o = {}) {
+  const cls = ["btn", o.cls || "", o.small ? "btn-sm" : "", o.block ? "btn-block" : ""].join(" ");
+  return `<button class="${cls}" data-act="${act}"${o.dis ? " disabled" : ""}>${label}</button>`;
+}
+function row(icon, title, sub, right) {
+  return `<div class="row"><div class="ico">${icon}</div><div class="info"><div class="name">${title}</div>` +
+    `${sub ? `<div class="sub">${sub}</div>` : ""}</div>${right || ""}</div>`;
+}
+function linesHtml(rows) {
+  return `<div class="lines">${rows.map((r) => `<div><span>${r[0]}</span><b class="${r[2] || ""}">${r[1]}</b></div>`).join("")}</div>`;
+}
+function kvHtml(items) {
+  return `<div class="kv">${items.map((r) => `<div><span>${r[0]}</span><b>${r[1]}</b></div>`).join("")}</div>`;
+}
+function subtabsHtml(list, active, prefix) {
+  return `<nav class="subtabs">${list.map((t) => `<button class="${t[0] === active ? "on" : ""}" data-act="${prefix}:${t[0]}">${t[1]}</button>`).join("")}</nav>`;
+}
+function errClass(k) { return ui.err && ui.err.k === k ? "invalid" : ""; }
+function errLine(k) { return ui.err && ui.err.k === k ? `<div class="err">${esc(ui.err.msg)}</div>` : ""; }
+function until(ts) { return `<span class="cd" data-until="${ts}">—</span>`; }
+
+/* ===================== BOSH MENYU ===================== */
+function viewHome() {
+  const c = S.cafe, l = S.club;
+  const cafeTag = c.day ? " ⏳" : (canPrestige(c) ? " ✨" : "");
+  const clubTag = !l.open ? "" : (l.day ? " ⏳" : (canClubPrestige(l) ? " ✨" : ""));
+  return `
+  <section class="hero-home">
+    <div class="eyebrow">Verox Games</div>
+    <h1>Kafe <span>va</span> Club</h1>
+    <p class="muted">Ikki alohida o'yin: kafe — taom va mijozlar, club — kompyuter zali. Har birining o'z hisobi, darajasi va franchayzingi bor.</p>
+  </section>
+  <div class="game-grid">
+    <button class="game-card" data-act="go:cafe">
+      <span class="gc-ico"><i class="ic">☕</i></span>
+      <span class="gc-title">CAFE${cafeTag}</span>
+      <span class="gc-bal">💰 ${fmt(c.money)}</span>
+      <span class="gc-sub">Kafe oching, taomlar sotib oling, mijozlarni kutib oling</span>
+    </button>
+    <button class="game-card club" data-act="go:club">
+      <span class="gc-ico"><i class="ic">🎮</i></span>
+      <span class="gc-title">GAME CLUB${clubTag}</span>
+      <span class="gc-bal">${l.open ? "💰 " + fmt(l.money) : "🔒 Hali ochilmagan (bepul)"}</span>
+      <span class="gc-sub">PC, PlayStation va VIP xona ijarasi, soatbay to'lov</span>
+    </button>
+  </div>
+  <section class="panel">
+    <h3><i class="ic">💾</i> Saqlash</h3>
+    <p class="hint">O'yin progressi hozircha shu brauzerda saqlanadi (brauzer ma'lumotlarini tozalasangiz, noldan boshlanadi). Hisob (login) esa bot bilan bog'langan: 👤 Hisob bo'limiga qarang.</p>
+  </section>`;
+}
+
+/* ===================== KAFE EKRANI ===================== */
+function cafeHeader() {
+  const p = S.cafe, lv = levelOf(p.xp), lo = xpFor(lv), hi = xpFor(lv + 1);
+  const pct = Math.round(((p.xp - lo) / (hi - lo)) * 100);
+  return `<div class="screen-head"><div>
+      <div class="eyebrow">Kafe o'yini</div>
+      <h2>☕ Sizning kafe${p.prestige ? " 🏢×" + p.prestige : ""}</h2>
+    </div>
+    <div class="head-kv"><span class="pill">💰 ${fmt(p.money)}</span><span class="pill">⭐ ${p.rep.toFixed(1)}</span><span class="pill">🎖️ Daraja ${lv}</span></div></div>
+    <div class="bar small"><i style="width:${pct}%"></i></div>`;
+}
+
+function liveBox(game, day) {
+  const club = game === "club";
+  const head = club ? `Club kuni ${day.no}` : `Kun ${day.no}`;
+  const extra = club
+    ? `<div class="muted">🕐 Soat: <b data-live="club-clock">12:00</b> · 🖥️ Band: <b data-live="club-busy">0</b>/${day.cap}</div>`
+    : `<div class="muted">${esc(day.mood)}${day.special ? " · 🍽 Kun taomi: " + DISHES[day.special].e + " " + DISHES[day.special].n + " (+15%)" : ""}</div>`;
+  const b = club ? "Mijozlar" : "Xizmat";
+  return `<section class="panel live ${club ? "club" : ""}">
+    <div class="live-head"><span class="badge">${head} DAVOM ETMOQDA</span><span class="cd" data-live="${game}-left">--:--</span></div>
+    ${extra}
+    <div class="bar"><i data-live="${game}-bar" style="width:0%"></i></div>
+    <div class="kv mt">
+      <div><span>👥 ${b}</span><b data-live="${game}-a">0</b></div>
+      <div><span>😔 Ketib qoldi</span><b data-live="${game}-b">0</b></div>
+      <div><span>💵 Tushum</span><b data-live="${game}-c">0</b></div>
+      <div><span>⏳ Qoldi</span><b data-live="${game}-t">--</b></div>
+    </div>
+    <div class="feed" data-live="${game}-feed"></div>
+  </section>`;
+}
+
+function cafeDayView() {
+  const p = S.cafe;
+  if (p.day) return liveBox("cafe", p.day);
+  const bs = p.boosts.map((b) => BOOSTS[b].e + " " + BOOSTS[b].n).join(", ") || "yo'q";
+  return `<section class="panel">
+    <h3><i class="ic">☀️</i> Yangi kun</h3>
+    ${kvHtml([["Sig'im", capacity(p) + " mijoz"], ["Taomlar", p.dishes.length + "/" + DISH_LIST.length],
+      ["Narx siyosati", POLICIES[p.policy].e + " " + POLICIES[p.policy].n], ["Xodimlar", p.staff]])}
+    <p class="hint mt">Kun ${CFG.DAY_MIN}–${CFG.DAY_MAX} soniya davom etadi. Mijozlar real vaqtda keladi, natija kun tugagach hisoblanadi.</p>
+    <p class="hint">⚡ Keyingi kun uchun kuchaytirgichlar: ${bs}</p>
+    ${btn("▶️ Kunni boshlash", "day:start", { cls: "btn-gold", block: true })}
+  </section>`;
+}
+
+function cafeUpgView() {
+  const p = S.cafe;
+  let h = `<section class="panel"><h3><i class="ic">🔨</i> Kafeni yaxshilash</h3>
+    <p class="hint">Yangi daraja keyingi kundan kuchga kiradi.</p>`;
+  for (const [key, u] of Object.entries(UPGRADES)) {
+    const lv = p[key];
+    const right = lv >= u.max ? '<span class="chip ok">MAX</span>' : btn(`+1 · ${fmt(upgradePrice(key, lv))}`, "buy:" + key, { small: true });
+    h += row(u.e, `${u.n} <span class="lv">${lv}/${u.max}</span>`, u.info, right);
+  }
+  if (p.staff > 0) h += row("➖", "Xodimni bo'shatish", "Pul qaytmaydi", btn("Bo'shatish", "fire", { small: true }));
+  h += "</section>";
+
+  h += `<section class="panel"><h3><i class="ic">🏷️</i> Narx siyosati</h3>
+    <div class="seg">${Object.entries(POLICIES).map(([k, pol]) =>
+      `<button class="${k === p.policy ? "on" : ""}" data-act="setpol:${k}">${pol.e} ${pol.n}<small>${pol.info}</small></button>`).join("")}</div></section>`;
+
+  h += `<section class="panel"><h3><i class="ic">⚡</i> Kuchaytirgichlar</h3>
+    <p class="hint">Sotib olingan kuchaytirgich keyingi boshlangan kunda ishlaydi va sarflanadi.</p>`;
+  for (const [k, b] of Object.entries(BOOSTS)) {
+    const right = p.boosts.includes(k) ? '<span class="chip ok">Tayyor</span>' : btn(fmt(boostPrice(p, k)), "bbuy:" + k, { small: true });
+    h += row(b.e, b.n, b.info, right);
+  }
+  return h + "</section>";
+}
+
+function cafeMenuView() {
+  const p = S.cafe, pm = POLICIES[p.policy].price;
+  let h = `<section class="panel"><h3><i class="ic">🍴</i> Menyu (${p.dishes.length}/${DISH_LIST.length})</h3>
+    <p class="hint">Narxlar siyosatingiz va jihozlaringizga qarab hisoblangan.</p>`;
+  for (const d of DISH_LIST) {
+    const sell = sellPrice(d.k, pm), cost = dishCost(d.k, p.equip);
+    const sub = `Sotish ${fmt(sell)} · Xarajat ${fmt(cost)} · Foyda ${fmt(sell - cost)}`;
+    const right = ownsDish(p, d.k) ? '<span class="chip ok">Menyuda</span>' : btn(fmt(d.price), "dish:" + d.k, { small: true });
+    h += row(d.e, d.n, sub, right);
+  }
+  return h + "</section>";
+}
+
+function loansBlock() {
+  const act = activeLoans();
+  const amt = ui.draft.loanAmt || "";
+  const term = Number(ui.draft.loanTerm) || 3;
+  const n = Number(amt);
+  const preview = n >= CFG.LOAN_MIN && n <= CFG.LOAN_MAX ? fmt(loanOwed(n, term)) : "—";
+  let h = `<h3 class="mt"><i class="ic">🏦</i> Bank krediti</h3>
+    <p class="hint">Bank pul beradi. Muddat tugasa, qarz avtomatik undiriladi. To'liq to'lanmasa, ishonch va reputatsiya tushadi.</p>
+    <div class="field"><input class="input ${errClass("loan")}" type="number" inputmode="numeric" data-draft="loanAmt"
+      placeholder="Summa, min ${fmt(CFG.LOAN_MIN)}" value="${esc(amt)}" /></div>
+    <div class="seg mt">${[1, 3, 7].map((d) => `<button class="${term === d ? "on" : ""}" data-act="loanterm:${d}">${d} kun<small>${Math.round(CFG.LOAN_TERMS[d] * 100)}% foiz</small></button>`).join("")}</div>
+    <p class="hint mt">Qaytarish summasi: <b data-live="loan-preview">${preview}</b> · faol kreditlar: ${act.length}/${CFG.LOAN_MAX_ACTIVE}</p>
+    ${errLine("loan")}
+    ${btn("🏦 Kredit olish", "loan:take", { cls: "btn-gold", block: true, dis: act.length >= CFG.LOAN_MAX_ACTIVE })}`;
+  for (const l of act) {
+    const right = `<div class="head-kv">${btn("Yarmi", "loan:half:" + l.id, { small: true })}${btn("Hammasi", "loan:all:" + l.id, { small: true, cls: "btn-teal" })}</div>`;
+    h += row("📄", `Kredit #${l.id} · ${fmt(l.amount)}`,
+      `Qaytarish: ${fmt(loanLeft(l))} · muddati: ${until(l.due)}`, right);
+  }
+  const past = S.loans.filter((l) => l.status !== "active").slice(-5).reverse();
+  for (const l of past) {
+    const st = l.status === "paid" ? '<span class="chip ok">To\'langan</span>' : '<span class="chip">Yozib yuborildi</span>';
+    h += row("🧾", `Kredit #${l.id} · ${fmt(l.amount)}`, `Qaytarilgan: ${fmt(l.paid)} / ${fmt(l.owed)}`, st);
+  }
+  return h;
+}
+
+function promoBlock(game) {
+  return `<h3 class="mt"><i class="ic">🎫</i> Promokod</h3>
+    <div class="field"><input class="input ${errClass("promo")}" data-draft="promo" placeholder="Masalan: START"
+      value="${esc(ui.draft.promo || "")}" maxlength="20" autocomplete="off" />${btn("Qo'llash", "promo:" + game, { cls: "btn-teal" })}</div>
+    ${errLine("promo")}
+    <p class="hint">Har promokod bir marta ishlaydi. Kafe va club uchun promokodlar alohida.</p>`;
+}
+
+function cafeMoneyView() {
+  const p = S.cafe, now = Date.now();
+  const bonusReady = now - p.bonusAt >= DAY_MS;
+  const spinReady = canSpin(p.spinAt);
+  return `<section class="panel">
+      <h3><i class="ic">🪙</i> Hisob</h3>
+      ${kvHtml([["💰 Hisob", fmt(p.money)], ["🏦 Omonat", fmt(p.deposit || 0)], ["🛡️ Ishonch", p.trust], ["📅 Kunlar", p.days]])}
+    </section>
+    <section class="panel">
+      <h3><i class="ic">🎁</i> Bonus va g'ildirak</h3>
+      <div class="field">${btn("🎁 Kunlik bonus" + (bonusReady ? " ✨" : ""), "bonus", { cls: "btn-gold" })}${btn("🎡 G'ildirak" + (spinReady ? " ✨" : ""), "spin", { cls: "btn-teal" })}</div>
+      <p class="hint mt">Bonus: ${bonusReady ? "tayyor" : until(p.bonusAt + DAY_MS)} · G'ildirak: ${spinReady ? "tayyor" : until(p.spinAt + CFG.SPIN_H * 3600000)}</p>
+    </section>
+    <section class="panel">
+      <h3><i class="ic">🐷</i> Omonat</h3>
+      <p class="hint">Har kafe kuni omonat 1% ga o'sadi. Franchayzingda nolga tushadi.</p>
+      <div class="field">${btn("➕ 10%", "dep:add:10")}${btn("➕ 50%", "dep:add:50")}${btn("➕ Hammasi", "dep:add:100")}</div>
+      ${p.deposit ? `<div class="mt">${btn("➖ Omonatni yechish (" + fmt(p.deposit) + ")", "dep:out", { block: true })}</div>` : ""}
+    </section>
+    <section class="panel">${loansBlock()}</section>
+    <section class="panel">${promoBlock("cafe")}</section>`;
+}
+
+function questsHtml(data, act, claimAct) {
+  let h = `<h3><i class="ic">📋</i> Kunlik vazifalar</h3>
+    <p class="hint">Yangi vazifalar har kuni yarim tunda (O'zbekiston vaqti) paydo bo'ladi.</p>`;
+  data.q.forEach((q, i) => {
+    const right = q[4] ? '<span class="chip ok">Olingan</span>'
+      : (q[2] >= q[1] ? btn("🎁 +" + fmt(q[3]), claimAct + i, { small: true, cls: "btn-gold" }) : '<span class="chip">Jarayonda</span>');
+    h += row("📜", `${i + 1}. ${act(q)}`, `${questStatus(q)} · Mukofot: ${fmt(q[3])}`, right);
+  });
+  return h;
+}
+function achGridHtml(list, have) {
+  return `<div class="ach-grid">${list.map((a) => {
+    const got = have.includes(a[0]);
+    return `<div class="ach-row ${got ? "got" : ""}"><div class="e">${got ? a[1] : "🔒"}</div><div>
+      <div class="n">${a[2]}</div><div class="d">${a[3]}</div><div class="r">+${fmt(a[4])}</div></div></div>`;
+  }).join("")}</div>`;
+}
+
+function cafeGoalsView() {
+  const p = S.cafe, st = p.stats || {};
+  const data = ensureQuests();
+  const lv = levelOf(p.xp);
+  return `<section class="panel">${questsHtml(data, questTitle, "quest:claim:")}</section>
+    <section class="panel"><h3><i class="ic">🏅</i> Yutuqlar (${p.ach.length}/${ACHS.length})</h3>
+      ${achGridHtml(ACHS, p.ach)}</section>
+    <section class="panel"><h3><i class="ic">📊</i> Statistika</h3>
+      ${kvHtml([["Kunlar", p.days], ["Daraja", lv], ["Xizmat qilingan", st.served || 0], ["Ketib qolgan", st.lost || 0],
+        ["Umumiy tushum", fmt(st.revenue || 0)], ["Eng yaxshi kun", fmt(st.best || 0)]])}</section>`;
+}
+
+function prestigeBlock(title, desc, checks, canDo, act, extraInfo) {
+  return `<section class="panel"><h3><i class="ic">🏢</i> ${title}</h3>
+    <p class="hint">${desc}</p>${extraInfo || ""}
+    <div class="checks mt">${checks.map((c) => `<div class="${c[0] ? "" : "no"}">${c[0] ? "✅" : "❌"} ${c[1]}</div>`).join("")}</div>
+    <div class="mt">${btn("🏢 Franchayzingni boshlash", act, { cls: "btn-gold", block: true, dis: !canDo })}</div></section>`;
+}
+function cafePrestView() {
+  const p = S.cafe, n = p.prestige;
+  const desc = `Franchayzing kafeni yangi bosqichga olib chiqadi: taomlar, xodimlar, reklama, interyer va jihozlar boshidan boshlanadi. Daraja, yutuqlar va statistika saqlanadi.`;
+  const info = `<p class="hint">Hozirgi franchayzing: <b>${n}</b> · bonus: +${Math.round(CFG.PRESTIGE_CUST * n * 100)}% mijoz, +${Math.round(CFG.PRESTIGE_INC * n * 100)}% daromad.
+    Keyingi boshlang'ich kapital: <b>${fmt(CFG.START_MONEY + 500000 * (n + 1))}</b>. Har franchayzing: doimiy +${Math.round(CFG.PRESTIGE_CUST * 100)}% mijoz va +${Math.round(CFG.PRESTIGE_INC * 100)}% daromad.</p>`;
+  return prestigeBlock("Franchayzing", desc, [
+    [p.dishes.length >= DISH_LIST.length, `Barcha taomlar ochilgan (${p.dishes.length}/${DISH_LIST.length})`],
+    [p.money >= CFG.PRESTIGE_MONEY, `Hisobda ${fmt(CFG.PRESTIGE_MONEY)} (hozir: ${fmt(p.money)})`],
+    [!p.day, "Hozir kun davom etmayapti"],
+  ], canPrestige(p), "prest:ask", info);
+}
+
+function viewCafe() {
+  const tabs = [["day", "▶️ Kun"], ["upg", "🛒 Yaxshilash"], ["menu", "📋 Menyu"], ["money", "💰 Pul"], ["goals", "🎯 Vazifa"], ["prest", "🏢 Franchayzing"]];
+  let body;
+  switch (ui.cTab) {
+    case "upg": body = cafeUpgView(); break;
+    case "menu": body = cafeMenuView(); break;
+    case "money": body = cafeMoneyView(); break;
+    case "goals": body = cafeGoalsView(); break;
+    case "prest": body = cafePrestView(); break;
+    default: body = cafeDayView();
+  }
+  return cafeHeader() + subtabsHtml(tabs, ui.cTab, "ctab") + body;
+}
+
+/* ===================== CLUB EKRANI ===================== */
+function clubHeader() {
+  const c = S.club;
+  return `<div class="screen-head"><div>
+      <div class="eyebrow">Game club</div>
+      <h2>🎮 Sizning club${c.prestige ? " 🏢×" + c.prestige : ""}</h2>
+    </div>
+    <div class="head-kv"><span class="pill">💰 ${fmt(c.money)}</span><span class="pill">⭐ ${c.rep.toFixed(1)}</span>
+      <span class="pill">🖥️ ${seatsOf(c)} joy</span><span class="pill">💲 ${CPOLICIES[c.policy].n}</span></div></div>`;
+}
+
+function clubOpenView() {
+  return `<section class="panel">
+    <h3><i class="ic">🎮</i> Game clubni ochish</h3>
+    <p class="hint">Kompyuter xonangizni oching va soatlik o'yin bilan pul ishlang.</p>
+    ${kvHtml([["Ochish", "BEPUL"], ["Boshlang'ich hisob", fmt(CFG.CLUB_START_MONEY)], ["Boshlang'ich PC", CFG.CLUB_START_PCS + " ta"], ["Alohida o'yin", "kafedan mustaqil"]])}
+    <p class="hint mt">Club o'z hisobi, daraja, reytingi va franchayzingi bilan kafedan alohida ishlaydi.</p>
+    ${btn("🎮 Club ochish", "copen", { cls: "btn-teal", block: true })}
+  </section>`;
+}
+
+function clubDayView() {
+  const c = S.club;
+  if (c.day) return liveBox("club", c.day);
+  const seats = seatsOf(c);
+  const bs = c.boosts.map((b) => CBOOSTS[b].e + " " + CBOOSTS[b].n).join(", ") || "yo'q";
+  return `<section class="panel">
+    <h3><i class="ic">▶️</i> Yangi club kuni</h3>
+    ${kvHtml([["O'yin joylari", seats], ["Tarif", CPOLICIES[c.policy].e + " " + CPOLICIES[c.policy].n], ["Bufet", c.snack], ["Administrator", c.admin]])}
+    <p class="hint mt">Kun ${CFG.CLUB_HOURS} o'yin soati (12:00–24:00) davom etadi. Ijara va elektr xarajati kun yakunida hisoblanadi.</p>
+    <p class="hint">⚡ Keyingi kun uchun aksiyalar: ${bs}</p>
+    ${btn("🎮 Club kunini boshlash", "cday:start", { cls: "btn-teal", block: true, dis: seats === 0 })}
+  </section>`;
+}
+
+function clubUpgView() {
+  const c = S.club;
+  let h = `<section class="panel"><h3><i class="ic">🔨</i> Club yaxshilash</h3>
+    <p class="hint">Yangi xarid keyingi club kunidan kuchga kiradi.</p>`;
+  for (const [key, u] of Object.entries(CUPGRADES)) {
+    const lv = c[key];
+    const right = lv >= u.max ? '<span class="chip ok">MAX</span>' : btn(`+1 · ${fmt(clubUpgradePrice(key, lv))}`, "cbuy:" + key, { small: true });
+    h += row(u.e, `${u.n} <span class="lv">${lv}/${u.max}</span>`, u.info, right);
+  }
+  h += "</section>";
+  h += `<section class="panel"><h3><i class="ic">🏷️</i> Tarif</h3>
+    <div class="seg">${Object.entries(CPOLICIES).map(([k, pol]) =>
+      `<button class="${k === c.policy ? "on" : ""}" data-act="csetpol:${k}">${pol.e} ${pol.n}<small>${pol.info}</small></button>`).join("")}</div></section>`;
+  h += `<section class="panel"><h3><i class="ic">⚡</i> Aksiyalar</h3>
+    <p class="hint">Sotib olingan aksiya keyingi club kunida ishlaydi va sarflanadi.</p>`;
+  for (const [k, b] of Object.entries(CBOOSTS)) {
+    const right = c.boosts.includes(k) ? '<span class="chip ok">Tayyor</span>' : btn(fmt(clubBoostPrice(c, k)), "cbbuy:" + k, { small: true });
+    h += row(b.e, b.n, b.info, right);
+  }
+  return h + "</section>";
+}
+
+function clubMoneyView() {
+  const c = S.club, now = Date.now();
+  const bonusReady = now - c.bonusAt >= DAY_MS;
+  const spinReady = canSpin(c.spinAt);
+  return `<section class="panel">
+      <h3><i class="ic">🪙</i> Club hisobi</h3>
+      ${kvHtml([["💰 Hisob", fmt(c.money)], ["🏦 Omonat", fmt(c.deposit || 0)], ["📅 Club kunlari", c.days], ["⭐ Reputatsiya", c.rep.toFixed(1)]])}
+    </section>
+    <section class="panel">
+      <h3><i class="ic">🎁</i> Bonus va g'ildirak</h3>
+      <div class="field">${btn("🎁 Club bonusi" + (bonusReady ? " ✨" : ""), "cbonus", { cls: "btn-teal" })}${btn("🎡 Club g'ildiragi" + (spinReady ? " ✨" : ""), "cspin", { cls: "btn-gold" })}</div>
+      <p class="hint mt">Bonus: ${bonusReady ? "tayyor" : until(c.bonusAt + DAY_MS)} · G'ildirak: ${spinReady ? "tayyor" : until(c.spinAt + CFG.SPIN_H * 3600000)}</p>
+    </section>
+    <section class="panel">
+      <h3><i class="ic">🐷</i> Club omonati</h3>
+      <p class="hint">Har club kuni omonat 1% ga o'sadi. Club franchayzingida nolga tushadi.</p>
+      <div class="field">${btn("➕ 10%", "cdep:add:10")}${btn("➕ 50%", "cdep:add:50")}${btn("➕ Hammasi", "cdep:add:100")}</div>
+      ${c.deposit ? `<div class="mt">${btn("➖ Omonatni yechish (" + fmt(c.deposit) + ")", "cdep:out", { block: true })}</div>` : ""}
+    </section>
+    <section class="panel">${promoBlock("club")}</section>`;
+}
+
+function clubGoalsView() {
+  const c = S.club, st = c.stats || {};
+  const data = ensureClubQuests();
+  return `<section class="panel">${questsHtml(data, clubQuestTitle, "cquest:claim:")}</section>
+    <section class="panel"><h3><i class="ic">🏅</i> Club yutuqlari (${c.ach.length}/${CACHS.length})</h3>
+      ${achGridHtml(CACHS, c.ach)}</section>
+    <section class="panel"><h3><i class="ic">📊</i> Club statistikasi</h3>
+      ${kvHtml([["Kunlar", c.days], ["Mijozlar", st.served || 0], ["Yo'qotilgan", st.lost || 0], ["Soatlar", st.hours || 0],
+        ["Umumiy tushum", fmt(st.revenue || 0)], ["Eng yaxshi kun", fmt(st.best || 0)]])}</section>`;
+}
+
+function clubPrestView() {
+  const c = S.club, n = c.prestige;
+  const desc = `Club franchayzingi clubni boshidan boshlaydi: PC, PlayStation, VIP, bufet, reklama va administrator qaytadan. Yutuqlar, vazifalar va statistika saqlanadi. Kafega ta'sir qilmaydi.`;
+  const info = `<p class="hint">Hozirgi club franchayzingi: <b>${n}</b> · bonus: +${Math.round(CFG.PRESTIGE_CUST * n * 100)}% mijoz, +${Math.round(CFG.PRESTIGE_INC * n * 100)}% daromad.
+    Keyingi boshlang'ich club hisobi: <b>${fmt(CFG.CLUB_START_MONEY + 500000 * (n + 1))}</b>.</p>`;
+  return prestigeBlock("Club franchayzingi", desc, [
+    [Math.min(c.pro, c.vip, c.ps) >= 1, "Pro PC, VIP xona va PlayStation ochilgan"],
+    [c.money >= CFG.CLUB_PRESTIGE_MONEY, `Club hisobida ${fmt(CFG.CLUB_PRESTIGE_MONEY)} (hozir: ${fmt(c.money)})`],
+    [!c.day, "Hozir club kuni davom etmayapti"],
+  ], canClubPrestige(c), "cprest:ask", info);
+}
+
+function viewClub() {
+  const c = S.club;
+  if (!c.open) return clubOpenView();
+  const tabs = [["day", "▶️ Kun"], ["upg", "🖥️ Yaxshilash"], ["money", "💰 Bonus va pul"], ["goals", "🎯 Vazifa"], ["prest", "🏢 Franchayzing"]];
+  let body;
+  switch (ui.lTab) {
+    case "upg": body = clubUpgView(); break;
+    case "money": body = clubMoneyView(); break;
+    case "goals": body = clubGoalsView(); break;
+    case "prest": body = clubPrestView(); break;
+    default: body = clubDayView();
+  }
+  return clubHeader() + subtabsHtml(tabs, ui.lTab, "ltab") + body;
+}
+
+/* ===================== HISOB (sayt + bot) ===================== */
+// Ro'yxatdan o'tish: login va parol shu yerda kiritiladi. Parol xeshi (PBKDF2) brauzerda hisoblanib,
+// botga yuboriladi. Bot hisobni yaratadi va keyin shu login+parol bilan kirishni tekshiradi.
+const LOGIN_OK = /^[a-z0-9_]{3,20}$/;   // bot bilan bir xil qoida
+const PBKDF2_ITER = 100000;             // bot.py dagi PBKDF_ITER bilan BIR XIL bo'lishi shart
+function loadAccount() {
+  try {
+    const a = JSON.parse(localStorage.getItem(ACC_KEY) || "null");
+    return a && typeof a.login === "string" ? a : null;
+  } catch (e) { return null; }
+}
+function saveAccount(a) {
+  try { localStorage.setItem(ACC_KEY, JSON.stringify(a)); } catch (e) { /* saqlanmadi: sahifa ishlayveradi */ }
+}
+function resetAccount() {
+  try { localStorage.removeItem(ACC_KEY); } catch (e) { /* ignore */ }
+  ui.err = null;
+  ui.draft.regLogin = ""; ui.draft.regPass = ""; ui.draft.regPass2 = "";
+}
+async function pbkdf2Hex(password, login) {
+  const enc = new TextEncoder();
+  const key = await crypto.subtle.importKey("raw", enc.encode(password), "PBKDF2", false, ["deriveBits"]);
+  const bits = await crypto.subtle.deriveBits(
+    { name: "PBKDF2", hash: "SHA-256", salt: enc.encode("kafe:" + login.toLowerCase()), iterations: PBKDF2_ITER },
+    key, 256);
+  return [...new Uint8Array(bits)].map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+function doRegister() {
+  const login = String(ui.draft.regLogin || "").trim().toLowerCase();
+  const pass = String(ui.draft.regPass || "");
+  const pass2 = String(ui.draft.regPass2 || "");
+  let msg = null;
+  if (!LOGIN_OK.test(login)) msg = "Login 3–20 belgi: faqat a–z, 0–9 va _ belgisi";
+  else if (pass.length < 6 || pass !== pass.trim()) msg = "Parol kamida 6 belgi bo'lsin (boshida va oxirida bo'sh joy bo'lmasin)";
+  else if (pass !== pass2) msg = "Parollar bir xil emas";
+  if (msg) { ui.err = { k: "reg", msg }; return; }
+  if (!TG || typeof TG.sendData !== "function") {
+    ui.err = { k: "reg", msg: "Ro'yxatdan o'tish uchun sahifani Telegram ichida, botdagi 📝 tugma orqali oching" };
+    return;
+  }
+  ui.err = null;
+  pbkdf2Hex(pass, login).then((hash) => {
+    TG.sendData(JSON.stringify({ action: "register", login, hash }));  // Mini App shu zahoti yopiladi
+    saveAccount({ login, at: Date.now() });  // mahalliy belgi; haqiqiy tasdiq botdan keladi
+  }).catch(() => {
+    ui.err = { k: "reg", msg: "Xatolik: ma'lumot yuborilmadi. Botdagi 📝 tugma orqali qayta urinib ko'ring" };
+    render();
+  });
+}
+const PW_LEVELS = [["Juda zaif", "#f87171"], ["Zaif", "#fb923c"], ["O'rtacha", "#facc15"], ["Yaxshi", "#a3e635"], ["Kuchli", "#34d399"]];
+function pwScore(p) {
+  let s = 0;
+  if (p.length >= 6) s++;
+  if (p.length >= 10) s++;
+  if (/[a-z]/.test(p) && /[A-Z]/.test(p)) s++;
+  if (/\d/.test(p) && /[^A-Za-z0-9]/.test(p)) s++;
+  return s; // 0..4
+}
+function pwMeter(p) {
+  if (!p) return "";
+  const sc = pwScore(p), [label, color] = PW_LEVELS[sc];
+  return `<div class="pwm"><i style="width:${(sc + 1) * 20}%;background:${color}"></i></div>` +
+    `<div class="hint">Parol kuchi: ${label}</div>`;
+}
+// Telegram tugmalari: asosiy tugma (ro'yxatdan o'tish) va orqaga tugmasi
+function syncTG() {
+  if (!TG) return;
+  try {
+    const formOpen = ui.screen === "acc" && !loadAccount();
+    if (TG.MainButton) {
+      if (formOpen) { TG.MainButton.setText("📝 Hisob yaratish"); TG.MainButton.show(); }
+      else TG.MainButton.hide();
+    }
+    if (TG.BackButton) { if (ui.screen !== "home") TG.BackButton.show(); else TG.BackButton.hide(); }
+  } catch (e) { /* eski Telegram versiyasi */ }
+}
+function viewAccount() {
+  const acc = loadAccount();
+  if (acc) {
+    return `<section class="panel">
+      <h3><i class="ic">👤</i> Hisobingiz</h3>
+      <p>Login: <b>${esc(acc.login)}</b></p>
+      <p class="hint">Botga kirish: botda <b>/start</b> yozing, so'ng shu login va parolni kiriting. Hisob sayt va bot uchun bir xil.</p>
+      ${kvHtml([["☕ Kafe kunlari", S.cafe.days], ["💰 Kafe balansi", fmt(S.cafe.money)],
+        ["🎮 Club", S.club.open ? fmt(S.club.money) : "hali ochilmagan"]])}
+      <p class="hint">Eslatma: o'yin progressi (pul, kafe, club) hozircha shu brauzerda saqlanadi.</p>
+      <div class="mt">${btn("↩️ Boshqa hisob yaratish", "reg:reset", { cls: "btn-ghost", block: true })}</div>
+    </section>`;
+  }
+  return `<section class="panel">
+      <h3><i class="ic">📝</i> Ro'yxatdan o'tish</h3>
+      <p class="hint">Login va parolni o'zingiz tanlang. Keyin botda /start yozib, shu login va parol bilan kirasiz.</p>
+      <div class="field" style="flex-direction:column">
+        <input class="input${errClass("reg")}" data-draft="regLogin" value="${esc(ui.draft.regLogin || "")}"
+          placeholder="Login (a–z, 0–9, _)" autocomplete="username" autocapitalize="none" spellcheck="false" maxlength="20" />
+        <input class="input${errClass("reg")}" data-draft="regPass" type="password" value="${esc(ui.draft.regPass || "")}"
+          placeholder="Parol (kamida 6 belgi)" autocomplete="new-password" maxlength="64" />
+        <div id="pwMeter">${pwMeter(ui.draft.regPass || "")}</div>
+        <input class="input${errClass("reg")}" data-draft="regPass2" type="password" value="${esc(ui.draft.regPass2 || "")}"
+          placeholder="Parolni takrorlang" autocomplete="new-password" maxlength="64" />
+      </div>
+      ${errLine("reg")}
+      <div class="mt">${btn("📝 Hisob yaratish", "reg:go", { cls: "btn-gold", block: true })}</div>
+      <p class="hint mt">Ro'yxatdan o'tish Telegram ichida ishlaydi (botdagi 📝 tugma orqali ochiladi).</p>
+    </section>`;
+}
+
+/* ===================== QOIDALAR ===================== */
+function viewHelp() {
+  return `<section class="panel help">
+    <h2>❓ Qanday o'ynaladi</h2>
+    <h3>☕ Kafe</h3>
+    <ul>
+      <li>▶️ <b>Kunni boshlang</b>. Kun ${CFG.DAY_MIN}–${CFG.DAY_MAX} soniya davom etadi, mijozlar real vaqtda keladi.</li>
+      <li>📋 <b>Menyuga taom qo'shing</b>. Har taom sotiladi va xarajati bor. Taom qancha ko'p bo'lsa, mijozlar ham ko'p.</li>
+      <li>🛒 <b>Kafeni yaxshilang</b>: xodimlar (sig'im), reklama, interyer, yetkazib berish va jihozlar.</li>
+      <li>💲 <b>Narx siyosati</b>: arzon tanlasangiz mijozlar ko'p, qimmat tanlasangiz har bir mijozdan ko'proq olasiz.</li>
+      <li>⚡ <b>Kuchaytirgichlar</b> bir kunlik imkoniyat beradi: aksiya, mohir oshpaz, jonli musiqa, VIP taklif.</li>
+    </ul>
+    <h3>💰 Pul va kredit</h3>
+    <ul>
+      <li>🎁 Kunlik bonus va 🎡 g'ildirak (har ${CFG.SPIN_H} soatda) pul beradi.</li>
+      <li>🏦 <b>Omonat</b> har kafe kunida 1% o'sadi.</li>
+      <li>🏦 <b>Bank krediti</b>: kamida ${fmt(CFG.LOAN_MIN)}. Muddat: 1 kun (5%), 3 kun (10%), 7 kun (20%). Muddat tugasa, pul avtomatik undiriladi.
+        To'liq to'lanmasa 🛡️ ishonch va ⭐ reputatsiya tushadi. Bir vaqtda ${CFG.LOAN_MAX_ACTIVE} tadan ko'p kredit bo'lmaydi.</li>
+    </ul>
+    <h3>🏢 Franchayzing</h3>
+    <p>Barcha taomlar ochilib, ${fmt(CFG.PRESTIGE_MONEY)} to'plangach, kafeni franchayzing qilish mumkin. Kafe boshidan boshlanadi,
+      lekin har franchayzing uchun doimiy +${Math.round(CFG.PRESTIGE_CUST * 100)}% mijoz va +${Math.round(CFG.PRESTIGE_INC * 100)}% daromad beradi.</p>
+    <h3>🎮 Game club</h3>
+    <ul>
+      <li>Club bepul ochiladi, o'z hisobi bor. Kompyuterlar soatbay ijaraga olinadi.</li>
+      <li>🖥️ PC, PlayStation va VIP xona sotib olib, tarif va aksiya bilan daromadni oshiring.</li>
+      <li>Ijara, elektr va administrator xarajatlari har kun hisoblanadi. Buzilish va elektr o'chishi ham bo'lishi mumkin.</li>
+      <li>🏢 Pro PC, VIP xona va PlayStation ochilib, ${fmt(CFG.CLUB_PRESTIGE_MONEY)} to'plangach, club franchayzing qilinadi.</li>
+    </ul>
+    <h3>🎫 Promokodlar</h3>
+    <p>Har o'yinda promokodlar alohida. Har kod bir marta ishlaydi.</p>
+    <h3>⚠️ Brauzer versiyasi haqida</h3>
+    <p class="muted">Bu versiya faqat shu brauzerda ishlaydi: ma'lumot shu qurilmada saqlanadi. Boshqa o'yinchilar bilan qarz almashish, reyting, do'st taklif qilish
+      va avto-o'yin Telegram bot versiyasida (server bilan) mavjud.</p>
+  </section>`;
+}
+
+/* ===================== RENDER VA JONLI YANGILASH ===================== */
+function render() {
+  const app = document.getElementById("app");
+  const locked = !loadAccount();  // hisob yaratilmagan: faqat "Hisob" bo'limi ochiq, qolgani yopiq
+  if (locked) ui.screen = "acc";
+  const vk = ui.screen + "|" + (ui.screen === "cafe" ? ui.cTab : ui.screen === "club" ? ui.lTab + (S.club.open ? "" : "x") : "");
+  const entering = vk !== ui.vk;
+  ui.vk = vk;
+  app.className = (ui.screen === "club" ? "club" : "") + (entering ? " enter" : "");
+  document.body.classList.toggle("club-mode", ui.screen === "club");
+  document.querySelectorAll(".tab").forEach((b) => {
+    b.classList.toggle("on", b.dataset.screen === ui.screen);
+    b.disabled = locked && b.dataset.screen !== "acc";
+    b.classList.toggle("dim", b.disabled);
+  });
+  let html;
+  if (ui.screen === "home") html = viewHome();
+  else if (ui.screen === "cafe") html = viewCafe();
+  else if (ui.screen === "club") html = viewClub();
+  else if (ui.screen === "acc") html = viewAccount();
+  else html = viewHelp();
+  if (ui.spinning) html = `<div class="spinning">🎡 G'ildirak aylanmoqda...<br>🔄 🔄 🔄</div>` + html;
+  app.innerHTML = html;
+  if (entering) {
+    ["panel,.game-card,.hero-home,.screen-head,.subtabs,.bar.small", "row,.ach-row,.kv>div,.seg button,.lines>div"].forEach((sel, g) => {
+      let i = 0;
+      app.querySelectorAll("." + sel).forEach((el) => { el.style.setProperty("--i", Math.min(i++, g ? 14 : 8)); });
+    });
+    clearTimeout(ui.enterT);
+    ui.enterT = setTimeout(() => app.classList.remove("enter"), 1400);
+  }
+  const mk = ui.screen === "club" ? S.club.money : ui.screen === "cafe" ? S.cafe.money : S.cafe.money * 7 + S.club.money;
+  if (!entering && ui.mk !== undefined && ui.mk !== mk) app.querySelectorAll(".pill, .gc-bal").forEach((el) => {
+    if (el.textContent.includes("💰")) el.classList.add("bump");
+  });
+  ui.mk = mk;
+  updateLive();
+  syncTG();
+}
+
+/* ===================== ANIMATSIYA EFFEKTLARI ===================== */
+function rippleAt(x, y) {
+  const r = document.createElement("span");
+  r.className = "ripple";
+  r.style.left = x + "px";
+  r.style.top = y + "px";
+  document.body.appendChild(r);
+  setTimeout(() => r.remove(), 650);
+}
+function sparksAt(x, y) {
+  const em = ["✨", "⭐", "💫", "🌟"];
+  for (let i = 0; i < 7; i++) {
+    const s = document.createElement("span");
+    const a = Math.random() * Math.PI * 2, d = 40 + Math.random() * 50;
+    s.className = "spark";
+    s.textContent = em[i % em.length];
+    s.style.left = x - 9 + "px";
+    s.style.top = y - 9 + "px";
+    s.style.setProperty("--dx", Math.cos(a) * d + "px");
+    s.style.setProperty("--dy", Math.sin(a) * d - 20 + "px");
+    s.style.setProperty("--r", (Math.random() * 240 - 120) + "deg");
+    document.body.appendChild(s);
+    setTimeout(() => s.remove(), 900);
+  }
+}
+document.addEventListener("pointerdown", (e) => {
+  if (e.target.closest("input")) return;
+  rippleAt(e.clientX, e.clientY);
+});
+
+function setLive(name, text) {
+  document.querySelectorAll(`[data-live="${name}"]`).forEach((el) => { el.textContent = text; });
+}
+function setLiveWidth(name, pct) {
+  document.querySelectorAll(`[data-live="${name}"]`).forEach((el) => { el.style.width = pct + "%"; });
+}
+function setLiveHtml(name, html) {
+  // faqat o'zgargan bo'lsa yangilanadi: aks holda lenta miltillab turadi
+  document.querySelectorAll(`[data-live="${name}"]`).forEach((el) => {
+    if (el.dataset.h !== html) { el.innerHTML = html; el.dataset.h = html; }
+  });
+}
+
+// har 0.5 soniyada faqat jonli qismlar yangilanadi (to'liq qayta chizilmaydi)
+function updateLive() {
+  const now = Date.now();
+  const cd = S.cafe.day;
+  if (cd) {
+    const pr = cafeProgress(cd, now);
+    setLiveWidth("cafe-bar", bar(pr.frac));
+    setLive("cafe-left", mmss(cd.len - pr.el));
+    setLive("cafe-t", mmss(cd.len - pr.el));
+    setLive("cafe-a", `${pr.arrived} / ${pr.total}`);
+    setLive("cafe-b", String(pr.lost));
+    setLive("cafe-c", fmt(pr.rev));
+    setLiveHtml("cafe-feed", feedHtml(pr.feed, cafeEmpty, "cafe" + cd.start));
+  }
+  const ld = S.club.day;
+  if (ld) {
+    const pr = clubProgress(ld, now);
+    setLiveWidth("club-bar", bar(pr.frac));
+    setLive("club-left", mmss(ld.len - pr.el));
+    setLive("club-t", mmss(ld.len - pr.el));
+    setLive("club-clock", clubClock(pr.g));
+    setLive("club-busy", String(pr.busy));
+    setLive("club-a", `${pr.arrived} / ${pr.total}`);
+    setLive("club-b", String(pr.lost));
+    setLive("club-c", fmt(pr.rev));
+    setLiveHtml("club-feed", feedHtml(pr.feed, clubEmpty, "club" + ld.start));
+  }
+  setLive("loan-preview", (() => {
+    const n = Number(ui.draft.loanAmt);
+    const term = Number(ui.draft.loanTerm) || 3;
+    return n >= CFG.LOAN_MIN && n <= CFG.LOAN_MAX ? fmt(loanOwed(n, term)) : "—";
+  })());
+  document.querySelectorAll("[data-until]").forEach((el) => {
+    const left = (Number(el.dataset.until) - now) / 1000;
+    el.textContent = left <= 0 ? "tayyor" : (left < 3600 ? mmss(left) : hm(left));
+  });
+}
+const cafeEmpty = "📜 Kafe ochildi, birinchi mijozlar kutilmoqda...";
+const clubEmpty = "📜 Club ochildi, birinchi mijozlar kutilmoqda...";
+function feedHtml(list, empty, key) {
+  if (!list.length) return `<div>${empty}</div>`;
+  ui.seen = ui.seen || {};
+  const seen = ui.seen[key] || (ui.seen[key] = new Set());
+  const ids = list.map((f) => f.t + "|" + f.text);
+  // animatsiya faqat yangi kelgan qatorga
+  const html = list.map((f, i) => `<div${seen.has(ids[i]) ? "" : ' class="new"'}>• ${esc(f.text)}</div>`).join("");
+  ids.forEach((id) => seen.add(id));
+  return html;
+}
+
+// tugmalar holati o'zgarganda (bonus/g'ildirak tayyor bo'lganda, kun boshlanganda) to'liq qayta chizish
+function readyKey() {
+  const now = Date.now(), c = S.cafe, l = S.club;
+  return [
+    now - c.bonusAt >= DAY_MS, canSpin(c.spinAt), !!c.day,
+    now - l.bonusAt >= DAY_MS, canSpin(l.spinAt), !!l.day, l.open,
+    S.loans.map((x) => x.id + x.status + x.warned).join(","),
+  ].join("|");
+}
+
+/* ===================== NATIJA OYNALARI ===================== */
+function closeModal() { showNextModal(); }
+
+function showCafeResult(r) {
+  const rows = [
+    ["👥 Xizmat ko'rsatildi", String(r.served)],
+    ["😔 Ketib qoldi", String(r.lost)],
+    ["💵 Tushum", "+" + fmt(r.rev), "pos"],
+    ["🧂 Mahsulot xarajati", "−" + fmt(r.cost)],
+  ];
+  if (r.salary) rows.push(["👨‍🍳 Xodimlar oyligi", "−" + fmt(r.salary)]);
+  rows.push(["🏠 Ijara", "−" + fmt(r.rent)]);
+  if (r.evDelta) rows.push(["🎲 Voqealar", sgn(r.evDelta), r.evDelta >= 0 ? "pos" : "neg"]);
+  rows.push(["📈 Sof foyda", sgn(r.profit), r.profit >= 0 ? "pos" : "neg"]);
+  rows.push(["⭐ Reputatsiya", `${r.oldRep.toFixed(1)} → ${r.rep.toFixed(1)}`]);
+  rows.push(["🎯 XP", "+" + r.xpGain]);
+  if (r.interest) rows.push(["🏦 Omonat foizi", "+" + fmt(r.interest), "pos"]);
+  if (r.lvReward) rows.push([`🎖️ Yangi daraja: ${r.newLv}`, "+" + fmt(r.lvReward), "pos"]);
+  let body = linesHtml(rows);
+  if (r.topSold) {
+    const d = DISHES[r.topSold[0]];
+    body += `<p class="hint mt">🍽 Eng ko'p sotilgan: ${d.e} ${d.n} (${r.topSold[1]} porsiya)</p>`;
+  }
+  body += `<p class="hint">💬 ${esc(r.reviewer)}: «${esc(r.review)}»</p><p><b>💰 Hisobingiz: ${fmt(r.money)}</b></p>`;
+  if (r.newAch.length) {
+    body += `<p class="hint mt">🏅 Yangi yutuqlar: ${r.newAch.map((a) => a[1] + " " + a[2] + " (+" + fmt(a[4]) + ")").join(", ")}</p>`;
+  }
+  if (ensureQuests().q.some((q) => q[2] >= q[1] && !q[4])) body += `<p class="hint">📜 Bajarilgan vazifa bor: mukofotni oling.</p>`;
+  openModal(`✅ Kun ${r.no} yakunlandi!`, body);
+}
+
+function showClubResult(r) {
+  const rows = [
+    ["👥 Mijozlar", String(r.served)],
+    ["😔 Ketib qoldi", String(r.lost)],
+    ["💵 Tushum", "+" + fmt(r.rev), "pos"],
+    ["🔌 Elektr", "−" + fmt(r.power)],
+  ];
+  if (r.snackCost) rows.push(["🥤 Snack xarajati", "−" + fmt(r.snackCost)]);
+  if (r.salary) rows.push(["👔 Administratorlar", "−" + fmt(r.salary)]);
+  rows.push(["🏠 Ijara", "−" + fmt(r.rent)]);
+  if (r.evDelta) rows.push(["🎲 Voqealar", sgn(r.evDelta), r.evDelta >= 0 ? "pos" : "neg"]);
+  rows.push(["📈 Sof foyda", sgn(r.profit), r.profit >= 0 ? "pos" : "neg"]);
+  rows.push(["⭐ Reputatsiya", `${r.oldRep.toFixed(1)} → ${r.rep.toFixed(1)}`]);
+  if (r.interest) rows.push(["🏦 Omonat foizi", "+" + fmt(r.interest), "pos"]);
+  let body = linesHtml(rows) + `<p class="mt"><b>💰 Club hisobi: ${fmt(r.money)}</b></p>`;
+  if (r.newAch.length) {
+    body += `<p class="hint mt">🏅 Yangi yutuqlar: ${r.newAch.map((a) => a[1] + " " + a[2] + " (+" + fmt(a[4]) + ")").join(", ")}</p>`;
+  }
+  openModal(`🎮 Club kuni ${r.no} yakunlandi!`, body);
+}
+
+function askPrestige() {
+  if (!canPrestige(S.cafe)) return toast("Shartlar bajarilmagan", "bad");
+  openModal("⚠️ Rostdan ham franchayzingni boshlaysizmi?",
+    `<p class="hint">Pul, taomlar, xodimlar, reklama, interyer va jihozlar boshidan boshlanadi. Daraja, yutuqlar va statistika saqlanadi.</p>`,
+    `<button class="btn btn-gold btn-block" data-act="prest:do">✅ Ha, boshlash</button>` +
+    `<button class="btn btn-block" data-act="modal:ok">⬅️ Yo'q</button>`);
+}
+function askClubPrestige() {
+  if (!canClubPrestige(S.club)) return toast("Shartlar bajarilmagan", "bad");
+  openModal("⚠️ Rostdan ham club franchayzingini boshlaysizmi?",
+    `<p class="hint">Club hisobi, kompyuterlar, bufet, reklama, administrator va konditsioner boshidan boshlanadi. Kafega ta'siri yo'q.</p>`,
+    `<button class="btn btn-teal btn-block" data-act="cprest:do">✅ Ha, boshlash</button>` +
+    `<button class="btn btn-block" data-act="modal:ok">⬅️ Yo'q</button>`);
+}
+
+/* ===================== AMALLAR (DELEGATSIYA) ===================== */
+function promoApply(game) {
+  if (game === "club" && !S.club.open) {
+    ui.err = { k: "promo", msg: "Avval game clubni oching" };
+    return;
+  }
+  const r = redeemPromo(game, ui.draft.promo);
+  if (r.error) {
+    ui.err = { k: "promo", msg: r.error };
+    return;
+  }
+  ui.err = null;
+  ui.draft.promo = "";
+  toast(r.text, "good");
+}
+
+function repayAct(id, mode) {
+  const l = S.loans.find((x) => x.id === id);
+  if (!l) return;
+  const want = mode === "half" ? Math.max(1000, r1000(loanLeft(l) / 2)) : Infinity;
+  const err = repayLoan(id, want);
+  if (err) toast(err, "bad");
+  else toast("💳 To'lov qabul qilindi", "good");
+}
+
+function loanAct(sub, val) {
+  if (sub === "take") {
+    const amount = Number(ui.draft.loanAmt);
+    const days = Number(ui.draft.loanTerm) || 3;
+    const err = takeLoan(amount, days);
+    if (err) {
+      ui.err = { k: "loan", msg: err };
+    } else {
+      ui.err = null;
+      ui.draft.loanAmt = "";
+      toast(`🏦 Kredit olindi: +${fmt(amount)}`, "good");
+    }
+    return;
+  }
+  repayAct(Number(val), sub);
+}
+
+function handleAct(act) {
+  const parts = act.split(":");
+  const verb = parts[0], a = parts[1], b = parts[2];
+  if (!loadAccount() && !(verb === "reg" || (verb === "go" && a === "acc"))) {
+    toast("Avval hisob yarating: 👤 Hisob bo'limi", "bad");  // hisobsiz hech qanday amal bajarilmaydi
+    return;
+  }
+  switch (verb) {
+    case "go": ui.screen = a; ui.err = null; break;
+    case "reg": if (a === "reset") resetAccount(); else doRegister(); break;
+    case "ctab": ui.cTab = a; ui.err = null; break;
+    case "ltab": ui.lTab = a; ui.err = null; break;
+    case "modal": closeModal(); break;
+    case "day": if (a === "start") startCafeDay(); break;
+    case "buy": buyUpgrade(a); break;
+    case "fire": fireStaff(); break;
+    case "setpol": setCafePolicy(a); break;
+    case "dish": buyDish(a); break;
+    case "bbuy": buyBoost(a); break;
+    case "bonus": claimCafeBonus(); break;
+    case "spin": spinCafe(); break;
+    case "dep": if (a === "add") depositAdd(Number(b)); else depositOut(); break;
+    case "loanterm": ui.draft.loanTerm = Number(a); break;
+    case "loan": loanAct(a, b); break;
+    case "quest": {
+      const reward = claimQuest(Number(b));
+      if (reward) toast(`🎁 Vazifa mukofoti: +${fmt(reward)}`, "good");
+      break;
+    }
+    case "promo": promoApply(a); break;
+    case "prest": if (a === "ask") askPrestige(); else doPrestige(); break;
+    case "copen": openClub(); break;
+    case "cday": if (a === "start") {
+      if (!S.club.open) toast("Avval game clubni oching", "bad");
+      else startClubDay();
+    } break;
+    case "cbuy": buyClubUpgrade(a); break;
+    case "csetpol": setClubPolicy(a); break;
+    case "cbbuy": buyClubBoost(a); break;
+    case "cbonus": claimClubBonus(); break;
+    case "cspin": spinClub(); break;
+    case "cdep": if (a === "add") clubDepositAdd(Number(b)); else clubDepositOut(); break;
+    case "cquest": {
+      const reward = claimClubQuest(Number(b));
+      if (reward) toast(`🎁 Club vazifa mukofoti: +${fmt(reward)}`, "good");
+      break;
+    }
+    case "cprest": if (a === "ask") askClubPrestige(); else doClubPrestige(); break;
+    default: break;
+  }
+}
+
+document.addEventListener("click", (e) => {
+  const el = e.target.closest("[data-act]");
+  if (!el || el.disabled) return;
+  const act = el.dataset.act;
+  const nToast = document.querySelectorAll("#toasts .toast").length;
+  const m0 = S.cafe.money + "|" + S.club.money;
+  if (el.closest("#modal") && act !== "modal:ok") closeModal(); // modal tugmasi: avval oynani yopamiz
+  handleAct(act);
+  saveState();
+  render();
+  // bosish animatsiyasi: muvaffaqiyat - uchqunlar, xato - titrash
+  const ts = document.querySelectorAll("#toasts .toast");
+  const last = ts.length > nToast ? ts[ts.length - 1] : null;
+  const errNow = /^(loan:take|promo:)/.test(act) && ui.err;
+  const bad = (last && last.classList.contains("bad")) || errNow;
+  const good = !bad && ((last && last.classList.contains("good")) || m0 !== S.cafe.money + "|" + S.club.money);
+  const again = [...document.querySelectorAll("[data-act]")].find((n) => n.dataset.act === act);
+  if (again && !again.closest("#modal")) again.classList.add(bad ? "shake" : "pop");
+  if (bad) document.querySelectorAll(".input.invalid").forEach((n) => n.classList.add("shake"));
+  if (good) sparksAt(e.clientX, e.clientY);
+});
+
+document.addEventListener("input", (e) => {
+  const el = e.target;
+  if (!el.dataset || !el.dataset.draft) return;
+  ui.draft[el.dataset.draft] = el.value;
+  if (el.dataset.draft === "regPass") {  // kuch ko'rsatkichi: faqat shu qism yangilanadi (fokus yo'qolmaydi)
+    const box = document.getElementById("pwMeter");
+    if (box) box.innerHTML = pwMeter(el.value);
+  }
+  updateLive();
+});
+
+document.getElementById("modal").addEventListener("click", (e) => {
+  if (e.target.id === "modal") closeModal(); // orqa fonni bossa, oyna yopiladi
+});
+
+/* ===================== TIK: KUN YAKUNI, KREDITLAR, JONLI YANGILASH ===================== */
+function tick() {
+  const now = Date.now();
+  let changed = false;
+  if (S.cafe.day && now >= S.cafe.day.end) {
+    const r = finishCafeDay();
+    changed = true;
+    if (r) showCafeResult(r);
+  }
+  if (S.club.day && now >= S.club.day.end) {
+    const r = finishClubDay();
+    changed = true;
+    if (r) showClubResult(r);
+  }
+  const msgs = collectLoans(now);
+  if (msgs.length) {
+    changed = true;
+    msgs.forEach((m) => toast(m.text, m.kind));
+  }
+  const rk = readyKey();
+  if (rk !== ui.rk) {
+    ui.rk = rk;
+    changed = true;
+  }
+  if (changed) {
+    saveState();
+    render();
+  } else {
+    updateLive();
+  }
+}
+
+/* ===================== ISHGA TUSHIRISH ===================== */
+function boot() {
+  S = loadState();
+  ui.rk = readyKey();
+  if (!loadAccount()) ui.screen = "acc";  // hisob hali yo'q: avval ro'yxatdan o'tish
+  if (TG) {
+    try {
+      TG.ready();
+      TG.expand();
+      if (TG.MainButton) TG.MainButton.onClick(() => { if (!loadAccount()) { handleAct("reg:go"); saveState(); render(); } });
+      if (TG.BackButton) TG.BackButton.onClick(() => { ui.screen = "home"; ui.err = null; render(); });
+    } catch (e) { /* eski Telegram versiyasi */ }
+  }
+  render();
+  tick(); // brauzer yopiq bo'lganda tugagan kunlar shu yerda yakunlanadi
+  setInterval(tick, 500);
+}
+boot();
+</script>
+</body>
+</html>
