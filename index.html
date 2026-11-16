@@ -2271,7 +2271,7 @@ function tick() {
 /* ===================== SINXRONLASH (BOT BILAN) ===================== */
 // Sayt va bot bir xil o'yin holatini Firebase Realtime Database orqali bo'lishadi (yo'l: /s/<kalit>).
 // Kalit = sha256("sync:" + login + ":" + parol_xeshi)[:40], faqat parolni biladigan odam hosil qila oladi.
-// Kun jarayoni (day) sinxronlanmaydi: har tomon o'z kunini yakunlaydi, natija umumiy balansga qo'shiladi.
+// Ketayotgan kun ham sinxronlanadi: qaysi tomonda boshlansa, ikkinchisida ham boshlanadi.
 const FIREBASE_URL = "https://verox-games-default-rtdb.europe-west1.firebasedatabase.app";  // botdagi FIREBASE_URL bilan BIR XIL
 const SYNC_POLL_MS = 12000;
 const sy = { sig: "", pullAt: 0, pushT: null, busy: false, down: 0, ready: false, dirty: false };
@@ -2285,15 +2285,25 @@ async function sha256Hex(text) {
 }
 async function deriveSyncKey(login, hash) { return (await sha256Hex("sync:" + login + ":" + hash)).slice(0, 40); }
 function durableOf(st) {
-  const c = Object.assign({}, st.cafe), k = Object.assign({}, st.club);
-  delete c.day; delete k.day;
-  return { cafe: c, club: k };
+  return { cafe: Object.assign({}, st.cafe), club: Object.assign({}, st.club) };
 }
 function syncSig() { return JSON.stringify(durableOf(S)); }
 function isPristine(c, k) { return !c.days && !k.open && c.money === CFG.START_MONEY && !(c.ach && c.ach.length) && !c.prestige; }
 function progressOf(c, k) { return [(c.days || 0) + (k.days || 0), (c.money || 0) + (k.money || 0)]; }
 function arr(v) { return Array.isArray(v) ? v : (v && typeof v === "object" ? Object.values(v) : []); }
 // Firebase bo'sh ro'yxat va obyektlarni olib tashlaydi: yetishmaganlarini standart qiymat bilan to'ldiramiz
+function normDay(d, club) {
+  if (!d || typeof d !== "object" || !d.start || !d.end) return null;
+  d.boosts = arr(d.boosts); d.ev = arr(d.ev); d.lost = arr(d.lost);
+  if (club) {
+    d.sess = arr(d.sess); d.lost = d.lost.map(arr);
+    d.outage = d.outage ? arr(d.outage) : null;
+  } else {
+    d.cust = arr(d.cust).map((c) => Object.assign(c, { dishes: arr(c.dishes) }));
+    d.special = d.special || null;
+  }
+  return d;
+}
 function normGame(r) {
   const c = Object.assign(newCafe(), r.cafe || {}), k = Object.assign(newClub(), r.club || {});
   for (const o of [c, k]) {
@@ -2301,16 +2311,17 @@ function normGame(r) {
     o.stats = o.stats && typeof o.stats === "object" ? o.stats : {};
     const q = o.quests && typeof o.quests === "object" ? o.quests : {};
     o.quests = { d: typeof q.d === "number" ? q.d : -1, q: arr(q.q).map(arr) };
-    delete o.day;
   }
+  c.day = normDay(c.day, false);
+  k.day = normDay(k.day, true);
   c.dishes = arr(c.dishes).filter((d) => DISHES[d]);
   if (!c.dishes.length) c.dishes = ["choy"];
   k.open = !!k.open;
   return { cafe: c, club: k };
 }
 function applyRemote(g, rev) {
-  S.cafe = Object.assign(g.cafe, { day: S.cafe.day });
-  S.club = Object.assign(g.club, { day: S.club.day });
+  S.cafe = g.cafe;   // ketayotgan kun ham (bot boshlagan bo'lsa) shu yerga o'tadi
+  S.club = g.club;
   S.rev = rev || 0;
   sy.sig = syncSig();
   saveState();
@@ -2367,7 +2378,7 @@ async function syncPushNow(keep) {
 function syncStatusHtml(acc) {
   if (!FIREBASE_URL) return `<p class="hint">🔄 Bot bilan sinxronlash hali sozlanmagan.</p>`;
   if (!acc.key) return `<p class="hint">🔄 Sinxronlashni yoqish uchun pastdagi «Boshqa hisob yaratish» tugmasi orqali shu login va parol bilan qayta kiring.</p>`;
-  return `<p class="hint">🔄 Bot bilan sinxron: balans, kunlar va butun o'yin holati ikkala joyda bir xil.</p>`;
+  return `<p class="hint">🔄 Bot bilan sinxron: balans, kunlar, ketayotgan kun va butun o'yin holati ikkala joyda bir xil.</p>`;
 }
 function syncStart() {
   sy.sig = syncSig();
