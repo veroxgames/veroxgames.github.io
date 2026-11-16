@@ -488,7 +488,7 @@ function newClub() {
   };
 }
 function freshState() {
-  return { v: 1, cafe: newCafe(), club: newClub(), loans: [], nextLoan: 1, promo: { cafe: [], club: [] } };
+  return { v: 1, rev: 0, cafe: newCafe(), club: newClub(), loans: [], nextLoan: 1, promo: { cafe: [], club: [] } };
 }
 function loadState() {
   try {
@@ -501,6 +501,10 @@ function loadState() {
   return freshState();
 }
 function saveState() {
+  if (typeof syncOn === "function" && syncOn() && sy.ready) {  // faqat o'yin ma'lumoti o'zgarsa buluttagi nusxa yangilanadi
+    const sg = syncSig();
+    if (sg !== sy.sig) { sy.sig = sg; S.rev = Date.now(); syncSchedule(); }
+  }
   try {
     localStorage.setItem("kafe-imperiyasi-oyin-v1", JSON.stringify(S));
   } catch (e) { /* xotira to'lgan yoki yopiq: o'yin ishlayveradi */ }
@@ -1780,13 +1784,15 @@ function doRegister() {
     const bytes = hash.match(/../g).map((h) => parseInt(h, 16));
     const b64 = btoa(String.fromCharCode(...bytes)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
     const url = "https://t.me/" + BOT_USERNAME + "?start=" + login + "-" + b64;
-    saveAccount({ login, at: Date.now() });  // mahalliy belgi; haqiqiy tasdiq botdan keladi
+    return deriveSyncKey(login, hash).then((key) => {
+    saveAccount({ login, key, at: Date.now() });  // key: bot bilan sinxronlash kaliti (parolning o'zi saqlanmaydi)
     if (TG && typeof TG.openTelegramLink === "function") {
       TG.openTelegramLink(url);   // bot chati ochiladi va hisob botda avtomatik yaratiladi
       setTimeout(() => { try { TG.close(); } catch (e) { /* ignore */ } }, 400);
     } else {
       window.location.href = url; // oddiy brauzerda: Telegram ochiladi
     }
+    });
   }).catch(() => {
     ui.err = { k: "reg", msg: "Xatolik: ma'lumot tayyorlanmadi. Qayta urinib ko'ring" };
     render();
@@ -1828,7 +1834,7 @@ function viewAccount() {
       <p class="hint">Botga kirish: botda <b>/start</b> yozing, so'ng shu login va parolni kiriting. Hisob sayt va bot uchun bir xil.</p>
       ${kvHtml([["☕ Kafe kunlari", S.cafe.days], ["💰 Kafe balansi", fmt(S.cafe.money)],
         ["🎮 Club", S.club.open ? fmt(S.club.money) : "hali ochilmagan"]])}
-      <p class="hint">Eslatma: o'yin progressi (pul, kafe, club) hozircha shu brauzerda saqlanadi.</p>
+      ${syncStatusHtml(acc)}
       <div class="mt">${btn("↩️ Boshqa hisob yaratish", "reg:reset", { cls: "btn-ghost", block: true })}</div>
     </section>`;
   }
@@ -2232,6 +2238,8 @@ document.getElementById("modal").addEventListener("click", (e) => {
 function tick() {
   const now = Date.now();
   let changed = false;
+  const dayDue = (S.cafe.day && now >= S.cafe.day.end) || (S.club.day && now >= S.club.day.end);
+  if (dayDue && syncOn() && now - sy.pullAt > 4000) { syncPull(); return; }  // avval botdagi yangi holat olinadi
   if (S.cafe.day && now >= S.cafe.day.end) {
     const r = finishCafeDay();
     changed = true;
@@ -2260,9 +2268,122 @@ function tick() {
   }
 }
 
+/* ===================== SINXRONLASH (BOT BILAN) ===================== */
+// Sayt va bot bir xil o'yin holatini Firebase Realtime Database orqali bo'lishadi (yo'l: /s/<kalit>).
+// Kalit = sha256("sync:" + login + ":" + parol_xeshi)[:40], faqat parolni biladigan odam hosil qila oladi.
+// Kun jarayoni (day) sinxronlanmaydi: har tomon o'z kunini yakunlaydi, natija umumiy balansga qo'shiladi.
+const FIREBASE_URL = "https://verox-games-default-rtdb.europe-west1.firebasedatabase.app";  // botdagi FIREBASE_URL bilan BIR XIL
+const SYNC_POLL_MS = 12000;
+const sy = { sig: "", pullAt: 0, pushT: null, busy: false, down: 0, ready: false, dirty: false };
+
+function syncKey() { const a = loadAccount(); return a && a.key ? a.key : null; }
+function syncOn() { return !!(FIREBASE_URL && syncKey()); }
+function syncUrl() { return FIREBASE_URL.replace(/\/+$/, "") + "/s/" + syncKey() + ".json"; }
+async function sha256Hex(text) {
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
+  return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+async function deriveSyncKey(login, hash) { return (await sha256Hex("sync:" + login + ":" + hash)).slice(0, 40); }
+function durableOf(st) {
+  const c = Object.assign({}, st.cafe), k = Object.assign({}, st.club);
+  delete c.day; delete k.day;
+  return { cafe: c, club: k };
+}
+function syncSig() { return JSON.stringify(durableOf(S)); }
+function isPristine(c, k) { return !c.days && !k.open && c.money === CFG.START_MONEY && !(c.ach && c.ach.length) && !c.prestige; }
+function progressOf(c, k) { return [(c.days || 0) + (k.days || 0), (c.money || 0) + (k.money || 0)]; }
+function arr(v) { return Array.isArray(v) ? v : (v && typeof v === "object" ? Object.values(v) : []); }
+// Firebase bo'sh ro'yxat va obyektlarni olib tashlaydi: yetishmaganlarini standart qiymat bilan to'ldiramiz
+function normGame(r) {
+  const c = Object.assign(newCafe(), r.cafe || {}), k = Object.assign(newClub(), r.club || {});
+  for (const o of [c, k]) {
+    o.boosts = arr(o.boosts); o.ach = arr(o.ach);
+    o.stats = o.stats && typeof o.stats === "object" ? o.stats : {};
+    const q = o.quests && typeof o.quests === "object" ? o.quests : {};
+    o.quests = { d: typeof q.d === "number" ? q.d : -1, q: arr(q.q).map(arr) };
+    delete o.day;
+  }
+  c.dishes = arr(c.dishes).filter((d) => DISHES[d]);
+  if (!c.dishes.length) c.dishes = ["choy"];
+  k.open = !!k.open;
+  return { cafe: c, club: k };
+}
+function applyRemote(g, rev) {
+  S.cafe = Object.assign(g.cafe, { day: S.cafe.day });
+  S.club = Object.assign(g.club, { day: S.club.day });
+  S.rev = rev || 0;
+  sy.sig = syncSig();
+  saveState();
+  const typing = document.activeElement && /^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName);
+  if (!typing && !ui.modalOpen) render();
+}
+function fetchT(url, opts) {
+  const ac = new AbortController();
+  const t = setTimeout(() => ac.abort(), 6000);
+  return fetch(url, Object.assign({ signal: ac.signal, cache: "no-store" }, opts || {})).finally(() => clearTimeout(t));
+}
+async function syncPull() {
+  if (!syncOn() || sy.busy || Date.now() < sy.down) { if (!sy.busy) { sy.ready = true; sy.pullAt = Date.now(); } return; }
+  sy.busy = true;
+  try {
+    const r = await fetchT(syncUrl());
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    const d = await r.json();
+    const mine = durableOf(S);
+    if (!d || !d.cafe) { sy.ready = true; if (!S.rev) S.rev = Date.now(); syncPushNow(false); return; }
+    const g = normGame(d), rRev = Number(d.rev) || 0, lRev = Number(S.rev) || 0;
+    const rNew = isPristine(g.cafe, g.club), lNew = isPristine(mine.cafe, mine.club);
+    let take = rRev > lRev;
+    if (rNew && !lNew) take = false;               // bulutda yangi hisob, bizda o'yin bor: bizniki ustun
+    else if (lNew && !rNew) take = true;           // bizda yangi hisob, bulutda o'yin bor: bulutniki ustun
+    else if (!lRev && !rNew && !lNew) {            // birinchi ulanish, ikkala tomonda o'yin: ko'proq yutilgani qoladi
+      const a = progressOf(g.cafe, g.club), b = progressOf(mine.cafe, mine.club);
+      take = a[0] > b[0] || (a[0] === b[0] && a[1] > b[1]);
+    }
+    sy.ready = true;
+    if (take) applyRemote(g, rRev);
+    else if (lRev > rRev || (rNew && !lNew) || (!lRev && !rNew && !lNew)) { if (!S.rev) S.rev = Date.now(); syncPushNow(false); }
+  } catch (e) { sy.down = Date.now() + 15000; sy.ready = true; }
+  finally { sy.busy = false; sy.pullAt = Date.now(); }
+}
+function syncSchedule() {
+  if (!syncOn()) return;
+  sy.dirty = true;
+  clearTimeout(sy.pushT);
+  sy.pushT = setTimeout(() => syncPushNow(false), 1200);
+}
+async function syncPushNow(keep) {
+  if (!syncOn() || !sy.ready || Date.now() < sy.down) return;
+  clearTimeout(sy.pushT);
+  const a = loadAccount(), d = durableOf(S);
+  if (!S.rev) S.rev = Date.now();
+  try {
+    const body = JSON.stringify({ rev: S.rev, by: "site", login: a.login, cafe: d.cafe, club: d.club });
+    const r = keep ? await fetch(syncUrl(), { method: "PUT", body, keepalive: true }) : await fetchT(syncUrl(), { method: "PUT", body });
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    sy.dirty = false;
+  } catch (e) { sy.down = Date.now() + 15000; sy.pushT = setTimeout(() => syncPushNow(false), 16000); }
+}
+function syncStatusHtml(acc) {
+  if (!FIREBASE_URL) return `<p class="hint">🔄 Bot bilan sinxronlash hali sozlanmagan.</p>`;
+  if (!acc.key) return `<p class="hint">🔄 Sinxronlashni yoqish uchun pastdagi «Boshqa hisob yaratish» tugmasi orqali shu login va parol bilan qayta kiring.</p>`;
+  return `<p class="hint">🔄 Bot bilan sinxron: balans, kunlar va butun o'yin holati ikkala joyda bir xil.</p>`;
+}
+function syncStart() {
+  sy.sig = syncSig();
+  if (!syncOn()) { sy.ready = true; return; }
+  syncPull();
+  setInterval(() => { if (!document.hidden) syncPull(); }, SYNC_POLL_MS);
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) { if (sy.dirty) syncPushNow(true); }
+    else syncPull();
+  });
+}
+
 /* ===================== ISHGA TUSHIRISH ===================== */
 function boot() {
   S = loadState();
+  syncStart();
   ui.rk = readyKey();
   if (!loadAccount()) ui.screen = "acc";  // hisob hali yo'q: avval ro'yxatdan o'tish
   if (TG) {
