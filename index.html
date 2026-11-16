@@ -620,7 +620,7 @@ function checkCafeAch() {
 }
 
 /* ===================== KAFE: KUNNI YARATISH (oldindan hisoblanadi) ===================== */
-function buildCafeDay(now) {
+function buildCafeDay(start) {  // start: kun boshlanish vaqti (ms), bot bilan bir xil bo'lishi shart
   const p = S.cafe;
   const L = rint(CFG.DAY_MIN, CFG.DAY_MAX);
   const owned = p.dishes.slice();
@@ -731,17 +731,27 @@ function buildCafeDay(now) {
   ev.sort((a, b) => a.t - b.t);
 
   return {
-    no: p.days + 1, start: now, end: now + L * 1000, len: L, special, mood: mood[0], cap, boosts,
+    no: p.days + 1, start, end: start + L * 1000, len: L, owner: "site", special, mood: mood[0], cap, boosts,
     cust, lost, ev, rent: 10000 + p.decor * 3000, salary: p.staff * 15000,
   };
 }
 
-function startCafeDay() {
-  const p = S.cafe;
-  if (p.day) return;
-  p.day = buildCafeDay(Date.now());
-  p.boosts = []; // kuchaytirgichlar shu kunda sarflandi
-  saveState();
+// Kun boshlanishi (kafe yoki club). Ikkala tomonda bir xil vaqtdan (LEAD_MS keyin) boshlanadi va darhol botga yuboriladi.
+async function beginDay(game) {
+  const club = game === "club";
+  const free = () => (club ? S.club.open && !S.club.day : !S.cafe.day);
+  if (dayStarting || !free()) return;
+  dayStarting = true;
+  try {
+    await syncPull();  // avval botdagi yangi holat olinadi: bot allaqachon kun boshlagan bo'lishi mumkin
+    if (!free()) return;
+    const start = Date.now() + LEAD_MS;
+    if (club) { S.club.day = buildClubDay(start); S.club.boosts = []; }
+    else { S.cafe.day = buildCafeDay(start); S.cafe.boosts = []; }  // kuchaytirgichlar shu kunda sarflandi
+    saveState();
+    render();
+    syncPushNow(false);  // botga darhol yuboriladi: u ham shu start vaqtda kunni boshlaydi
+  } finally { dayStarting = false; }
 }
 
 // kun holati: el - o'tgan soniya
@@ -802,6 +812,7 @@ function finishCafeDay() {
     daySold[d] = (daySold[d] || 0) + 1;
     st.dishes[d] = (st.dishes[d] || 0) + 1;
   }
+  st.last_day = { start: day.start, no: day.no, served, lost, rev, profit, by: "site" };  // bot shu kun natijasini ko'rsatishi uchun
   p.stats = st;
 
   const interest = Math.floor((p.deposit || 0) * (CFG.DEPOSIT_RATE - 1));
@@ -1086,7 +1097,7 @@ function checkClubAch() {
 /* ===================== CLUB: KUNNI YARATISH ===================== */
 function t1(a, b) { return Math.round(rnd(a, b) * 10) / 10; }
 
-function buildClubDay(now) {
+function buildClubDay(start) {  // start: kun boshlanish vaqti (ms), bot bilan bir xil bo'lishi shart
   const c = S.club;
   const L = rint(CFG.DAY_MIN, CFG.DAY_MAX);
   const H = CFG.CLUB_HOURS;
@@ -1182,19 +1193,11 @@ function buildClubDay(now) {
 
   ev.sort((a, b) => a.t - b.t);
   return {
-    no: c.days + 1, start: now, end: now + L * 1000, len: L, cap: seats, boosts,
+    no: c.days + 1, start, end: start + L * 1000, len: L, owner: "site", cap: seats, boosts,
     sess, lost, ev, outage,
     rent: CFG.CLUB_RENT + CFG.CLUB_RENT_PER_PC * seats,
     salary: CFG.CLUB_ADMIN_SALARY * c.admin,
   };
-}
-
-function startClubDay() {
-  const c = S.club;
-  if (!c.open || c.day) return;
-  c.day = buildClubDay(Date.now());
-  c.boosts = [];
-  saveState();
 }
 
 function clubProgress(day, now) {
@@ -1241,6 +1244,7 @@ function finishClubDay() {
   st.best = Math.max(st.best || 0, profit);
   st.last_rev = rev;
   st.last_lost = lostN;
+  st.last_day = { start: day.start, no: day.no, served, lost: lostN, rev, profit, by: "site" };
   c.stats = st;
 
   const interest = Math.floor((c.deposit || 0) * (CFG.DEPOSIT_RATE - 1));
@@ -2158,7 +2162,7 @@ function handleAct(act) {
     case "ctab": ui.cTab = a; ui.err = null; break;
     case "ltab": ui.lTab = a; ui.err = null; break;
     case "modal": closeModal(); break;
-    case "day": if (a === "start") startCafeDay(); break;
+    case "day": if (a === "start") beginDay("cafe"); break;
     case "buy": buyUpgrade(a); break;
     case "fire": fireStaff(); break;
     case "setpol": setCafePolicy(a); break;
@@ -2179,7 +2183,7 @@ function handleAct(act) {
     case "copen": openClub(); break;
     case "cday": if (a === "start") {
       if (!S.club.open) toast("Avval game clubni oching", "bad");
-      else startClubDay();
+      else beginDay("club");
     } break;
     case "cbuy": buyClubUpgrade(a); break;
     case "csetpol": setClubPolicy(a); break;
@@ -2235,17 +2239,22 @@ document.getElementById("modal").addEventListener("click", (e) => {
 });
 
 /* ===================== TIK: KUN YAKUNI, KREDITLAR, JONLI YANGILASH ===================== */
+// Kun yakuni: kunni boshlagan tomon (owner) vaqtida yakunlaydi; ikkinchi tomon GRACE_MS kutadi (zaxira sifatida)
+function dayDue(d, now) {
+  if (!d || now < d.end) return false;
+  return d.owner === "site" || now >= d.end + GRACE_MS;
+}
 function tick() {
   const now = Date.now();
   let changed = false;
-  const dayDue = (S.cafe.day && now >= S.cafe.day.end) || (S.club.day && now >= S.club.day.end);
-  if (dayDue && syncOn() && now - sy.pullAt > 4000) { syncPull(); return; }  // avval botdagi yangi holat olinadi
-  if (S.cafe.day && now >= S.cafe.day.end) {
+  const cafeDue = dayDue(S.cafe.day, now), clubDue = dayDue(S.club.day, now);
+  if ((cafeDue || clubDue) && syncOn() && now - sy.pullAt > 4000) { syncPull(); return; }  // avval botdagi yangi holat olinadi
+  if (cafeDue) {
     const r = finishCafeDay();
     changed = true;
     if (r) showCafeResult(r);
   }
-  if (S.club.day && now >= S.club.day.end) {
+  if (clubDue) {
     const r = finishClubDay();
     changed = true;
     if (r) showClubResult(r);
@@ -2273,7 +2282,11 @@ function tick() {
 // Kalit = sha256("sync:" + login + ":" + parol_xeshi)[:40], faqat parolni biladigan odam hosil qila oladi.
 // Ketayotgan kun ham sinxronlanadi: qaysi tomonda boshlansa, ikkinchisida ham boshlanadi.
 const FIREBASE_URL = "https://verox-games-default-rtdb.europe-west1.firebasedatabase.app";  // botdagi FIREBASE_URL bilan BIR XIL
-const SYNC_POLL_MS = 12000;
+const SYNC_POLL_MS = 15000;   // jonli oqim uzilganda zaxira so'rov oralig'i
+const LEAD_MS = 3000;         // kun boshlanishi: hozirdan shuncha ms keyin (sayt va botda bir xil)
+const GRACE_MS = 60000;       // kunni boshlagan tomon yakunlamasa, ikkinchi tomon shuncha kutib yakunlaydi
+let dayStarting = false;
+let liveSrc = null, liveKey = null;  // Firebase jonli oqimi (EventSource)
 const sy = { sig: "", pullAt: 0, pushT: null, busy: false, down: 0, ready: false, dirty: false };
 
 function syncKey() { const a = loadAccount(); return a && a.key ? a.key : null; }
@@ -2319,12 +2332,27 @@ function normGame(r) {
   k.open = !!k.open;
   return { cafe: c, club: k };
 }
+// Bulutdan kelgan holat. Bizda ketayotgan kun bulutda yo'q bo'lsa: u boshqa tomonda yakunlangan bo'lsa (stats.last_day) natijasini
+// ko'rsatamiz, aks holda kun yo'qolmasin deb uni saqlab qayta yuboramiz.
 function applyRemote(g, rev) {
+  let keep = false;
+  for (const k of ["cafe", "club"]) {
+    const loc = S[k].day, rem = g[k].day;
+    if (!loc || rem) continue;
+    const last = g[k].stats && g[k].stats.last_day;
+    if (last && last.start === loc.start) {
+      toast(`🏁 Kun ${last.no} botda yakunlandi: ${last.profit >= 0 ? "+" : "−"}${fmt(Math.abs(last.profit))}`, last.profit >= 0 ? "good" : "bad");
+    } else {
+      g[k].day = loc;
+      keep = true;
+    }
+  }
   S.cafe = g.cafe;   // ketayotgan kun ham (bot boshlagan bo'lsa) shu yerga o'tadi
   S.club = g.club;
-  S.rev = rev || 0;
+  S.rev = keep ? Date.now() : (rev || 0);
   sy.sig = syncSig();
   saveState();
+  if (keep) syncSchedule();
   const typing = document.activeElement && /^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName);
   if (!typing && !ui.modalOpen) render();
 }
@@ -2380,14 +2408,32 @@ function syncStatusHtml(acc) {
   if (!acc.key) return `<p class="hint">🔄 Sinxronlashni yoqish uchun pastdagi «Boshqa hisob yaratish» tugmasi orqali shu login va parol bilan qayta kiring.</p>`;
   return `<p class="hint">🔄 Bot bilan sinxron: balans, kunlar, ketayotgan kun va butun o'yin holati ikkala joyda bir xil.</p>`;
 }
+// Bot o'zgarishini darhol olish: Firebase jonli oqimi (EventSource). Uzilsa, brauzer qayta ulanadi.
+function syncLive() {
+  const k = syncKey();
+  if (!k || !FIREBASE_URL || typeof EventSource === "undefined") return;
+  if (liveKey === k && liveSrc && liveSrc.readyState !== 2) return;  // 2 = CLOSED
+  if (liveSrc) liveSrc.close();
+  liveKey = k;
+  try {
+    const es = new EventSource(syncUrl());
+    let t = null;
+    const pull = () => { clearTimeout(t); t = setTimeout(() => syncPull(), 300); };  // bir necha o'zgarishni birga o'qiymiz
+    es.addEventListener("put", pull);
+    es.addEventListener("patch", pull);
+    es.onerror = () => { if (es.readyState === 2) setTimeout(syncLive, 10000); };
+    liveSrc = es;
+  } catch (e) { liveSrc = null; }
+}
 function syncStart() {
   sy.sig = syncSig();
   if (!syncOn()) { sy.ready = true; return; }
   syncPull();
-  setInterval(() => { if (!document.hidden) syncPull(); }, SYNC_POLL_MS);
+  syncLive();
+  setInterval(() => { if (!document.hidden) { syncLive(); syncPull(); } }, SYNC_POLL_MS);
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) { if (sy.dirty) syncPushNow(true); }
-    else syncPull();
+    else { syncLive(); syncPull(); }
   });
 }
 
