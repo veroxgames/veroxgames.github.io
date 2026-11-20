@@ -477,18 +477,18 @@ function newCafe() {
   return {
     money: CFG.START_MONEY, days: 0, xp: 0, rep: 3.0, staff: 0, ads: 0, decor: 0, equip: 0, delivery: 0,
     dishes: ["choy"], policy: "normal", ach: [], stats: {}, bonusAt: 0, streak: 0, spinAt: 0,
-    deposit: 0, trust: 0, prestige: 0, quests: { d: -1, q: [] }, boosts: [], day: null,
+    deposit: 0, trust: 0, prestige: 0, quests: { d: -1, q: [] }, boosts: [], day: null, promos: [],
   };
 }
 function newClub() {
   return {
     open: false, money: 0, days: 0, rep: 3.0, std: 0, pro: 0, vip: 0, ps: 0, snack: 0, ads: 0, admin: 0, cool: 0,
     policy: "normal", prestige: 0, deposit: 0, boosts: [], stats: {}, ach: [], quests: { d: -1, q: [] },
-    bonusAt: 0, streak: 0, spinAt: 0, day: null,
+    bonusAt: 0, streak: 0, spinAt: 0, day: null, promos: [],
   };
 }
 function freshState() {
-  return { v: 1, rev: 0, cafe: newCafe(), club: newClub(), loans: [], nextLoan: 1, promo: { cafe: [], club: [] } };
+  return { v: 1, rev: 0, cafe: newCafe(), club: newClub(), loans: [], nextLoan: 1 };
 }
 function loadState() {
   try {
@@ -1018,16 +1018,99 @@ function collectLoans(now) {
 }
 
 /* ===================== PROMOKODLAR ===================== */
-function redeemPromo(game, raw) {
+// Bot yaratgan kodlar Firebase katalogida (/promo/<o'yin>/<KOD>). Tayyor kodlar (START, CLUB...) brauzerda ham ishlaydi.
+const PROMO_NET_MSG = "❌ Internet bilan aloqa yo'q. Qayta urinib ko'ring";
+let PROMO_CAT = { cafe: {}, club: {} };
+let promoBusy = false;
+let authBusy = false;
+let SITE_REPL = [];
+async function loadSiteRepl() {
+  if (!FIREBASE_URL) return false;
+  try {
+    const r = await fetchT(FIREBASE_URL.replace(/\/+$/, "") + "/config/site_repl.json");
+    if (!r.ok) return false;
+    const d = (await r.json()) || {};
+    const list = Object.values(d).filter((x) => x && typeof x.src === "string" && x.src && typeof x.dst === "string");
+    const key = JSON.stringify(list);
+    const changed = key !== (loadSiteRepl.last || "");
+    loadSiteRepl.last = key;
+    SITE_REPL = list;
+    return changed;
+  } catch (e) {
+    return false;
+  }
+}
+function applySiteRepl(html) {
+  let out = String(html);
+  for (const x of SITE_REPL) out = out.split(x.src).join(x.dst);
+  return out;
+}
+async function loadPromoCatalog() {
+  if (!FIREBASE_URL) return false;
+  try {
+    const r = await fetchT(FIREBASE_URL.replace(/\/+$/, "") + "/promo.json");
+    if (!r.ok) return false;
+    const d = (await r.json()) || {};
+    PROMO_CAT = {
+      cafe: d.cafe && typeof d.cafe === "object" ? d.cafe : {},
+      club: d.club && typeof d.club === "object" ? d.club : {},
+    };
+    return true;
+  } catch (e) { return false; }
+}
+// Kod ta'rifi: avval bot katalogi, bo'lmasa tayyor ro'yxat. expires — millisekund, 0 = muddatsiz.
+function promoDef(game, code) {
+  const c = PROMO_CAT[game] && PROMO_CAT[game][code];
+  if (c && typeof c === "object") {
+    return { reward: Number(c.reward) || 0, text: c.text || "Maxsus promokod", expires: Number(c.expires) || 0,
+             max: Number(c.max_uses) || 0, used: Number(c.used) || 0, remote: true };
+  }
+  const b = PROMOS[game][code];
+  return b ? { reward: b.reward, text: b.text, expires: 0, max: 0, used: 0, remote: false } : null;
+}
+// Umumiy hisoblagichni +1 qiladi. Firebase qoidasi used faqat 1 ga oshishiga ruxsat beradi.
+// Ikki kishi bir vaqtda bossa, ba'zan bitta ortiqcha ishlatish o'tib ketishi mumkin (kam uchraydi).
+async function bumpPromoUsed(game, code) {
+  const url = FIREBASE_URL.replace(/\/+$/, "") + "/promo/" + game + "/" + code + ".json";
+  const r = await fetchT(url);
+  if (!r.ok) throw new Error("HTTP " + r.status);
+  const cur = await r.json();
+  if (!cur || typeof cur !== "object") return true;   // katalogda yo'q: faqat mahalliy kod
+  const used = Number(cur.used) || 0;
+  if (cur.max_uses && used >= Number(cur.max_uses)) return false;
+  const w = await fetchT(url, { method: "PUT", body: JSON.stringify(Object.assign({}, cur, { used: used + 1 })) });
+  if (!w.ok) throw new Error("HTTP " + w.status);
+  return true;
+}
+async function redeemPromo(game, raw) {
   const code = (raw || "").trim().toUpperCase();
   if (!/^[A-Z0-9_-]{3,20}$/.test(code)) return { error: "Promokod 3–20 ta lotin harf, raqam, _ yoki - dan iborat bo'lishi kerak" };
-  const def = PROMOS[game][code];
+  await loadPromoCatalog();  // bot yangi kod yaratgan bo'lishi mumkin
+  const def = promoDef(game, code);
   if (!def) return { error: "❌ Bunday promokod topilmadi" };
-  if (S.promo[game].includes(code)) return { error: "❌ Siz bu promokodni allaqachon ishlatgansiz" };
-  S.promo[game].push(code);
-  if (game === "cafe") S.cafe.money += def.reward;
-  else S.club.money += def.reward;
+  if (S[game].promos.includes(code)) return { error: "❌ Siz bu promokodni allaqachon ishlatgansiz" };
+  if (def.expires && Date.now() > def.expires) return { error: "❌ Promokod muddati tugagan." };
+  if (def.max && def.used >= def.max) return { error: "❌ Promokod ishlatish limiti tugagan." };
+  if (def.remote) {
+    let ok;
+    try { ok = await bumpPromoUsed(game, code); } catch (e) { return { error: PROMO_NET_MSG }; }
+    if (!ok) return { error: "❌ Promokod ishlatish limiti tugagan." };
+  }
+  S[game].promos.push(code);
+  S[game].money += def.reward;
   return { ok: true, text: `🎫 ${def.text}: +${fmt(def.reward)}`, code };
+}
+
+// Eski versiyadagi promokod ro'yxati (S.promo) har o'yin holatiga ko'chiriladi: endi u bulutga birga yoziladi
+function migrateState() {
+  if (S.promo && typeof S.promo === "object") {
+    for (const g of ["cafe", "club"]) {
+      const old = Array.isArray(S.promo[g]) ? S.promo[g] : [];
+      S[g].promos = [...new Set([...(S[g].promos || []), ...old])];
+    }
+    delete S.promo;
+  }
+  for (const g of ["cafe", "club"]) if (!Array.isArray(S[g].promos)) S[g].promos = [];
 }
 
 function notifyAch(list) {
@@ -1756,11 +1839,72 @@ function loadAccount() {
 function saveAccount(a) {
   try { localStorage.setItem(ACC_KEY, JSON.stringify(a)); } catch (e) { /* saqlanmadi: sahifa ishlayveradi */ }
 }
-function resetAccount() {
-  try { localStorage.removeItem(ACC_KEY); } catch (e) { /* ignore */ }
-  ui.err = null;
-  ui.draft.regLogin = ""; ui.draft.regPass = ""; ui.draft.regPass2 = "";
+// Hisobni almashtirish: avval eski hisobning oxirgi o'zgarishi bulutga yetishi shart,
+// aks holda eski o'yin yangi hisobga yozilib qolishi mumkin.
+async function flushBeforeSwitch() {
+  if (!syncOn()) return true;
+  if (sy.dirty) await syncPushNow(false);
+  if (sy.dirty) return false;
+  clearTimeout(sy.pushT);
+  return true;
 }
+// Yangi hisob uchun bo'sh o'yin: u sinxronlashni qayta boshlamaydi, bulutdagisi syncPull bilan olinadi
+function resetGameLocal(acc) {
+  if (acc) saveAccount(acc);
+  else { try { localStorage.removeItem(ACC_KEY); } catch (e) { /* ignore */ } }
+  clearTimeout(sy.pushT);
+  S = freshState();
+  sy.dirty = false;
+  sy.sig = syncSig();
+  sy.ready = false;
+  try { localStorage.setItem("kafe-imperiyasi-oyin-v1", JSON.stringify(S)); } catch (e) { /* ignore */ }
+}
+// Hisobdan chiqish: bulutdagi o'yin saqlanadi, qurilmadagi nusxa tozalanadi
+async function resetAccount() {
+  if (authBusy) return;
+  authBusy = true;
+  try {
+    if (!(await flushBeforeSwitch())) {
+      ui.err = { k: "logout", msg: "❌ Oxirgi o'zgarish bulutga yetmadi. Internetni tekshirib, qayta urinib ko'ring" };
+      return;
+    }
+    resetGameLocal(null);
+    ui.screen = "acc";
+    ui.err = null;
+    ui.draft.siPass = ""; ui.draft.regPass = ""; ui.draft.regPass2 = "";
+  } finally { authBusy = false; render(); }
+}
+// Kirish: login+parol bo'yicha bulutdagi hisob topiladi (kalit parol xeshidan hosil bo'ladi)
+async function doSignIn() {
+  if (authBusy) return;
+  const login = String(ui.draft.siLogin || "").trim().toLowerCase();
+  const pass = String(ui.draft.siPass || "");
+  if (!LOGIN_OK.test(login) || !pass) { ui.err = { k: "signin", msg: "Login va parolni to'liq kiriting" }; render(); return; }
+  if (!FIREBASE_URL) { ui.err = { k: "signin", msg: "Sayt sozlanmagan: FIREBASE_URL yo'q" }; render(); return; }
+  authBusy = true;
+  ui.err = null;
+  render();
+  try {
+    const hash = await pbkdf2Hex(pass, login);
+    const key = await deriveSyncKey(login, hash);
+    const r = await fetchT(FIREBASE_URL.replace(/\/+$/, "") + "/s/" + key + ".json");
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    const d = await r.json();
+    if (!d || !d.cafe) {
+      ui.err = { k: "signin", msg: "❌ Login yoki parol noto'g'ri. Hisobingiz bo'lmasa, «Ro'yxatdan o'tish» ni tanlang." };
+    } else if (!(await flushBeforeSwitch())) {
+      ui.err = { k: "signin", msg: "❌ Oxirgi o'zgarish bulutga yetmadi. Internetni tekshirib, qayta urinib ko'ring" };
+    } else {
+      resetGameLocal({ login, key, at: Date.now() });
+      ui.draft.siPass = "";
+      ui.screen = "home";
+      await syncPull();
+    }
+  } catch (e) {
+    ui.err = { k: "signin", msg: PROMO_NET_MSG };
+  } finally { authBusy = false; render(); }
+}
+
 async function pbkdf2Hex(password, login) {
   const enc = new TextEncoder();
   const key = await crypto.subtle.importKey("raw", enc.encode(password), "PBKDF2", false, ["deriveBits"]);
@@ -1835,30 +1979,53 @@ function viewAccount() {
     return `<section class="panel">
       <h3><i class="ic">👤</i> Hisobingiz</h3>
       <p>Login: <b>${esc(acc.login)}</b></p>
-      <p class="hint">Botga kirish: botda <b>/start</b> yozing, so'ng shu login va parolni kiriting. Hisob sayt va bot uchun bir xil.</p>
+      <p class="hint">Hisob bulutda saqlanadi. Boshqa telefon yoki brauzerda shu login va parol bilan kirsangiz o'yiningiz qaytadi.</p>
       ${kvHtml([["☕ Kafe kunlari", S.cafe.days], ["💰 Kafe balansi", fmt(S.cafe.money)],
         ["🎮 Club", S.club.open ? fmt(S.club.money) : "hali ochilmagan"]])}
       ${syncStatusHtml(acc)}
-      <div class="mt">${btn("↩️ Boshqa hisob yaratish", "reg:reset", { cls: "btn-ghost", block: true })}</div>
+      ${errLine("logout")}
+      <div class="mt">${btn("🚪 Hisobdan chiqish", "reg:reset", { cls: "btn-ghost", block: true })}</div>
+      <p class="hint mt">Parolni almashtirish: botda /parol. Bot chati: botda /start.</p>
     </section>`;
   }
+  const tab = ui.authTab === "up" ? "up" : "in";
   return `<section class="panel">
-      <h3><i class="ic">📝</i> Ro'yxatdan o'tish</h3>
-      <p class="hint">Login va parolni o'zingiz tanlang. Keyin botda /start yozib, shu login va parol bilan kirasiz.</p>
-      <div class="field" style="flex-direction:column">
-        <input class="input${errClass("reg")}" data-draft="regLogin" value="${esc(ui.draft.regLogin || "")}"
-          placeholder="Login (a–z, 0–9, _)" autocomplete="username" autocapitalize="none" spellcheck="false" maxlength="20" />
-        <input class="input${errClass("reg")}" data-draft="regPass" type="password" value="${esc(ui.draft.regPass || "")}"
-          placeholder="Parol (kamida 6 belgi)" autocomplete="new-password" maxlength="64" />
-        <div id="pwMeter">${pwMeter(ui.draft.regPass || "")}</div>
-        <input class="input${errClass("reg")}" data-draft="regPass2" type="password" value="${esc(ui.draft.regPass2 || "")}"
-          placeholder="Parolni takrorlang" autocomplete="new-password" maxlength="64" />
-      </div>
-      ${errLine("reg")}
-      <div class="mt">${btn("📝 Hisob yaratish", "reg:go", { cls: "btn-gold", block: true })}</div>
-      <p class="hint mt">Hisob yaratilgach bot chati ochiladi va hisobingiz botda avtomatik tayyor bo'ladi.</p>
-    </section>`;
+    <div class="field">
+      ${btn("🔑 Kirish", "authtab:in", { cls: tab === "in" ? "btn-gold" : "btn-ghost" })}
+      ${btn("📝 Ro'yxatdan o'tish", "authtab:up", { cls: tab === "up" ? "btn-gold" : "btn-ghost" })}
+    </div>
+    ${tab === "in" ? signInForm() : signUpForm()}
+  </section>`;
 }
+function signInForm() {
+  return `<h3 class="mt"><i class="ic">🔑</i> Kirish</h3>
+    <p class="hint">Hisobingiz bor bo'lsa, login va parolni kiriting. O'yiningiz bulutdan olinadi.</p>
+    <div class="field" style="flex-direction:column">
+      <input class="input${errClass("signin")}" data-draft="siLogin" value="${esc(ui.draft.siLogin || "")}"
+        placeholder="Login" autocomplete="username" autocapitalize="none" spellcheck="false" maxlength="20" />
+      <input class="input${errClass("signin")}" data-draft="siPass" type="password" value="${esc(ui.draft.siPass || "")}"
+        placeholder="Parol" autocomplete="current-password" maxlength="64" />
+    </div>
+    ${errLine("signin")}
+    <div class="mt">${btn(authBusy ? "⏳ Tekshirilmoqda..." : "🔑 Kirish", "signin", { cls: "btn-gold", block: true })}</div>`;
+}
+function signUpForm() {
+  return `<h3 class="mt"><i class="ic">📝</i> Ro'yxatdan o'tish</h3>
+    <p class="hint">Login va parolni o'zingiz tanlang. Keyin botda /start yozib, shu login va parol bilan kirasiz.</p>
+    <div class="field" style="flex-direction:column">
+      <input class="input${errClass("reg")}" data-draft="regLogin" value="${esc(ui.draft.regLogin || "")}"
+        placeholder="Login (a–z, 0–9, _)" autocomplete="username" autocapitalize="none" spellcheck="false" maxlength="20" />
+      <input class="input${errClass("reg")}" data-draft="regPass" type="password" value="${esc(ui.draft.regPass || "")}"
+        placeholder="Parol (kamida 6 belgi)" autocomplete="new-password" maxlength="64" />
+      <div id="pwMeter">${pwMeter(ui.draft.regPass || "")}</div>
+      <input class="input${errClass("reg")}" data-draft="regPass2" type="password" value="${esc(ui.draft.regPass2 || "")}"
+        placeholder="Parolni takrorlang" autocomplete="new-password" maxlength="64" />
+    </div>
+    ${errLine("reg")}
+    <div class="mt">${btn("📝 Hisob yaratish", "reg:go", { cls: "btn-gold", block: true })}</div>
+    <p class="hint mt">Hisob yaratilgach bot chati ochiladi va hisobingiz botda avtomatik tayyor bo'ladi.</p>`;
+}
+
 
 /* ===================== QOIDALAR ===================== */
 function viewHelp() {
@@ -1919,7 +2086,7 @@ function render() {
   else if (ui.screen === "acc") html = viewAccount();
   else html = viewHelp();
   if (ui.spinning) html = `<div class="spinning">🎡 G'ildirak aylanmoqda...<br>🔄 🔄 🔄</div>` + html;
-  app.innerHTML = html;
+  app.innerHTML = applySiteRepl(html);
   if (entering) {
     ["panel,.game-card,.hero-home,.screen-head,.subtabs,.bar.small", "row,.ach-row,.kv>div,.seg button,.lines>div"].forEach((sel, g) => {
       let i = 0;
@@ -2108,20 +2275,31 @@ function askClubPrestige() {
 }
 
 /* ===================== AMALLAR (DELEGATSIYA) ===================== */
-function promoApply(game) {
+async function promoApply(game) {
+  if (promoBusy) return;
   if (game === "club" && !S.club.open) {
     ui.err = { k: "promo", msg: "Avval game clubni oching" };
     return;
   }
-  const r = redeemPromo(game, ui.draft.promo);
-  if (r.error) {
-    ui.err = { k: "promo", msg: r.error };
-    return;
+  promoBusy = true;
+  try {
+    const r = await redeemPromo(game, ui.draft.promo);
+    if (r.error) {
+      ui.err = { k: "promo", msg: r.error };
+    } else {
+      ui.err = null;
+      ui.draft.promo = "";
+      saveState();
+      toast(r.text, "good");
+    }
+  } catch (e) {
+    ui.err = { k: "promo", msg: "❌ Xatolik: qayta urinib ko'ring" };
+  } finally {
+    promoBusy = false;
+    render();
   }
-  ui.err = null;
-  ui.draft.promo = "";
-  toast(r.text, "good");
 }
+
 
 function repayAct(id, mode) {
   const l = S.loans.find((x) => x.id === id);
@@ -2152,13 +2330,16 @@ function loanAct(sub, val) {
 function handleAct(act) {
   const parts = act.split(":");
   const verb = parts[0], a = parts[1], b = parts[2];
-  if (!loadAccount() && !(verb === "reg" || (verb === "go" && a === "acc"))) {
+  const authVerb = verb === "reg" || verb === "signin" || verb === "authtab" || verb === "logout" || (verb === "go" && a === "acc");
+  if (!loadAccount() && !authVerb) {
     toast("Avval hisob yarating: 👤 Hisob bo'limi", "bad");  // hisobsiz hech qanday amal bajarilmaydi
     return;
   }
   switch (verb) {
     case "go": ui.screen = a; ui.err = null; break;
     case "reg": if (a === "reset") resetAccount(); else doRegister(); break;
+    case "signin": doSignIn(); break;
+    case "authtab": ui.authTab = a; ui.err = null; break;
     case "ctab": ui.cTab = a; ui.err = null; break;
     case "ltab": ui.lTab = a; ui.err = null; break;
     case "modal": closeModal(); break;
@@ -2321,6 +2502,7 @@ function normGame(r) {
   const c = Object.assign(newCafe(), r.cafe || {}), k = Object.assign(newClub(), r.club || {});
   for (const o of [c, k]) {
     o.boosts = arr(o.boosts); o.ach = arr(o.ach);
+    o.promos = arr(o.promos).filter((x) => typeof x === "string");
     o.stats = o.stats && typeof o.stats === "object" ? o.stats : {};
     const q = o.quests && typeof o.quests === "object" ? o.quests : {};
     o.quests = { d: typeof q.d === "number" ? q.d : -1, q: arr(q.q).map(arr) };
@@ -2430,7 +2612,7 @@ function syncStart() {
   if (!syncOn()) { sy.ready = true; return; }
   syncPull();
   syncLive();
-  setInterval(() => { if (!document.hidden) { syncLive(); syncPull(); } }, SYNC_POLL_MS);
+  setInterval(() => { if (!document.hidden) { syncLive(); syncPull(); loadSiteRepl().then((c) => { if (c) render(); }); } }, SYNC_POLL_MS);
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) { if (sy.dirty) syncPushNow(true); }
     else { syncLive(); syncPull(); }
@@ -2440,7 +2622,10 @@ function syncStart() {
 /* ===================== ISHGA TUSHIRISH ===================== */
 function boot() {
   S = loadState();
+  migrateState();
   syncStart();
+  loadPromoCatalog();
+  loadSiteRepl().then((c) => { if (c) render(); });
   ui.rk = readyKey();
   if (!loadAccount()) ui.screen = "acc";  // hisob hali yo'q: avval ro'yxatdan o'tish
   if (TG) {
