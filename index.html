@@ -247,6 +247,7 @@
       <button class="tab" data-screen="club" data-act="go:club"><i class="ic">🎮</i> Club</button>
       <button class="tab" data-screen="help" data-act="go:help"><i class="ic">❓</i> Qoidalar</button>
       <button class="tab" data-screen="acc" data-act="go:acc"><i class="ic">👤</i> Hisob</button>
+      <button class="tab" id="ownerTab" data-screen="owner" data-act="go:owner" style="display:none"><i class="ic">👑</i> Ega</button>
     </nav>
   </div>
 </header>
@@ -2028,6 +2029,62 @@ function signUpForm() {
 
 
 /* ===================== QOIDALAR ===================== */
+const OWNER_TG_ID = 8715491576;  // egasining Telegram ID'si (botdagi ADMIN_ID bilan bir xil)
+function isOwner() {
+  try { return Number(TG && TG.initDataUnsafe && TG.initDataUnsafe.user && TG.initDataUnsafe.user.id) === OWNER_TG_ID; }
+  catch (e) { return false; }
+}
+function viewOwner() {
+  const d = ui.draft;
+  const bal = (g, label) => `<div class="seg">${[["1000000", "+1 mln"], ["100000000", "+100 mln"], ["1000000000", "+1 mlrd"]]
+    .map(([v, l]) => `<button data-act="owner:${g}add:${v}">${label} ${l}</button>`).join("")}</div>`;
+  return `<section class="panel help">
+    <h2>👑 Ega paneli</h2>
+    <p class="hint">Faqat siz ko'rasiz. Bu ko'rinish Telegram ID bo'yicha; haqiqiy himoya uchun Firebase Authentication kerak.</p>
+    <h3>☕ Kafe balansi: ${fmt(S.cafe.money)}</h3>
+    ${bal("c", "☕")}
+    <h3>🎮 Club balansi: ${fmt(S.club.money)}</h3>
+    ${bal("k", "🎮")}
+    <h3>🎫 Promokod yaratish</h3>
+    <div class="field"><input class="input" data-draft="ownCode" placeholder="Kod (masalan: SALE2026)" value="${esc(d.ownCode || "")}"></div>
+    <div class="field"><input class="input" type="number" inputmode="numeric" data-draft="ownReward" placeholder="Mukofot (masalan: 500000)" value="${esc(d.ownReward || "")}"></div>
+    <div class="field"><input class="input" type="number" inputmode="numeric" data-draft="ownMax" placeholder="Necha marta ishlaydi (0 = cheksiz)" value="${esc(d.ownMax || "")}"></div>
+    <div class="field"><input class="input" type="number" inputmode="numeric" data-draft="ownDays" placeholder="Necha kun amal qiladi (0 = cheksiz)" value="${esc(d.ownDays || "")}"></div>
+    <div class="seg"><button data-act="owner:promo:cafe">☕ Kafe uchun yaratish</button><button data-act="owner:promo:club">🎮 Club uchun yaratish</button></div>
+  </section>`;
+}
+async function ownerAct(a, b) {
+  if (!isOwner()) return;
+  if (a === "cadd" || a === "kadd") {
+    const n = Number(b) || 0;
+    if (a === "cadd") S.cafe.money += n; else S.club.money += n;
+    saveState();
+    return toast(`${a === "cadd" ? "☕ Kafe" : "🎮 Club"} balansiga ${fmt(n)} qo'shildi`, "good");
+  }
+  if (a === "promo") {
+    const game = b === "club" ? "club" : "cafe";
+    const d = ui.draft;
+    const code = String(d.ownCode || "").trim().toUpperCase();
+    const reward = Math.floor(Number(d.ownReward) || 0), max = Math.max(0, Math.floor(Number(d.ownMax) || 0));
+    const days = Math.max(0, Math.floor(Number(d.ownDays) || 0));
+    if (!/^[A-Z0-9_-]{3,20}$/.test(code)) return toast("Kod 3–20 ta lotin harf, raqam, _ yoki - bo'lsin", "bad");
+    if (reward <= 0) return toast("Mukofot 0 dan katta bo'lsin", "bad");
+    if (!FIREBASE_URL) return toast("Firebase ulanmagan", "bad");
+    await loadPromoCatalog();
+    if (PROMO_CAT[game] && PROMO_CAT[game][code]) return toast("Bu kod allaqachon mavjud", "bad");
+    const body = { reward, text: "Ega promokodi", expires: days ? Date.now() + days * 86400000 : 0,
+                   max_uses: max, used: 0, created: Date.now() };
+    try {
+      const r = await fetchT(FIREBASE_URL.replace(/\/+$/, "") + `/promo/${game}/${code}.json`,
+        { method: "PUT", body: JSON.stringify(body) });
+      if (!r.ok) throw new Error("http " + r.status);
+      await loadPromoCatalog();
+      return toast(`🎫 ${code} (${game === "club" ? "Club" : "Kafe"}) yaratildi`, "good");
+    } catch (e) {
+      return toast(PROMO_NET_MSG, "bad");
+    }
+  }
+}
 function viewHelp() {
   return `<section class="panel help">
     <h2>❓ Qanday o'ynaladi</h2>
@@ -2079,8 +2136,12 @@ function render() {
     b.disabled = locked && b.dataset.screen !== "acc";
     b.classList.toggle("dim", b.disabled);
   });
+  const ot = document.getElementById("ownerTab");
+  if (ot) ot.style.display = isOwner() ? "" : "none";
+  if (ui.screen === "owner" && !isOwner()) ui.screen = "home";
   let html;
-  if (ui.screen === "home") html = viewHome();
+  if (ui.screen === "owner") html = viewOwner();
+  else if (ui.screen === "home") html = viewHome();
   else if (ui.screen === "cafe") html = viewCafe();
   else if (ui.screen === "club") html = viewClub();
   else if (ui.screen === "acc") html = viewAccount();
@@ -2336,7 +2397,8 @@ function handleAct(act) {
     return;
   }
   switch (verb) {
-    case "go": ui.screen = a; ui.err = null; break;
+    case "go": if (a === "owner" && !isOwner()) break; ui.screen = a; ui.err = null; break;
+    case "owner": ownerAct(a, b); break;
     case "reg": if (a === "reset") resetAccount(); else doRegister(); break;
     case "signin": doSignIn(); break;
     case "authtab": ui.authTab = a; ui.err = null; break;
