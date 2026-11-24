@@ -538,16 +538,6 @@ function sellPrice(key, pm) {
 function priceLimit(key) { return Math.round((DISHES[key].sell * 25) / 24 / 100) * 100; }
 // Pastki chegara: xarajatdan past narx qo'yib bo'lmaydi (zarar bo'lmasin)
 function priceFloor(key) { return Math.max(100, DISHES[key].cost); }
-// Limitdan oshgan har 3 000 so'm uchun 15 000 so'm, har kuni kun yakunida kafe hisobidan avtomatik yechiladi
-function dishPenalty(p) {
-  let total = 0;
-  for (const k of Object.keys(p.prices || {})) {
-    if (!ownsDish(p, k)) continue;
-    const over = p.prices[k] - priceLimit(k);
-    if (over > 0) total += Math.ceil(over / 3000) * 15000;
-  }
-  return total;
-}
 function dishCost(key, equip) { return Math.floor(DISHES[key].cost * (1 - 0.05 * equip)); }
 function incomeScale(p) { return Math.max(40000, (p.stats && p.stats.last_rev) || 0); }
 function boostPrice(p, key) { return Math.max(20000, r1000(incomeScale(p) * BOOSTS[key].factor)); }
@@ -807,12 +797,6 @@ function finishCafeDay() {
   const p = S.cafe;
   const day = p.day;
   if (!day) return;
-  const pen = dishPenalty(p);
-  if (pen > 0) {
-    const paid = Math.min(p.money, pen);
-    p.money -= paid;
-    toast(`⚠️ Limitdan oshgan narx jarimasi: −${fmt(paid)}`, "bad");
-  }
   const cust = day.cust;
   const served = cust.length, lost = day.lost.length;
   const D = served + lost;
@@ -910,15 +894,14 @@ function setDishPrice(key, raw) {
   const v = Math.floor(Number(String(raw || "").replace(/\s/g, "")));
   if (!Number.isFinite(v) || v <= 0) return toast("Narxni raqamda yozing", "bad");
   if (v < priceFloor(key)) return toast(`Narx xarajatdan (${fmt(priceFloor(key))}) past bo'lmasin`, "bad");
+  const lim = priceLimit(key);
+  const pen = v > lim ? Math.ceil((v - lim) / 3000) * 15000 : 0;
+  if (pen > p.money) return toast(`Jarima ${fmt(pen)} — kafe hisobida pul yetmaydi`, "bad");
+  p.money -= pen;  // jarima narx qo'yilgan paytda bir marta yechiladi
   p.prices = p.prices || {};
   p.prices[key] = v;
-  const lim = priceLimit(key);
-  if (v > lim) {
-    const pen = Math.ceil((v - lim) / 3000) * 15000;
-    toast(`${DISHES[key].e} ${DISHES[key].n}: ${fmt(v)}. Limitdan oshdi, har kuni −${fmt(pen)} yechiladi`, "info");
-  } else {
-    toast(`${DISHES[key].e} ${DISHES[key].n}: narx ${fmt(v)} saqlandi ✅`, "good");
-  }
+  if (pen > 0) toast(`${DISHES[key].e} ${DISHES[key].n}: ${fmt(v)}. Limitdan oshgani uchun jarima −${fmt(pen)} (bir marta)`, "info");
+  else toast(`${DISHES[key].e} ${DISHES[key].n}: narx ${fmt(v)} saqlandi ✅`, "good");
 }
 function buyBoost(key) {
   const p = S.cafe, price = boostPrice(p, key);
@@ -1635,7 +1618,7 @@ function cafeUpgView() {
 function cafeMenuView() {
   const p = S.cafe, pm = POLICIES[p.policy].price;
   let h = `<section class="panel"><h3><i class="ic">🍴</i> Menyu (${p.dishes.length}/${DISH_LIST.length})</h3>
-    <p class="hint">Menyuga taomni sotib oling. Menyudagi taom narxini o'zingiz belgilaysiz: limit asl narxning ~4% yuqorisi. Limitdan oshsa, har 3 000 so'mga 15 000 so'm jarima kun yakunida yechiladi.</p>`;
+    <p class="hint">Menyuga taomni sotib oling. Menyudagi taom narxini o'zingiz belgilaysiz: limit asl narxning ~4% yuqorisi. Limitdan oshsa, narx qo'yilgan paytda har 3 000 so'mga 15 000 so'm jarima bir marta yechiladi.</p>`;
   for (const d of DISH_LIST) {
     const sell = sellPrice(d.k, pm), cost = dishCost(d.k, p.equip);
     const owned = ownsDish(p, d.k);
@@ -1644,7 +1627,7 @@ function cafeMenuView() {
     h += row(d.e, d.n, sub, right);
     if (owned) {
       h += `<div class="pr-ed"><input class="input" type="number" inputmode="numeric" data-draft="pr_${d.k}" placeholder="Narx: ${fmt(sell)}" value="${esc(ui.draft["pr_" + d.k] || "")}"/>${btn("Saqlash", "dprice:" + d.k, { small: true })}
-        <div class="pr-lim">Asl narx ${fmt(d.sell)} · limit ${fmt(priceLimit(d.k))} (undan oshsa, har 3 000 so'mga 15 000 jarima)</div></div>`;
+        <div class="pr-lim">Asl narx ${fmt(d.sell)} · limit ${fmt(priceLimit(d.k))} (undan oshsa, narx qo'yilganda har 3 000 so'mga 15 000 jarima bir marta)</div></div>`;
     }
   }
   return h + "</section>";
