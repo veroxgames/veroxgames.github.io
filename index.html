@@ -236,6 +236,40 @@
   .pwm{height:6px;border-radius:6px;background:rgba(255,255,255,.08);overflow:hidden;margin:8px 2px 2px}
   .pwm i{display:block;height:100%;border-radius:6px;transition:width .25s,background-color .25s}
   .tab.dim{opacity:.35;filter:grayscale(.6);cursor:not-allowed}
+  /* ---- Effektlar: silliq o'tishlar va fokus holatlari ---- */
+  .panel{transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease}
+  .panel:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(0,0,0,.35);border-color:rgba(245,190,70,.35)}
+  .row{transition:background .2s ease,padding-left .2s ease}
+  .row:hover{background:rgba(255,255,255,.03);padding-left:6px}
+  .input{transition:border-color .2s ease,box-shadow .2s ease,background .2s ease}
+  .input:focus{outline:none;border-color:rgba(245,190,70,.7);box-shadow:0 0 0 3px rgba(245,190,70,.18)}
+  .btn-gold:not(:disabled):hover{box-shadow:0 0 18px rgba(245,190,70,.35)}
+  .btn-gold{position:relative;overflow:hidden}
+  .btn-gold::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.25) 50%,transparent 70%);transform:translateX(-120%)}
+  .btn-gold:not(:disabled):hover::after{transform:translateX(120%);transition:transform .7s ease}
+  .chip.ok{animation:pop .3s ease both}
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+    .panel:hover,.row:hover{transform:none;padding-left:inherit}
+  }
+  /* ---- Jonli fon: kafe (issiq, bug') va club (neon, to'r) ---- */
+  .fx-bg{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none;transition:background .6s ease;
+    background:radial-gradient(ellipse at 20% 0%,rgba(245,158,11,.20),transparent 60%),radial-gradient(ellipse at 90% 100%,rgba(234,88,12,.14),transparent 55%),#140d08}
+  body.club-mode .fx-bg{background:radial-gradient(ellipse at 50% 0%,rgba(34,211,238,.18),transparent 60%),radial-gradient(ellipse at 80% 100%,rgba(168,85,247,.18),transparent 55%),#070b16}
+  .fx-grid{position:absolute;left:-50%;right:-50%;bottom:-6%;height:62%;opacity:0;transition:opacity .6s ease;
+    background-image:linear-gradient(rgba(34,211,238,.28) 1px,transparent 1px),linear-gradient(90deg,rgba(34,211,238,.28) 1px,transparent 1px);
+    background-size:48px 48px;transform:perspective(380px) rotateX(62deg);animation:fxgrid 3.2s linear infinite}
+  body.club-mode .fx-grid{opacity:1}
+  @keyframes fxgrid{from{background-position:0 0}to{background-position:0 48px}}
+  .fx-p{position:absolute;bottom:-24px;border-radius:50%;opacity:0;animation:fxup var(--d) linear var(--dl) infinite}
+  .fx-p.s{background:radial-gradient(circle,rgba(255,236,210,.35),rgba(255,236,210,0) 70%);filter:blur(1.5px)}
+  .fx-p.n{box-shadow:0 0 10px var(--c),0 0 18px var(--c)}
+  body.club-mode .fx-p.s{display:none}
+  body:not(.club-mode) .fx-p.n{display:none}
+  @keyframes fxup{0%{transform:translateY(0) scale(.6);opacity:0}15%{opacity:.9}100%{transform:translateY(-110vh) scale(1.25);opacity:0}}
+  .snd{position:fixed;right:12px;bottom:12px;z-index:60;width:42px;height:42px;border-radius:50%;border:1px solid var(--line);
+    background:rgba(0,0,0,.5);color:#fff;font-size:18px;cursor:pointer;backdrop-filter:blur(6px);transition:transform .2s ease}
+  .snd:hover{transform:scale(1.08)}
 </style>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
@@ -550,7 +584,156 @@ function clubClock(t) {
 function ownsDish(p, k) { return p.dishes.indexOf(k) >= 0; }
 
 /* ===================== XABAR (TOAST) VA OYNA ===================== */
+// ---- Tovush (sintez: fayl yuklanmaydi) va jonli fon ----
+let FX_ON = (() => { try { return localStorage.getItem("kafe-sound-v1") !== "0"; } catch (e) { return true; } })();
+let FX_CTX = null;
+function fxCtx() {
+  if (!FX_CTX) { try { FX_CTX = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { return null; } }
+  if (FX_CTX.state === "suspended") FX_CTX.resume().catch(() => {});
+  return FX_CTX;
+}
+function tone(freq, dur, type, vol, delay) {
+  const c = fxCtx();
+  if (!c || !FX_ON) return;
+  const t = c.currentTime + (delay || 0);
+  const o = c.createOscillator(), g = c.createGain();
+  o.type = type || "sine";
+  o.frequency.setValueAtTime(freq, t);
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(vol || 0.12, t + 0.01);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  o.connect(g); g.connect(c.destination);
+  o.start(t); o.stop(t + dur + 0.02);
+}
+const SFX = {
+  click: () => tone(720, 0.07, "triangle", 0.16),
+  tick: () => tone(1100, 0.03, "square", 0.07),
+  good: () => { tone(660, 0.12, "sine", 0.12); tone(880, 0.16, "sine", 0.12, 0.1); },
+  bad: () => { tone(220, 0.2, "sawtooth", 0.06); tone(180, 0.25, "sawtooth", 0.06, 0.12); },
+  info: () => tone(520, 0.1, "sine", 0.1),
+};
+function sfx(name) { if (SFX[name]) SFX[name](); }
+// Fon musiqasi: har bir ekran uchun o'z ohangi (brauzerda sintez, fayl yo'q)
+const MUS = {
+  calm: { bpm: 84, vol: 0.05, chords: [[261.6, 329.6, 392], [220, 261.6, 329.6], [174.6, 220, 261.6], [196, 246.9, 293.7]] },
+  cafe: { bpm: 100, vol: 0.06, chords: [[293.7, 369.99, 440], [246.9, 311.1, 370], [220, 277.2, 329.6], [261.6, 329.6, 392]] },
+  club: { bpm: 124, vol: 0.07, bass: [55, 55, 65.4, 73.4] },
+};
+let AMB = null, AMB_WANT = "calm", NOISE = null;
+function musNote(c, dest, f, dur, type, vol, t) {
+  const o = c.createOscillator(), g = c.createGain();
+  o.type = type; o.frequency.setValueAtTime(f, t);
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(vol, t + 0.01);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  o.connect(g); g.connect(dest); o.start(t); o.stop(t + dur + 0.05);
+}
+function musPerc(c, dest, t, kind) {
+  if (kind === "kick") {
+    const o = c.createOscillator(), g = c.createGain();
+    o.frequency.setValueAtTime(120, t); o.frequency.exponentialRampToValueAtTime(40, t + 0.12);
+    g.gain.setValueAtTime(0.5, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.2);
+    o.connect(g); g.connect(dest); o.start(t); o.stop(t + 0.22);
+    return;
+  }
+  if (!NOISE) {
+    NOISE = c.createBuffer(1, Math.floor(c.sampleRate * 0.2), c.sampleRate);
+    const d = NOISE.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+  }
+  const src = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain();
+  src.buffer = NOISE; f.type = "highpass"; f.frequency.value = 7000;
+  g.gain.setValueAtTime(kind === "open" ? 0.12 : 0.06, t);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + (kind === "open" ? 0.12 : 0.05));
+  src.connect(f); f.connect(g); g.connect(dest); src.start(t); src.stop(t + 0.14);
+}
+function musStep(kind, step, t, c, dest) {
+  const m = MUS[kind], eighth = 60 / m.bpm / 2;
+  if (kind === "calm") {
+    const ch = m.chords[Math.floor(step / 8) % 4];
+    musNote(c, dest, ch[step % 3] * (step % 8 < 3 ? 1 : 2), eighth * 1.8, "triangle", 0.5, t);
+  } else if (kind === "cafe") {
+    if (step % 2 === 0) {
+      const ch = m.chords[Math.floor(step / 8) % 4];
+      musNote(c, dest, ch[Math.floor(step / 2) % 3] * (step % 4 === 0 ? 1 : 2), eighth * 2.2, "sine", 0.5, t);
+    }
+    if (step % 4 === 0) musPerc(c, dest, t, "hat");
+  } else {
+    if (step % 4 === 0) musPerc(c, dest, t, "kick");
+    if (step % 2 === 1) musPerc(c, dest, t, "hat");
+    if (step % 4 === 2) musPerc(c, dest, t, "open");
+    if (step % 8 === 0) musNote(c, dest, m.bass[Math.floor(step / 8) % 4], eighth * 4, "sawtooth", 0.12, t);
+  }
+}
+function musicStart(kind) {
+  const c = fxCtx();
+  if (!c) return null;
+  const g = c.createGain();
+  g.gain.value = 0;
+  g.connect(c.destination);
+  g.gain.setTargetAtTime(MUS[kind].vol, c.currentTime, 0.6);
+  const st = { kind, c, g, step: 0, next: c.currentTime + 0.05, timer: null };
+  st.timer = setInterval(() => {
+    const eighth = 60 / MUS[kind].bpm / 2;
+    while (st.next < c.currentTime + 0.15) {
+      musStep(kind, st.step, st.next, c, g);
+      st.next += eighth; st.step++;
+    }
+  }, 40);
+  return st;
+}
+function ambStop(fade) {
+  if (!AMB) return;
+  const a = AMB; AMB = null;
+  if (a.timer) clearInterval(a.timer);
+  try { a.g.gain.setTargetAtTime(0, a.c.currentTime, 0.3); } catch (e) { /* ignore */ }
+  setTimeout(() => { try { a.g.disconnect(); } catch (e) { /* ignore */ } }, fade ? 1200 : 0);
+}
+function ambient(kind) {
+  AMB_WANT = kind;
+  if (!FX_ON) { ambStop(false); return; }
+  if (AMB && AMB.kind === kind) return;
+  ambStop(true);
+  AMB = musicStart(kind);
+}
+function updateSndBtn() { const b = document.getElementById("sndBtn"); if (b) b.textContent = FX_ON ? "🔊" : "🔇"; }
+function toggleSound() {
+  FX_ON = !FX_ON;
+  try { localStorage.setItem("kafe-sound-v1", FX_ON ? "1" : "0"); } catch (e) { /* xotira yopiq */ }
+  updateSndBtn();
+  ambient(AMB_WANT);
+  if (FX_ON) sfx("click");
+}
+function buildFx() {
+  if (document.querySelector(".fx-bg")) return;
+  let parts = "";
+  for (let i = 0; i < 14; i++) {
+    const w = 10 + Math.round(Math.random() * 24);
+    parts += `<i class="fx-p s" style="left:${(Math.random() * 100).toFixed(1)}%;width:${w}px;height:${w}px;--d:${(7 + Math.random() * 6).toFixed(1)}s;--dl:${(-Math.random() * 12).toFixed(1)}s"></i>`;
+  }
+  const NEON = ["#22d3ee", "#a855f7", "#f472b6", "#facc15"];
+  for (let i = 0; i < 18; i++) {
+    const c = NEON[i % NEON.length];
+    parts += `<i class="fx-p n" style="left:${(Math.random() * 100).toFixed(1)}%;width:4px;height:4px;--c:${c};background:${c};--d:${(5 + Math.random() * 5).toFixed(1)}s;--dl:${(-Math.random() * 10).toFixed(1)}s"></i>`;
+  }
+  const bg = document.createElement("div");
+  bg.className = "fx-bg";
+  bg.setAttribute("aria-hidden", "true");
+  bg.innerHTML = '<div class="fx-grid"></div>' + parts;
+  document.body.prepend(bg);
+  const sb = document.createElement("button");
+  sb.id = "sndBtn"; sb.className = "snd"; sb.title = "Tovush";
+  sb.addEventListener("click", toggleSound);
+  document.body.appendChild(sb);
+  updateSndBtn();
+  // Har bir tugma bosilganda yengil tovush
+  document.addEventListener("click", (e) => { if (e.target.closest && e.target.closest("[data-act]")) sfx("click"); }, true);
+}
+if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", buildFx);
+else buildFx();
+
 function toast(text, kind) {
+  sfx(kind === "good" ? "good" : kind === "bad" ? "bad" : "info");
   const box = document.getElementById("toasts");
   if (!box) return;
   const el = document.createElement("div");
@@ -895,7 +1078,7 @@ function setDishPrice(key, raw) {
   if (!Number.isFinite(v) || v <= 0) return toast("Narxni raqamda yozing", "bad");
   if (v < priceFloor(key)) return toast(`Narx xarajatdan (${fmt(priceFloor(key))}) past bo'lmasin`, "bad");
   const lim = priceLimit(key);
-  const pen = v > lim ? Math.ceil((v - lim) / 3000) * 15000 : 0;
+  const pen = v > lim ? Math.ceil((v - lim) / 3000) * 50000 : 0;
   if (pen > p.money) return toast(`Jarima ${fmt(pen)} — kafe hisobida pul yetmaydi`, "bad");
   p.money -= pen;  // jarima narx qo'yilgan paytda bir marta yechiladi
   p.prices = p.prices || {};
@@ -1618,7 +1801,7 @@ function cafeUpgView() {
 function cafeMenuView() {
   const p = S.cafe, pm = POLICIES[p.policy].price;
   let h = `<section class="panel"><h3><i class="ic">🍴</i> Menyu (${p.dishes.length}/${DISH_LIST.length})</h3>
-    <p class="hint">Menyuga taomni sotib oling. Menyudagi taom narxini o'zingiz belgilaysiz: limit asl narxning ~4% yuqorisi. Limitdan oshsa, narx qo'yilgan paytda har 3 000 so'mga 15 000 so'm jarima bir marta yechiladi.</p>`;
+    <p class="hint">Menyuga taomni sotib oling. Menyudagi taom narxini o'zingiz belgilaysiz: limit asl narxning ~4% yuqorisi. Limitdan oshsa, narx qo'yilgan paytda har 3 000 so'mga 50 000 so'm jarima bir marta yechiladi.</p>`;
   for (const d of DISH_LIST) {
     const sell = sellPrice(d.k, pm), cost = dishCost(d.k, p.equip);
     const owned = ownsDish(p, d.k);
@@ -1627,7 +1810,7 @@ function cafeMenuView() {
     h += row(d.e, d.n, sub, right);
     if (owned) {
       h += `<div class="pr-ed"><input class="input" type="number" inputmode="numeric" data-draft="pr_${d.k}" placeholder="Narx: ${fmt(sell)}" value="${esc(ui.draft["pr_" + d.k] || "")}"/>${btn("Saqlash", "dprice:" + d.k, { small: true })}
-        <div class="pr-lim">Asl narx ${fmt(d.sell)} · limit ${fmt(priceLimit(d.k))} (undan oshsa, narx qo'yilganda har 3 000 so'mga 15 000 jarima bir marta)</div></div>`;
+        <div class="pr-lim">Asl narx ${fmt(d.sell)} · limit ${fmt(priceLimit(d.k))} (undan oshsa, narx qo'yilganda har 3 000 so'mga 50 000 jarima bir marta)</div></div>`;
     }
   }
   return h + "</section>";
@@ -2247,6 +2430,7 @@ function render() {
   else html = viewHelp();
   if (ui.spinning) html = `<div class="spinning">🎡 G'ildirak aylanmoqda...<br>🔄 🔄 🔄</div>` + html;
   app.innerHTML = applySiteRepl(html);
+  ambient(ui.screen === "cafe" ? "cafe" : ui.screen === "club" ? "club" : "calm");
   if (entering) {
     ["panel,.game-card,.hero-home,.screen-head,.subtabs,.bar.small", "row,.ach-row,.kv>div,.seg button,.lines>div"].forEach((sel, g) => {
       let i = 0;
