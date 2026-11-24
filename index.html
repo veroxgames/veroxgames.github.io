@@ -300,6 +300,16 @@ const DISH_LIST = [
   { k: "shashlik", e: "🍢", n: "Shashlik", price: 28000000, cost: 80000, sell: 190000, w: 1.5 },
   { k: "pirojnoe", e: "🍰", n: "Pirojnoe", price: 40000000, cost: 110000, sell: 260000, w: 1.0 },
   { k: "steyk", e: "🥩", n: "Steyk", price: 60000000, cost: 150000, sell: 350000, w: 1.0 },
+  { k: "dimlama", e: "🥘", n: "Dimlama", price: 80000000, cost: 160000, sell: 380000, w: 1.0 },
+  { k: "chuchvara", e: "🥟", n: "Chuchvara", price: 100000000, cost: 150000, sell: 360000, w: 1.0 },
+  { k: "qovurdoq", e: "🍳", n: "Qovurdoq", price: 120000000, cost: 170000, sell: 400000, w: 1.0 },
+  { k: "mastava", e: "🥣", n: "Mastava", price: 140000000, cost: 180000, sell: 420000, w: 1.0 },
+  { k: "sushi", e: "🍣", n: "Sushi", price: 160000000, cost: 220000, sell: 500000, w: 1.0 },
+  { k: "kebab", e: "🥙", n: "Kebab", price: 180000000, cost: 240000, sell: 560000, w: 1.0 },
+  { k: "bekon", e: "🥓", n: "Bekon", price: 200000000, cost: 260000, sell: 600000, w: 1.0 },
+  { k: "muzqaymoq", e: "🍨", n: "Muzqaymoq", price: 230000000, cost: 280000, sell: 650000, w: 1.0 },
+  { k: "kokteyl", e: "🍹", n: "Kokteyl", price: 260000000, cost: 300000, sell: 700000, w: 1.0 },
+  { k: "tort", e: "🎂", n: "Tort", price: 300000000, cost: 330000, sell: 780000, w: 1.0 },
 ];
 const DISHES = {};
 for (const d of DISH_LIST) {
@@ -477,7 +487,7 @@ const ui = { screen: "home", cTab: "day", lTab: "day", draft: {}, err: "", spinn
 function newCafe() {
   return {
     money: CFG.START_MONEY, days: 0, xp: 0, rep: 3.0, staff: 0, ads: 0, decor: 0, equip: 0, delivery: 0,
-    dishes: ["choy"], policy: "normal", ach: [], stats: {}, bonusAt: 0, streak: 0, spinAt: 0,
+    dishes: ["choy"], prices: {}, policy: "normal", ach: [], stats: {}, bonusAt: 0, streak: 0, spinAt: 0,
     deposit: 0, trust: 0, prestige: 0, quests: { d: -1, q: [] }, boosts: [], day: null, promos: [],
   };
 }
@@ -515,7 +525,26 @@ function seatsOf(c) { return c.std + c.pro + c.vip + c.ps; }
 function capacity(p) { return 12 + p.staff * 8; }
 function upgradePrice(key, lv) { const u = UPGRADES[key]; return r1000(u.base * Math.pow(u.mult, lv)); }
 function clubUpgradePrice(key, lv) { const u = CUPGRADES[key]; return r1000(u.base * Math.pow(u.mult, lv)); }
-function sellPrice(key, pm) { return Math.round((DISHES[key].sell * pm) / 100) * 100; }
+// Sotish narxi: egasi o'rnatgan narx bo'lsa shu, bo'lmasa siyosat narxi
+function sellPrice(key, pm) {
+  const cp = S && S.cafe && S.cafe.prices && S.cafe.prices[key];
+  if (cp) return cp;
+  return Math.round((DISHES[key].sell * pm) / 100) * 100;
+}
+// Limit: asl narxning ~4,17% yuqorisi (120 000 → 125 000). Undan yuqori narx qo'yish mumkin, lekin jarima bor.
+function priceLimit(key) { return Math.round((DISHES[key].sell * 25) / 24 / 100) * 100; }
+// Pastki chegara: xarajatdan past narx qo'yib bo'lmaydi (zarar bo'lmasin)
+function priceFloor(key) { return Math.max(100, DISHES[key].cost); }
+// Limitdan oshgan har 3 000 so'm uchun 15 000 so'm, har kuni kun yakunida kafe hisobidan avtomatik yechiladi
+function dishPenalty(p) {
+  let total = 0;
+  for (const k of Object.keys(p.prices || {})) {
+    if (!ownsDish(p, k)) continue;
+    const over = p.prices[k] - priceLimit(k);
+    if (over > 0) total += Math.ceil(over / 3000) * 15000;
+  }
+  return total;
+}
 function dishCost(key, equip) { return Math.floor(DISHES[key].cost * (1 - 0.05 * equip)); }
 function incomeScale(p) { return Math.max(40000, (p.stats && p.stats.last_rev) || 0); }
 function boostPrice(p, key) { return Math.max(20000, r1000(incomeScale(p) * BOOSTS[key].factor)); }
@@ -775,6 +804,12 @@ function finishCafeDay() {
   const p = S.cafe;
   const day = p.day;
   if (!day) return;
+  const pen = dishPenalty(p);
+  if (pen > 0) {
+    const paid = Math.min(p.money, pen);
+    p.money -= paid;
+    toast(`⚠️ Limitdan oshgan narx jarimasi: −${fmt(paid)}`, "bad");
+  }
   const cust = day.cust;
   const served = cust.length, lost = day.lost.length;
   const D = served + lost;
@@ -866,6 +901,22 @@ function buyDish(key) {
   questProgress({ buy: 1 });
   notifyAch(checkCafeAch());
 }
+function setDishPrice(key, raw) {
+  const p = S.cafe;
+  if (!ownsDish(p, key)) return toast("Avval bu taomni menyuga qo'shing", "bad");
+  const v = Math.floor(Number(String(raw || "").replace(/\s/g, "")));
+  if (!Number.isFinite(v) || v <= 0) return toast("Narxni raqamda yozing", "bad");
+  if (v < priceFloor(key)) return toast(`Narx xarajatdan (${fmt(priceFloor(key))}) past bo'lmasin`, "bad");
+  p.prices = p.prices || {};
+  p.prices[key] = v;
+  const lim = priceLimit(key);
+  if (v > lim) {
+    const pen = Math.ceil((v - lim) / 3000) * 15000;
+    toast(`${DISHES[key].e} ${DISHES[key].n}: ${fmt(v)}. Limitdan oshdi, har kuni −${fmt(pen)} yechiladi`, "info");
+  } else {
+    toast(`${DISHES[key].e} ${DISHES[key].n}: narx ${fmt(v)} saqlandi ✅`, "good");
+  }
+}
 function buyBoost(key) {
   const p = S.cafe, price = boostPrice(p, key);
   if (p.boosts.includes(key)) return toast("Bu kuchaytirgich allaqachon tayyor ✅", "info");
@@ -891,7 +942,7 @@ function doPrestige() {
   st.last_rev = 0;
   st.last_lost = 0;
   Object.assign(p, {
-    prestige: n, money: CFG.START_MONEY + 500000 * n, dishes: ["choy"], deposit: 0,
+    prestige: n, money: CFG.START_MONEY + 500000 * n, dishes: ["choy"], prices: {}, deposit: 0,
     staff: 0, ads: 0, decor: 0, equip: 0, delivery: 0, rep: 3.0, policy: "normal", boosts: [], stats: st,
   });
   toast(`🏢 Franchayzing ${n} boshlandi!`, "good");
@@ -1086,9 +1137,9 @@ async function bumpPromoUsed(game, code) {
 async function redeemPromo(game, raw) {
   const code = (raw || "").trim().toUpperCase();
   if (!/^[A-Z0-9_-]{3,20}$/.test(code)) return { error: "Promokod 3–20 ta lotin harf, raqam, _ yoki - dan iborat bo'lishi kerak" };
-  await loadPromoCatalog();  // bot yangi kod yaratgan bo'lishi mumkin
+  const catOk = await loadPromoCatalog();  // bot yangi kod yaratgan bo'lishi mumkin
   const def = promoDef(game, code);
-  if (!def) return { error: "❌ Bunday promokod topilmadi" };
+  if (!def) return { error: catOk ? "❌ Bunday promokod topilmadi" : PROMO_NET_MSG };
   if (S[game].promos.includes(code)) return { error: "❌ Siz bu promokodni allaqachon ishlatgansiz" };
   if (def.expires && Date.now() > def.expires) return { error: "❌ Promokod muddati tugagan." };
   if (def.max && def.used >= def.max) return { error: "❌ Promokod ishlatish limiti tugagan." };
@@ -1499,7 +1550,7 @@ function viewHome() {
   </div>
   <section class="panel">
     <h3><i class="ic">💾</i> Saqlash</h3>
-    <p class="hint">O'yin progressi hozircha shu brauzerda saqlanadi (brauzer ma'lumotlarini tozalasangiz, noldan boshlanadi). Hisob (login) esa bot bilan bog'langan: 👤 Hisob bo'limiga qarang.</p>
+    <p class="hint">O'yin progressi hozircha shu brauzerda saqlanadi (brauzer ma'lumotlarini tozalasangiz, noldan boshlanadi). Hisob (login) esa bulutda saqlanadi: 👤 Hisob bo'limiga qarang.</p>
   </section>`;
 }
 
@@ -1578,11 +1629,13 @@ function cafeUpgView() {
 function cafeMenuView() {
   const p = S.cafe, pm = POLICIES[p.policy].price;
   let h = `<section class="panel"><h3><i class="ic">🍴</i> Menyu (${p.dishes.length}/${DISH_LIST.length})</h3>
-    <p class="hint">Narxlar siyosatingiz va jihozlaringizga qarab hisoblangan.</p>`;
+    <p class="hint">Menyuga taomni sotib oling. Menyudagi taom narxini o'zingiz belgilaysiz: limit asl narxning ~4% yuqorisi. Limitdan oshsa, har 3 000 so'mga 15 000 so'm jarima kun yakunida yechiladi.</p>`;
   for (const d of DISH_LIST) {
     const sell = sellPrice(d.k, pm), cost = dishCost(d.k, p.equip);
-    const sub = `Sotish ${fmt(sell)} · Xarajat ${fmt(cost)} · Foyda ${fmt(sell - cost)}`;
-    const right = ownsDish(p, d.k) ? '<span class="chip ok">Menyuda</span>' : btn(fmt(d.price), "dish:" + d.k, { small: true });
+    const sub = `Sotish ${fmt(sell)} · Xarajat ${fmt(cost)} · Foyda ${fmt(sell - cost)}` + (ownsDish(p, d.k) ? ` · Asl ${fmt(d.sell)}, limit ${fmt(priceLimit(d.k))}` : "");
+    const right = ownsDish(p, d.k)
+      ? `<div class="pr-ed"><input class="input" type="number" inputmode="numeric" data-draft="pr_${d.k}" placeholder="${fmt(sell)}" value="${esc(ui.draft["pr_" + d.k] || "")}"/>${btn("Saqlash", "dprice:" + d.k, { small: true })}</div>`
+      : btn(fmt(d.price), "dish:" + d.k, { small: true });
     h += row(d.e, d.n, sub, right);
   }
   return h + "</section>";
@@ -1830,7 +1883,6 @@ function viewClub() {
 // botga yuboriladi. Bot hisobni yaratadi va keyin shu login+parol bilan kirishni tekshiradi.
 const LOGIN_OK = /^[a-z0-9_]{3,20}$/;   // bot bilan bir xil qoida
 const PBKDF2_ITER = 100000;             // bot.py dagi PBKDF_ITER bilan BIR XIL bo'lishi shart
-const BOT_USERNAME = "VeroxGameBot";  // botingiz username'i, @ belgisisiz
 function loadAccount() {
   try {
     const a = JSON.parse(localStorage.getItem(ACC_KEY) || "null");
@@ -1881,6 +1933,7 @@ async function doSignIn() {
   const login = String(ui.draft.siLogin || "").trim().toLowerCase();
   const pass = String(ui.draft.siPass || "");
   if (!LOGIN_OK.test(login) || !pass) { ui.err = { k: "signin", msg: "Login va parolni to'liq kiriting" }; render(); return; }
+  if (!termsAccepted()) { ui.err = { k: "signin", msg: "Davom etish uchun shartlar va maxfiylik siyosatiga rozilik bildiring" }; render(); return; }
   if (!FIREBASE_URL) { ui.err = { k: "signin", msg: "Sayt sozlanmagan: FIREBASE_URL yo'q" }; render(); return; }
   authBusy = true;
   ui.err = null;
@@ -1914,7 +1967,8 @@ async function pbkdf2Hex(password, login) {
     key, 256);
   return [...new Uint8Array(bits)].map((b) => b.toString(16).padStart(2, "0")).join("");
 }
-function doRegister() {
+async function doRegister() {
+  if (authBusy) return;
   const login = String(ui.draft.regLogin || "").trim().toLowerCase();
   const pass = String(ui.draft.regPass || "");
   const pass2 = String(ui.draft.regPass2 || "");
@@ -1922,30 +1976,36 @@ function doRegister() {
   if (!LOGIN_OK.test(login)) msg = "Login 3–20 belgi: faqat a–z, 0–9 va _ belgisi";
   else if (pass.length < 6 || pass !== pass.trim()) msg = "Parol kamida 6 belgi bo'lsin (boshida va oxirida bo'sh joy bo'lmasin)";
   else if (pass !== pass2) msg = "Parollar bir xil emas";
-  if (msg) { ui.err = { k: "reg", msg }; return; }
-  if (!BOT_USERNAME || BOT_USERNAME.indexOf("SHU_YERGA") >= 0) {
-    ui.err = { k: "reg", msg: "Sayt sozlanmagan: BOT_USERNAME yozilmagan" };
-    return;
-  }
+  else if (!FIREBASE_URL) msg = "Sayt sozlanmagan: FIREBASE_URL yo'q";
+  else if (!termsAccepted()) msg = "Davom etish uchun shartlar va maxfiylik siyosatiga rozilik bildiring";
+  if (msg) { ui.err = { k: "reg", msg }; render(); return; }
+  authBusy = true;
   ui.err = null;
-  pbkdf2Hex(pass, login).then((hash) => {
-    // 32 bayt xesh -> base64url (43 belgi). Start-parametr: LOGIN-XESH (eng ko'pi 64 belgi)
-    const bytes = hash.match(/../g).map((h) => parseInt(h, 16));
-    const b64 = btoa(String.fromCharCode(...bytes)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
-    const url = "https://t.me/" + BOT_USERNAME + "?start=" + login + "-" + b64;
-    return deriveSyncKey(login, hash).then((key) => {
-    saveAccount({ login, key, at: Date.now() });  // key: bot bilan sinxronlash kaliti (parolning o'zi saqlanmaydi)
-    if (TG && typeof TG.openTelegramLink === "function") {
-      TG.openTelegramLink(url);   // bot chati ochiladi va hisob botda avtomatik yaratiladi
-      setTimeout(() => { try { TG.close(); } catch (e) { /* ignore */ } }, 400);
+  render();
+  try {
+    const hash = await pbkdf2Hex(pass, login);
+    const key = await deriveSyncKey(login, hash);
+    const base = FIREBASE_URL.replace(/\/+$/, "");
+    const probe = await fetchT(base + "/s/" + key + ".json");
+    if (!probe.ok) throw new Error("HTTP " + probe.status);
+    if (await probe.json()) {
+      ui.err = { k: "reg", msg: "❌ Bu login band. Boshqa login tanlang yoki «Kirish» ni bosing." };
+    } else if (!(await flushBeforeSwitch())) {
+      ui.err = { k: "reg", msg: "❌ Oxirgi o'zgarish bulutga yetmadi. Internetni tekshirib, qayta urinib ko'ring" };
     } else {
-      window.location.href = url; // oddiy brauzerda: Telegram ochiladi
+      resetGameLocal({ login, key, at: Date.now() });  // yangi, toza o'yin holati
+      S.rev = Date.now();
+      const d = durableOf(S);
+      const put = await fetchT(base + "/s/" + key + ".json",
+        { method: "PUT", body: JSON.stringify({ rev: S.rev, by: "site", login, cafe: d.cafe, club: d.club }) });
+      if (!put.ok) throw new Error("HTTP " + put.status);
+      ui.draft.regPass = ""; ui.draft.regPass2 = "";
+      ui.screen = "home";
+      await syncPull();
     }
-    });
-  }).catch(() => {
-    ui.err = { k: "reg", msg: "Xatolik: ma'lumot tayyorlanmadi. Qayta urinib ko'ring" };
-    render();
-  });
+  } catch (e) {
+    ui.err = { k: "reg", msg: PROMO_NET_MSG };
+  } finally { authBusy = false; render(); }
 }
 const PW_LEVELS = [["Juda zaif", "#f87171"], ["Zaif", "#fb923c"], ["O'rtacha", "#facc15"], ["Yaxshi", "#a3e635"], ["Kuchli", "#34d399"]];
 function pwScore(p) {
@@ -1986,7 +2046,6 @@ function viewAccount() {
       ${syncStatusHtml(acc)}
       ${errLine("logout")}
       <div class="mt">${btn("🚪 Hisobdan chiqish", "reg:reset", { cls: "btn-ghost", block: true })}</div>
-      <p class="hint mt">Parolni almashtirish: botda /parol. Bot chati: botda /start.</p>
     </section>`;
   }
   const tab = ui.authTab === "up" ? "up" : "in";
@@ -2008,11 +2067,36 @@ function signInForm() {
         placeholder="Parol" autocomplete="current-password" maxlength="64" />
     </div>
     ${errLine("signin")}
+    ${termsBlock()}
     <div class="mt">${btn(authBusy ? "⏳ Tekshirilmoqda..." : "🔑 Kirish", "signin", { cls: "btn-gold", block: true })}</div>`;
+}
+// Foydalanish shartlari: hisob ochish yoki kirishdan oldin rozilik bo'lishi shart
+const TERMS_KEY = "kafe-terms-v1";
+function termsAccepted() {
+  if (ui.draft.termsOk !== undefined) return !!ui.draft.termsOk;
+  try { return localStorage.getItem(TERMS_KEY) === "1"; } catch (e) { return false; }
+}
+function toggleTerms() {
+  const v = !termsAccepted();
+  ui.draft.termsOk = v;
+  try { if (v) localStorage.setItem(TERMS_KEY, "1"); else localStorage.removeItem(TERMS_KEY); } catch (e) { /* xotira yopiq */ }
+  ui.err = null;
+}
+function termsBlock() {
+  const ok = termsAccepted();
+  return `<details class="terms mt"><summary>📜 Foydalanish shartlari va maxfiylik</summary>
+    <div class="hint">
+      <p>1. O'yin virtual: haqiqiy pul, to'lov yoki haqiqiy mukofot berilmaydi.</p>
+      <p>2. Login va parolni o'zingiz saqlang. Parol ochiq holda saqlanmaydi, faqat xeshi tekshiriladi. Parolni yo'qotsangiz, uni tiklab bo'lmaydi.</p>
+      <p>3. Hisob va o'yin holati (balans, kunlar, yutuqlar) bulutda saqlanadi. Boshqa shaxsiy ma'lumot so'ralmaydi.</p>
+      <p>4. Promokodlarni noqonuniy yo'l bilan olish, sotish yoki o'yinni buzish hisobning bloklanishiga olib keladi.</p>
+      <p>5. Qoidalar va narxlar o'yin davomida o'zgarishi mumkin.</p>
+    </div></details>
+    <button class="terms-check mt${ok ? " on" : ""}" data-act="terms:toggle">${ok ? "☑" : "☐"} Men shartlar va maxfiylik siyosatiga roziman</button>`;
 }
 function signUpForm() {
   return `<h3 class="mt"><i class="ic">📝</i> Ro'yxatdan o'tish</h3>
-    <p class="hint">Login va parolni o'zingiz tanlang. Keyin botda /start yozib, shu login va parol bilan kirasiz.</p>
+    <p class="hint">Login va parolni o'zingiz tanlang. Shu login va parol bilan istalgan qurilmadan kirasiz.</p>
     <div class="field" style="flex-direction:column">
       <input class="input${errClass("reg")}" data-draft="regLogin" value="${esc(ui.draft.regLogin || "")}"
         placeholder="Login (a–z, 0–9, _)" autocomplete="username" autocapitalize="none" spellcheck="false" maxlength="20" />
@@ -2023,16 +2107,21 @@ function signUpForm() {
         placeholder="Parolni takrorlang" autocomplete="new-password" maxlength="64" />
     </div>
     ${errLine("reg")}
+    ${termsBlock()}
     <div class="mt">${btn("📝 Hisob yaratish", "reg:go", { cls: "btn-gold", block: true })}</div>
-    <p class="hint mt">Hisob yaratilgach bot chati ochiladi va hisobingiz botda avtomatik tayyor bo'ladi.</p>`;
+    <p class="hint mt">Hisob bulutda saqlanadi: istalgan qurilmadan shu login va parol bilan kirasiz.</p>`;
 }
 
 
 /* ===================== QOIDALAR ===================== */
 const OWNER_TG_ID = 8715491576;  // egasining Telegram ID'si (botdagi ADMIN_ID bilan bir xil)
+const OWNER_USERNAME = "abdu11ayevoff";  // egasining Telegram username'i (kichik harfda)
 function isOwner() {
-  try { return Number(TG && TG.initDataUnsafe && TG.initDataUnsafe.user && TG.initDataUnsafe.user.id) === OWNER_TG_ID; }
-  catch (e) { return false; }
+  try {
+    const u = TG && TG.initDataUnsafe && TG.initDataUnsafe.user;
+    if (!u) return false;
+    return Number(u.id) === OWNER_TG_ID || String(u.username || "").toLowerCase() === OWNER_USERNAME;
+  } catch (e) { return false; }
 }
 function viewOwner() {
   const d = ui.draft;
@@ -2115,9 +2204,8 @@ function viewHelp() {
     </ul>
     <h3>🎫 Promokodlar</h3>
     <p>Har o'yinda promokodlar alohida. Har kod bir marta ishlaydi.</p>
-    <h3>⚠️ Brauzer versiyasi haqida</h3>
-    <p class="muted">Bu versiya faqat shu brauzerda ishlaydi: ma'lumot shu qurilmada saqlanadi. Boshqa o'yinchilar bilan qarz almashish, reyting, do'st taklif qilish
-      va avto-o'yin Telegram bot versiyasida (server bilan) mavjud.</p>
+    <h3>⚠️ Eslatma</h3>
+    <p class="muted">Hisob va o'yin holati bulutda saqlanadi. Reyting, do'st taklif qilish va o'yinchilar o'rtasida qarz almashish hali to'liq ishlamaydi.</p>
   </section>`;
 }
 
@@ -2391,7 +2479,7 @@ function loanAct(sub, val) {
 function handleAct(act) {
   const parts = act.split(":");
   const verb = parts[0], a = parts[1], b = parts[2];
-  const authVerb = verb === "reg" || verb === "signin" || verb === "authtab" || verb === "logout" || (verb === "go" && a === "acc");
+  const authVerb = verb === "reg" || verb === "signin" || verb === "authtab" || verb === "terms" || verb === "logout" || (verb === "go" && a === "acc");
   if (!loadAccount() && !authVerb) {
     toast("Avval hisob yarating: 👤 Hisob bo'limi", "bad");  // hisobsiz hech qanday amal bajarilmaydi
     return;
@@ -2402,6 +2490,7 @@ function handleAct(act) {
     case "reg": if (a === "reset") resetAccount(); else doRegister(); break;
     case "signin": doSignIn(); break;
     case "authtab": ui.authTab = a; ui.err = null; break;
+    case "terms": if (a === "toggle") toggleTerms(); break;
     case "ctab": ui.cTab = a; ui.err = null; break;
     case "ltab": ui.lTab = a; ui.err = null; break;
     case "modal": closeModal(); break;
@@ -2410,6 +2499,7 @@ function handleAct(act) {
     case "fire": fireStaff(); break;
     case "setpol": setCafePolicy(a); break;
     case "dish": buyDish(a); break;
+    case "dprice": setDishPrice(a, ui.draft["pr_" + a]); break;
     case "bbuy": buyBoost(a); break;
     case "bonus": claimCafeBonus(); break;
     case "spin": spinCafe(); break;
@@ -2573,6 +2663,9 @@ function normGame(r) {
   k.day = normDay(k.day, true);
   c.dishes = arr(c.dishes).filter((d) => DISHES[d]);
   if (!c.dishes.length) c.dishes = ["choy"];
+  const pr = c.prices && typeof c.prices === "object" ? c.prices : {};
+  c.prices = {};
+  for (const k of Object.keys(pr)) if (DISHES[k] && Number(pr[k]) > 0) c.prices[k] = Math.floor(Number(pr[k]));
   k.open = !!k.open;
   return { cafe: c, club: k };
 }
@@ -2585,7 +2678,7 @@ function applyRemote(g, rev) {
     if (!loc || rem) continue;
     const last = g[k].stats && g[k].stats.last_day;
     if (last && last.start === loc.start) {
-      toast(`🏁 Kun ${last.no} botda yakunlandi: ${last.profit >= 0 ? "+" : "−"}${fmt(Math.abs(last.profit))}`, last.profit >= 0 ? "good" : "bad");
+      toast(`🏁 Kun ${last.no} boshqa qurilmada yakunlandi: ${last.profit >= 0 ? "+" : "−"}${fmt(Math.abs(last.profit))}`, last.profit >= 0 ? "good" : "bad");
     } else {
       g[k].day = loc;
       keep = true;
@@ -2648,9 +2741,9 @@ async function syncPushNow(keep) {
   } catch (e) { sy.down = Date.now() + 15000; sy.pushT = setTimeout(() => syncPushNow(false), 16000); }
 }
 function syncStatusHtml(acc) {
-  if (!FIREBASE_URL) return `<p class="hint">🔄 Bot bilan sinxronlash hali sozlanmagan.</p>`;
+  if (!FIREBASE_URL) return `<p class="hint">🔄 Bulut sinxronlashi hali sozlanmagan.</p>`;
   if (!acc.key) return `<p class="hint">🔄 Sinxronlashni yoqish uchun pastdagi «Boshqa hisob yaratish» tugmasi orqali shu login va parol bilan qayta kiring.</p>`;
-  return `<p class="hint">🔄 Bot bilan sinxron: balans, kunlar, ketayotgan kun va butun o'yin holati ikkala joyda bir xil.</p>`;
+  return `<p class="hint">🔄 Bulut bilan sinxron: balans, kunlar, ketayotgan kun va butun o'yin holati ikkala joyda bir xil.</p>`;
 }
 // Bot o'zgarishini darhol olish: Firebase jonli oqimi (EventSource). Uzilsa, brauzer qayta ulanadi.
 function syncLive() {
