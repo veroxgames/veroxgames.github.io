@@ -58,6 +58,9 @@
   .row .info{flex:1;min-width:0}
   .row .name{font-weight:600;display:flex;align-items:center;flex-wrap:wrap;gap:4px}
   .row .sub{font-size:.84rem;color:var(--muted);margin-top:2px}
+  .pr-ed{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:0 0 14px 52px}
+  .pr-ed .input{flex:1;min-width:140px;max-width:240px}
+  .pr-ed .pr-lim{width:100%;font-size:.8rem;color:var(--muted)}
   .ico{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:rgba(242,180,65,.12);font-size:1.15rem;flex-shrink:0}
   .lv{color:var(--muted);font-weight:500;font-size:.84rem;margin-left:6px}
   .chip{display:inline-block;padding:3px 9px;border-radius:99px;font-size:.74rem;font-weight:700;background:rgba(255,255,255,.07);color:var(--muted);white-space:nowrap}
@@ -1635,11 +1638,14 @@ function cafeMenuView() {
     <p class="hint">Menyuga taomni sotib oling. Menyudagi taom narxini o'zingiz belgilaysiz: limit asl narxning ~4% yuqorisi. Limitdan oshsa, har 3 000 so'mga 15 000 so'm jarima kun yakunida yechiladi.</p>`;
   for (const d of DISH_LIST) {
     const sell = sellPrice(d.k, pm), cost = dishCost(d.k, p.equip);
-    const sub = `Sotish ${fmt(sell)} · Xarajat ${fmt(cost)} · Foyda ${fmt(sell - cost)}` + (ownsDish(p, d.k) ? ` · Asl ${fmt(d.sell)}, limit ${fmt(priceLimit(d.k))}` : "");
-    const right = ownsDish(p, d.k)
-      ? `<div class="pr-ed"><input class="input" type="number" inputmode="numeric" data-draft="pr_${d.k}" placeholder="${fmt(sell)}" value="${esc(ui.draft["pr_" + d.k] || "")}"/>${btn("Saqlash", "dprice:" + d.k, { small: true })}</div>`
-      : btn(fmt(d.price), "dish:" + d.k, { small: true });
+    const owned = ownsDish(p, d.k);
+    const sub = `Sotish ${fmt(sell)} · Xarajat ${fmt(cost)} · Foyda ${fmt(sell - cost)}`;
+    const right = owned ? '<span class="chip ok">Menyuda</span>' : btn(fmt(d.price), "dish:" + d.k, { small: true });
     h += row(d.e, d.n, sub, right);
+    if (owned) {
+      h += `<div class="pr-ed"><input class="input" type="number" inputmode="numeric" data-draft="pr_${d.k}" placeholder="Narx: ${fmt(sell)}" value="${esc(ui.draft["pr_" + d.k] || "")}"/>${btn("Saqlash", "dprice:" + d.k, { small: true })}
+        <div class="pr-lim">Asl narx ${fmt(d.sell)} · limit ${fmt(priceLimit(d.k))} (undan oshsa, har 3 000 so'mga 15 000 jarima)</div></div>`;
+    }
   }
   return h + "</section>";
 }
