@@ -1077,9 +1077,10 @@ let promoBusy = false;
 let authBusy = false;
 let SITE_REPL = [];
 async function loadSiteRepl() {
+  await fbEnsure();
   if (!FIREBASE_URL) return false;
   try {
-    const r = await fetchT(FIREBASE_URL.replace(/\/+$/, "") + "/config/site_repl.json");
+    const r = await fetchT(fbUrl("/config/site_repl.json"));
     if (!r.ok) return false;
     const d = (await r.json()) || {};
     const list = Object.values(d).filter((x) => x && typeof x.src === "string" && x.src && typeof x.dst === "string");
@@ -1098,9 +1099,10 @@ function applySiteRepl(html) {
   return out;
 }
 async function loadPromoCatalog() {
+  await fbEnsure();
   if (!FIREBASE_URL) return false;
   try {
-    const r = await fetchT(FIREBASE_URL.replace(/\/+$/, "") + "/promo.json");
+    const r = await fetchT(fbUrl("/promo.json"));
     if (!r.ok) return false;
     const d = (await r.json()) || {};
     PROMO_CAT = {
@@ -1123,7 +1125,8 @@ function promoDef(game, code) {
 // Umumiy hisoblagichni +1 qiladi. Firebase qoidasi used faqat 1 ga oshishiga ruxsat beradi.
 // Ikki kishi bir vaqtda bossa, ba'zan bitta ortiqcha ishlatish o'tib ketishi mumkin (kam uchraydi).
 async function bumpPromoUsed(game, code) {
-  const url = FIREBASE_URL.replace(/\/+$/, "") + "/promo/" + game + "/" + code + ".json";
+  await fbEnsure();
+  const url = fbUrl("/promo/" + game + "/" + code + ".json");
   const r = await fetchT(url);
   if (!r.ok) throw new Error("HTTP " + r.status);
   const cur = await r.json();
@@ -1922,6 +1925,7 @@ async function resetAccount() {
       return;
     }
     resetGameLocal(null);
+    fbAuthSave(null);
     ui.screen = "acc";
     ui.err = null;
     ui.draft.siPass = ""; ui.draft.regPass = ""; ui.draft.regPass2 = "";
@@ -1939,21 +1943,27 @@ async function doSignIn() {
   ui.err = null;
   render();
   try {
-    const hash = await pbkdf2Hex(pass, login);
-    const key = await deriveSyncKey(login, hash);
-    const r = await fetchT(FIREBASE_URL.replace(/\/+$/, "") + "/s/" + key + ".json");
+    if (!(await flushBeforeSwitch())) {  // eski hisobning oxirgi o'zgarishi yetib borsin
+      ui.err = { k: "signin", msg: "❌ Oxirgi o'zgarish bulutga yetmadi. Internetni tekshirib, qayta urinib ko'ring" };
+      return;
+    }
+    let auth;
+    try { auth = await fbAuthCall("signInWithPassword", login, pass); }
+    catch (e) { ui.err = { k: "signin", msg: fbErrText(e) }; return; }
+    fbAuthSave(auth);
+    const key = await deriveSyncKey(login, await pbkdf2Hex(pass, login));
+    const r = await fetchT(fbUrl("/s/" + key + ".json"));
     if (!r.ok) throw new Error("HTTP " + r.status);
     const d = await r.json();
     if (!d || !d.cafe) {
-      ui.err = { k: "signin", msg: "❌ Login yoki parol noto'g'ri. Hisobingiz bo'lmasa, «Ro'yxatdan o'tish» ni tanlang." };
-    } else if (!(await flushBeforeSwitch())) {
-      ui.err = { k: "signin", msg: "❌ Oxirgi o'zgarish bulutga yetmadi. Internetni tekshirib, qayta urinib ko'ring" };
-    } else {
-      resetGameLocal({ login, key, at: Date.now() });
-      ui.draft.siPass = "";
-      ui.screen = "home";
-      await syncPull();
+      fbAuthSave(null);
+      ui.err = { k: "signin", msg: "❌ Bu hisob uchun o'yin ma'lumoti topilmadi. «Ro'yxatdan o'tish» ni tanlang." };
+      return;
     }
+    resetGameLocal({ login, key, at: Date.now() });
+    ui.draft.siPass = "";
+    ui.screen = "home";
+    await syncPull();
   } catch (e) {
     ui.err = { k: "signin", msg: PROMO_NET_MSG };
   } finally { authBusy = false; render(); }
@@ -1983,26 +1993,38 @@ async function doRegister() {
   ui.err = null;
   render();
   try {
-    const hash = await pbkdf2Hex(pass, login);
-    const key = await deriveSyncKey(login, hash);
-    const base = FIREBASE_URL.replace(/\/+$/, "");
-    const probe = await fetchT(base + "/s/" + key + ".json");
-    if (!probe.ok) throw new Error("HTTP " + probe.status);
-    if (await probe.json()) {
-      ui.err = { k: "reg", msg: "❌ Bu login band. Boshqa login tanlang yoki «Kirish» ni bosing." };
-    } else if (!(await flushBeforeSwitch())) {
+    if (!(await flushBeforeSwitch())) {
       ui.err = { k: "reg", msg: "❌ Oxirgi o'zgarish bulutga yetmadi. Internetni tekshirib, qayta urinib ko'ring" };
+      return;
+    }
+    let auth;
+    try { auth = await fbAuthCall("signUp", login, pass); }
+    catch (e) {
+      if (/EMAIL_EXISTS/.test(String(e.message))) ui.err = { k: "reg", msg: "❌ Bu login band. Boshqa login tanlang yoki «Kirish» ni bosing." };
+      else ui.err = { k: "reg", msg: fbErrText(e) };
+      return;
+    }
+    fbAuthSave(auth);
+    const key = await deriveSyncKey(login, await pbkdf2Hex(pass, login));
+    const r = await fetchT(fbUrl("/s/" + key + ".json"));
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    const d = await r.json();
+    resetGameLocal({ login, key, at: Date.now() });
+    if (d && d.cafe) {
+      // Eski (Auth'siz) hisob: ma'lumoti saqlanadi, egalik shu hisobga o'tadi
+      await syncPull();
+      sy.dirty = true;
+      await syncPushNow(false);
     } else {
-      resetGameLocal({ login, key, at: Date.now() });  // yangi, toza o'yin holati
       S.rev = Date.now();
-      const d = durableOf(S);
-      const put = await fetchT(base + "/s/" + key + ".json",
-        { method: "PUT", body: JSON.stringify({ rev: S.rev, by: "site", login, cafe: d.cafe, club: d.club }) });
+      const dd = durableOf(S);
+      const put = await fetchT(fbUrl("/s/" + key + ".json"), { method: "PUT",
+        body: JSON.stringify({ rev: S.rev, by: "site", login, uid: auth.uid, cafe: dd.cafe, club: dd.club }) });
       if (!put.ok) throw new Error("HTTP " + put.status);
-      ui.draft.regPass = ""; ui.draft.regPass2 = "";
-      ui.screen = "home";
       await syncPull();
     }
+    ui.draft.regPass = ""; ui.draft.regPass2 = "";
+    ui.screen = "home";
   } catch (e) {
     ui.err = { k: "reg", msg: PROMO_NET_MSG };
   } finally { authBusy = false; render(); }
@@ -2096,7 +2118,7 @@ function termsBlock() {
 }
 function signUpForm() {
   return `<h3 class="mt"><i class="ic">📝</i> Ro'yxatdan o'tish</h3>
-    <p class="hint">Login va parolni o'zingiz tanlang. Shu login va parol bilan istalgan qurilmadan kirasiz.</p>
+    <p class="hint">Login va parolni o'zingiz tanlang. Shu login va parol bilan istalgan qurilmadan kirasiz. Parolni yo'qotsangiz, uni tiklab bo'lmaydi.</p>
     <div class="field" style="flex-direction:column">
       <input class="input${errClass("reg")}" data-draft="regLogin" value="${esc(ui.draft.regLogin || "")}"
         placeholder="Login (a–z, 0–9, _)" autocomplete="username" autocapitalize="none" spellcheck="false" maxlength="20" />
@@ -2164,7 +2186,7 @@ async function ownerAct(a, b) {
     const body = { reward, text: "Ega promokodi", expires: days ? Date.now() + days * 86400000 : 0,
                    max_uses: max, used: 0, created: Date.now() };
     try {
-      const r = await fetchT(FIREBASE_URL.replace(/\/+$/, "") + `/promo/${game}/${code}.json`,
+      const r = await fetchT(fbUrl(`/promo/${game}/${code}.json`),
         { method: "PUT", body: JSON.stringify(body) });
       if (!r.ok) throw new Error("http " + r.status);
       await loadPromoCatalog();
@@ -2614,6 +2636,48 @@ function tick() {
 // Sayt va bot bir xil o'yin holatini Firebase Realtime Database orqali bo'lishadi (yo'l: /s/<kalit>).
 // Kalit = sha256("sync:" + login + ":" + parol_xeshi)[:40], faqat parolni biladigan odam hosil qila oladi.
 // Ketayotgan kun ham sinxronlanadi: qaysi tomonda boshlansa, ikkinchisida ham boshlanadi.
+let FB_AUTH = null;  // { idToken, refreshToken, uid, exp } — Firebase Authentication sessiyasi
+try { FB_AUTH = JSON.parse(localStorage.getItem("kafe-fbauth-v1") || "null"); } catch (e) { FB_AUTH = null; }
+function fbAuthSave(a) {
+  FB_AUTH = a || null;
+  try { if (a) localStorage.setItem("kafe-fbauth-v1", JSON.stringify(a)); else localStorage.removeItem("kafe-fbauth-v1"); } catch (e) { /* xotira yopiq */ }
+}
+function fbUrl(path) {
+  const base = FIREBASE_URL.replace(/\/+$/, "");
+  if (!FB_AUTH || !FB_AUTH.idToken) return base + path;
+  return base + path + (path.indexOf("?") >= 0 ? "&" : "?") + "auth=" + encodeURIComponent(FB_AUTH.idToken);
+}
+async function fbAuthCall(kind, login, pass) {
+  const r = await fetchT("https://identitytoolkit.googleapis.com/v1/accounts:" + kind + "?key=" + FIREBASE_API_KEY, {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email: login + "@verox-games.app", password: pass, returnSecureToken: true }) });
+  const j = await r.json();
+  if (!r.ok) throw new Error((j.error && j.error.message) || ("HTTP " + r.status));
+  return { idToken: j.idToken, refreshToken: j.refreshToken, uid: j.localId, exp: Date.now() + Number(j.expiresIn) * 1000 };
+}
+async function fbRefresh() {
+  if (!FB_AUTH || !FB_AUTH.refreshToken) return false;
+  const r = await fetchT("https://securetoken.googleapis.com/v1/token?key=" + FIREBASE_API_KEY, {
+    method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: "grant_type=refresh_token&refresh_token=" + encodeURIComponent(FB_AUTH.refreshToken) });
+  if (!r.ok) return false;
+  const j = await r.json();
+  fbAuthSave({ idToken: j.id_token, refreshToken: j.refresh_token, uid: j.user_id, exp: Date.now() + Number(j.expires_in) * 1000 });
+  return true;
+}
+// Token muddati tugayapti bo'lsa, yangilaydi
+async function fbEnsure() {
+  if (!FB_AUTH || !FB_AUTH.refreshToken) return;
+  if (FB_AUTH.exp - Date.now() > 120000) return;
+  await fbRefresh().catch(() => false);
+}
+function fbErrText(e) {
+  const m = String((e && e.message) || "");
+  if (/INVALID|NOT_FOUND|EMAIL_NOT|PASSWORD/.test(m)) return "❌ Login yoki parol noto'g'ri. Hisob yo'q bo'lsa, «Ro'yxatdan o'tish» ni tanlang.";
+  if (/TOO_MANY/.test(m)) return "❌ Juda ko'p urinish. Keyinroq qayta urining";
+  return PROMO_NET_MSG;
+}
+const FIREBASE_API_KEY = "AIzaSyC_RsK-D9VX1dnFHQHfLp6-dXm-aki3qwc";  // Firebase Web API key (ochiq kalit; xavfsizlik qoidalari bilan himoyalanadi)
 const FIREBASE_URL = "https://verox-games-default-rtdb.europe-west1.firebasedatabase.app";  // botdagi FIREBASE_URL bilan BIR XIL
 const SYNC_POLL_MS = 15000;   // jonli oqim uzilganda zaxira so'rov oralig'i
 const LEAD_MS = 3000;         // kun boshlanishi: hozirdan shuncha ms keyin (sayt va botda bir xil)
@@ -2624,7 +2688,7 @@ const sy = { sig: "", pullAt: 0, pushT: null, busy: false, down: 0, ready: false
 
 function syncKey() { const a = loadAccount(); return a && a.key ? a.key : null; }
 function syncOn() { return !!(FIREBASE_URL && syncKey()); }
-function syncUrl() { return FIREBASE_URL.replace(/\/+$/, "") + "/s/" + syncKey() + ".json"; }
+function syncUrl() { return fbUrl("/s/" + syncKey() + ".json"); }
 async function sha256Hex(text) {
   const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
   return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("");
@@ -2699,6 +2763,7 @@ function fetchT(url, opts) {
   return fetch(url, Object.assign({ signal: ac.signal, cache: "no-store" }, opts || {})).finally(() => clearTimeout(t));
 }
 async function syncPull() {
+  await fbEnsure();
   if (!syncOn() || sy.busy || Date.now() < sy.down) { if (!sy.busy) { sy.ready = true; sy.pullAt = Date.now(); } return; }
   sy.busy = true;
   try {
@@ -2729,12 +2794,13 @@ function syncSchedule() {
   sy.pushT = setTimeout(() => syncPushNow(false), 1200);
 }
 async function syncPushNow(keep) {
+  await fbEnsure();
   if (!syncOn() || !sy.ready || Date.now() < sy.down) return;
   clearTimeout(sy.pushT);
   const a = loadAccount(), d = durableOf(S);
   if (!S.rev) S.rev = Date.now();
   try {
-    const body = JSON.stringify({ rev: S.rev, by: "site", login: a.login, cafe: d.cafe, club: d.club });
+    const body = JSON.stringify({ rev: S.rev, by: "site", login: a.login, uid: FB_AUTH ? FB_AUTH.uid : null, cafe: d.cafe, club: d.club });
     const r = keep ? await fetch(syncUrl(), { method: "PUT", body, keepalive: true }) : await fetchT(syncUrl(), { method: "PUT", body });
     if (!r.ok) throw new Error("HTTP " + r.status);
     sy.dirty = false;
