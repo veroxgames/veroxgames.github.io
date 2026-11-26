@@ -101,8 +101,6 @@
   .checks .no{color:var(--muted)}
   .pill{display:inline-flex;align-items:center;gap:6px;padding:6px 11px;border-radius:99px;background:rgba(255,255,255,.05);border:1px solid var(--line);font-size:.84rem;font-weight:600}
   .head-kv{display:flex;gap:8px;flex-wrap:wrap}
-  .chart{width:100%;height:auto;background:rgba(255,255,255,.03);border-radius:12px;border:1px solid var(--line)}
-  textarea.input{resize:vertical;font-size:.85rem;font-family:monospace}
 
   /* ---------- ekranlar ---------- */
   .hero-home{padding:18px 0 6px}
@@ -172,8 +170,7 @@
   .lines div span{color:var(--muted)}
   .lines b{text-align:right}
   .modal-box .hint{margin-top:12px}
-  .modal-box ul{padding-left:18px}
-  .modal-box li{margin-bottom:6px;font-size:.93rem}
+
 
   /* ---------- animatsiyalar ---------- */
   .btn,.tab,.subtabs button,.seg button,.game-card,.row,.ach-row,.chip,.pill,.ico{transition:transform .2s cubic-bezier(.2,.8,.2,1),box-shadow .25s,background-color .25s,border-color .25s,color .25s,filter .15s}
@@ -181,19 +178,18 @@
   .btn:not(:disabled):active,.tab:active,.subtabs button:active,.seg button:active,.game-card:active{transform:scale(.93)}
   .tab:hover,.subtabs button:hover,.seg button:hover{transform:translateY(-2px)}
   .seg button:hover{border-color:rgba(242,180,65,.45)}
+  .row:hover{background:rgba(255,255,255,.035);transform:translateX(4px);border-radius:12px}
   .row:hover .ico{transform:rotate(-10deg) scale(1.15);background:rgba(242,180,65,.24)}
   .ach-row:hover{transform:translateY(-3px);box-shadow:0 10px 22px rgba(0,0,0,.35)}
-  .panel{transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease}
-  .panel:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(0,0,0,.35);border-color:rgba(245,190,70,.35)}
+  .panel{transition:border-color .3s,box-shadow .3s}
+  .panel:hover{border-color:rgba(242,180,65,.28);box-shadow:0 12px 30px rgba(0,0,0,.28)}
   .club .panel:hover{border-color:rgba(45,212,191,.3)}
-  .row{transition:background .2s ease,padding-left .2s ease}
-  .row:hover{background:rgba(255,255,255,.03);padding-left:6px}
   .game-card:hover .gc-ico{animation:wiggle .6s ease}
   .game-card:hover{box-shadow:0 16px 36px rgba(0,0,0,.4)}
   .kv div{transition:transform .2s,border-color .2s}
   .kv div:hover{transform:translateY(-2px);border-color:rgba(242,180,65,.35)}
   .pill:hover{transform:scale(1.07)}
-  .chip.ok{animation:pop .3s ease both;box-shadow:0 0 0 0 rgba(74,222,128,.4)}
+  .chip.ok{box-shadow:0 0 0 0 rgba(74,222,128,.4)}
   i.ic{display:inline-block}
   .brand i{animation:floaty 3s ease-in-out infinite}
   .tab.on i{animation:wiggle .6s ease}
@@ -236,19 +232,26 @@
   @keyframes zoomin{from{opacity:0;transform:scale(.85) translateY(14px)}to{opacity:1;transform:none}}
   @keyframes spinwob{50%{transform:scale(1.06) rotate(1.5deg)}}
 
-  @media (prefers-reduced-motion:reduce){
-    *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
-    .panel:hover,.row:hover{transform:none;padding-left:inherit}
-  }
-  /* kam harakat rejimi (foydalanuvchi sozlamasi) */
-  body.no-motion *,body.no-motion *::before,body.no-motion *::after{animation:none!important;transition:none!important}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
   .pwm{height:6px;border-radius:6px;background:rgba(255,255,255,.08);overflow:hidden;margin:8px 2px 2px}
   .pwm i{display:block;height:100%;border-radius:6px;transition:width .25s,background-color .25s}
   .tab.dim{opacity:.35;filter:grayscale(.6);cursor:not-allowed}
+  /* ---- Effektlar: silliq o'tishlar va fokus holatlari ---- */
+  .panel{transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease}
+  .panel:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(0,0,0,.35);border-color:rgba(245,190,70,.35)}
+  .row{transition:background .2s ease,padding-left .2s ease}
+  .row:hover{background:rgba(255,255,255,.03);padding-left:6px}
+  .input{transition:border-color .2s ease,box-shadow .2s ease,background .2s ease}
   .input:focus{outline:none;border-color:rgba(245,190,70,.7);box-shadow:0 0 0 3px rgba(245,190,70,.18)}
+  .btn-gold:not(:disabled):hover{box-shadow:0 0 18px rgba(245,190,70,.35)}
   .btn-gold{position:relative;overflow:hidden}
   .btn-gold::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.25) 50%,transparent 70%);transform:translateX(-120%)}
   .btn-gold:not(:disabled):hover::after{transform:translateX(120%);transition:transform .7s ease}
+  .chip.ok{animation:pop .3s ease both}
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+    .panel:hover,.row:hover{transform:none;padding-left:inherit}
+  }
   /* ---- Jonli fon: kafe (issiq, bug') va club (neon, to'r) ---- */
   .fx-bg{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none;transition:background .6s ease;
     background:radial-gradient(ellipse at 20% 0%,rgba(245,158,11,.20),transparent 60%),radial-gradient(ellipse at 90% 100%,rgba(234,88,12,.14),transparent 55%),#140d08}
@@ -278,11 +281,24 @@
   .wheel-info{min-height:44px;margin-top:6px}
   .wheel-win{font-family:Orbitron,Inter,sans-serif;font-weight:800;font-size:1.25rem;color:var(--green)}
   .wheel-win.jp{color:var(--gold);font-size:1.5rem;animation:pop2 .6s ease both}
-  .terms summary{cursor:pointer;color:var(--gold);font-weight:600}
-  .terms-check{display:block;width:100%;text-align:left;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.03);font-size:.92rem}
-  .terms-check.on{border-color:rgba(74,222,128,.45)}
-  .lb-sec{margin-top:14px}
-  .lb-add{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  /* ---- Yangi funksiyalar ---- */
+  .sync-dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#6b7280;margin-left:8px;flex-shrink:0}
+  .sync-dot[data-st="ok"]{background:var(--green);box-shadow:0 0 8px rgba(74,222,128,.6)}
+  .sync-dot[data-st="wait"]{background:#facc15;animation:pulse 1s infinite}
+  .sync-dot[data-st="err"]{background:var(--red)}
+  .event-banner{margin:10px 0;padding:10px 14px;border-radius:12px;font-weight:600;background:linear-gradient(90deg,rgba(242,180,65,.22),rgba(45,212,191,.12));border:1px solid rgba(242,180,65,.4)}
+  .chart{width:100%;height:auto;display:block;margin-top:6px}
+  .lb{display:grid;gap:0}
+  .lb-row{display:flex;align-items:center;gap:10px;padding:10px 8px;border-top:1px solid var(--line)}
+  .lb-row.me{background:rgba(242,180,65,.10);border-radius:10px}
+  .lb-n{width:30px;font-family:Orbitron,Inter,sans-serif;color:var(--gold);font-weight:700}
+  .lb-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .lb-row b{font-variant-numeric:tabular-nums}
+  body[data-skin="neon"]{--gold:#22d3ee;--gold2:#a855f7}
+  body[data-skin="royal"]{--gold:#e879f9;--gold2:#7c3aed}
+  body[data-skin="garden"]{--gold:#86efac;--gold2:#16a34a}
+  body.no-motion *,body.no-motion *::before,body.no-motion *::after{animation:none!important;transition:none!important}
+  .wheel-ov[hidden]{display:none}
 </style>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
@@ -290,15 +306,15 @@
 
 <header class="top">
   <div class="top-in">
-    <div class="brand"><i class="ic">🎮</i><span>VEROX <b>GAMES</b></span></div>
+    <div class="brand"><i class="ic">🎮</i><span>VEROX <b>GAMES</b></span><i class="sync-dot" id="syncDot" data-st="off"></i></div>
     <nav class="tabs">
-      <button class="tab" data-screen="home" data-act="go:home"><i class="ic">🏠</i> Bosh</button>
-      <button class="tab" data-screen="cafe" data-act="go:cafe"><i class="ic">🍴</i> Kafe</button>
-      <button class="tab" data-screen="club" data-act="go:club"><i class="ic">🎮</i> Club</button>
-      <button class="tab" data-screen="lb" data-act="go:lb"><i class="ic">🏆</i> Reyting</button>
-      <button class="tab" data-screen="help" data-act="go:help"><i class="ic">❓</i> Qoidalar</button>
-      <button class="tab" data-screen="acc" data-act="go:acc"><i class="ic">👤</i> Hisob</button>
-      <button class="tab" id="ownerTab" data-screen="owner" data-act="go:owner" style="display:none"><i class="ic">👑</i> Ega</button>
+      <button class="tab" data-screen="home" data-act="go:home"><i class="ic">🏠</i> <span data-i18n="home">Bosh</span></button>
+      <button class="tab" data-screen="cafe" data-act="go:cafe"><i class="ic">🍴</i> <span data-i18n="cafe">Kafe</span></button>
+      <button class="tab" data-screen="lb" data-act="go:lb"><i class="ic">🏆</i> <span data-i18n="lb">Reyting</span></button>
+      <button class="tab" data-screen="club" data-act="go:club"><i class="ic">🎮</i> <span data-i18n="club">Club</span></button>
+      <button class="tab" data-screen="help" data-act="go:help"><i class="ic">❓</i> <span data-i18n="help">Qoidalar</span></button>
+      <button class="tab" data-screen="acc" data-act="go:acc"><i class="ic">👤</i> <span data-i18n="acc">Hisob</span></button>
+      <button class="tab" id="ownerTab" data-screen="owner" data-act="go:owner" style="display:none"><i class="ic">👑</i> <span data-i18n="owner">Ega</span></button>
     </nav>
   </div>
 </header>
@@ -333,24 +349,12 @@ const CFG = {
   CLUB_RENT: 50000, CLUB_RENT_PER_PC: 6000, CLUB_ADMIN_SALARY: 40000,
   CLUB_SNACK_COST: 0.45, CLUB_SNACK_RANGE: [8000, 25000],
   REF_BASE: 5000000, REF_BONUS: 10000000, REF_BONUS_FROM: 10, // taklif mukofoti: 1–9 ta → REF_BASE; REF_BONUS_FROM-taklifdan → REF_BONUS
-  WEEK_BONUS_MULT: 3,                     // 7 kunlik ketma-ketlik bonusi (kalendar) ko'paytirgichi
-  HIST_DAYS: 30,                          // statistika grafigida saqlanadigan kunlar soni
-  BOARD_TOP: 30,                          // reytingda ko'rsatiladigan o'yinchilar soni
 };
 
 // Promokodlar (brauzer ichida ishlaydi, har kod har o'yinda bir marta)
 const PROMOS = {
-  cafe: {
-    START: { reward: 100000, text: "Boshlang'ich sovg'a" },
-    KAFE2026: { reward: 1000000, text: "2026 aksiyasi" },
-    NAVROZ: { reward: 300000, text: "Navro'z sovg'asi" },          // mavsumiy
-    RAMAZON: { reward: 500000, text: "Ramazon aksiyasi" },          // mavsumiy
-  },
-  club: {
-    CLUB: { reward: 150000, text: "Club ochilish sovg'asi" },
-    CLUB2026: { reward: 500000, text: "2026 club aksiyasi" },
-    NAVROZ: { reward: 200000, text: "Navro'z club sovg'asi" },     // mavsumiy
-  },
+  cafe: { START: { reward: 100000, text: "Boshlang'ich sovg'a" }, KAFE2026: { reward: 1000000, text: "2026 aksiyasi" } },
+  club: { CLUB: { reward: 150000, text: "Club ochilish sovg'asi" }, CLUB2026: { reward: 500000, text: "2026 club aksiyasi" } },
 };
 
 /* ===================== KAFE MA'LUMOTLARI ===================== */
@@ -554,22 +558,20 @@ const dishLine = (keys) => {
 
 /* ===================== HOLAT (STATE) ===================== */
 let S = null;
-const ui = { screen: "home", cTab: "day", lTab: "day", lbGame: "cafe", draft: {}, err: "", spinning: null, modalQ: [], modalOpen: false };
-let BOARD = { cafe: [], club: [], at: 0 };  // reyting: serverdan yuklangan TOP ro'yxat
+const ui = { screen: "home", cTab: "day", lTab: "day", draft: {}, err: "", spinning: null, modalQ: [], modalOpen: false };
 
 function newCafe() {
   return {
     money: CFG.START_MONEY, days: 0, xp: 0, rep: 3.0, staff: 0, ads: 0, decor: 0, equip: 0, delivery: 0,
     dishes: ["choy"], prices: {}, policy: "normal", ach: [], stats: {}, bonusAt: 0, streak: 0, spinAt: 0,
     deposit: 0, trust: 0, prestige: 0, quests: { d: -1, q: [] }, boosts: [], day: null, promos: [], refPaid: 0,
-    hist: [],   // oxirgi kunlar: [{n, p (sof foyda), r (tushum)}]
   };
 }
 function newClub() {
   return {
     open: false, money: 0, days: 0, rep: 3.0, std: 0, pro: 0, vip: 0, ps: 0, snack: 0, ads: 0, admin: 0, cool: 0,
     policy: "normal", prestige: 0, deposit: 0, boosts: [], stats: {}, ach: [], quests: { d: -1, q: [] },
-    bonusAt: 0, streak: 0, spinAt: 0, day: null, promos: [], refPaid: 0, hist: [],
+    bonusAt: 0, streak: 0, spinAt: 0, day: null, promos: [], refPaid: 0,
   };
 }
 function freshState() {
@@ -623,7 +625,6 @@ function ownsDish(p, k) { return p.dishes.indexOf(k) >= 0; }
 /* ===================== XABAR (TOAST) VA OYNA ===================== */
 // ---- Tovush (sintez: fayl yuklanmaydi) va jonli fon ----
 let FX_ON = (() => { try { return localStorage.getItem("kafe-sound-v1") !== "0"; } catch (e) { return true; } })();
-let MOTION_OFF = (() => { try { return localStorage.getItem("kafe-motion-v1") === "0"; } catch (e) { return false; } })();
 let FX_CTX = null;
 function fxCtx() {
   if (!FX_CTX) { try { FX_CTX = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { return null; } }
@@ -651,16 +652,6 @@ const SFX = {
   info: () => tone(520, 0.1, "sine", 0.1),
 };
 function sfx(name) { if (SFX[name]) SFX[name](); }
-// Telegram tebranishi (haptic): xabar turiga qarab
-function haptic(kind) {
-  try {
-    const h = TG && TG.HapticFeedback;
-    if (!h) return;
-    if (kind === "good") h.notificationOccurred("success");
-    else if (kind === "bad") h.notificationOccurred("error");
-    else h.impactOccurred("light");
-  } catch (e) { /* Telegram eski versiya */ }
-}
 // Fon musiqasi: har bir ekran uchun o'z ohangi (brauzerda sintez, fayl yo'q)
 const MUS = {
   calm: { bpm: 84, vol: 0.05, chords: [[261.6, 329.6, 392], [220, 261.6, 329.6], [174.6, 220, 261.6], [196, 246.9, 293.7]] },
@@ -752,12 +743,6 @@ function toggleSound() {
   ambient(AMB_WANT);
   if (FX_ON) sfx("click");
 }
-function toggleMotion() {
-  MOTION_OFF = !MOTION_OFF;
-  try { localStorage.setItem("kafe-motion-v1", MOTION_OFF ? "0" : "1"); } catch (e) { /* xotira yopiq */ }
-  applyMotion();
-}
-function applyMotion() { document.body.classList.toggle("no-motion", MOTION_OFF); }
 function buildFx() {
   if (document.querySelector(".fx-bg")) return;
   let parts = "";
@@ -780,7 +765,6 @@ function buildFx() {
   sb.addEventListener("click", toggleSound);
   document.body.appendChild(sb);
   updateSndBtn();
-  applyMotion();
   // Har bir tugma bosilganda yengil tovush
   document.addEventListener("click", (e) => { if (e.target.closest && e.target.closest("[data-act]")) sfx("click"); }, true);
 }
@@ -789,7 +773,6 @@ else buildFx();
 
 function toast(text, kind) {
   sfx(kind === "good" ? "good" : kind === "bad" ? "bad" : "info");
-  haptic(kind);
   const box = document.getElementById("toasts");
   if (!box) return;
   const el = document.createElement("div");
@@ -899,9 +882,6 @@ function buildCafeDay(start) {  // start: kun boshlanish vaqti (ms), bot bilan b
   let D = Math.max(4, Math.round(demand));
   const cap = capacity(p);
 
-  // kun trendi: har kuni bitta taom ko'proq sotiladi (kun raqamiga qarab, aralashmaydi)
-  const trend = owned.length > 1 ? owned[(p.days * 5 + 1) % owned.length] : null;
-
   // --- tasodifiy voqealar ---
   const ev = [];
   let burst = null, vipT = null;
@@ -914,13 +894,7 @@ function buildCafeDay(start) {  // start: kun boshlanish vaqti (ms), bot bilan b
       const extra = Math.max(3, Math.round(D * 0.3));
       burst = [t, extra];
       D += extra;
-      const bev = { t, text: kind === "blogger" ? "🌟 Mashhur bloger kafengizga keldi! Mijozlar oqimi oshdi" : "🍽 Tushlik vaqti! Mijozlar oqimi kuchaydi", money: 0, rep: 0 };
-      if (kind === "blogger") bev.choice = { q: "🌟 Bloger sizdan intervyu so'radi. Qanday qilasiz?", opts: [
-        { l: "🎁 Bepul choy tarqatish", money: -(10000 + 3000 * level), rep: 0.08, t: "🎁 Bepul choy tarqatildi" },
-        { l: "💰 Standart narx", money: 0, rep: 0.03, t: "💰 Standart narx saqlandi" },
-        { l: "🙅 Rad etish", money: 0, rep: -0.05, t: "🙅 Bloger rad etildi" },
-      ] };
-      ev.push(bev);
+      ev.push({ t, text: kind === "blogger" ? "🌟 Mashhur bloger kafengizga keldi! Mijozlar oqimi oshdi" : "🍽 Tushlik vaqti! Mijozlar oqimi kuchaydi", money: 0, rep: 0 });
     } else if (kind === "vip") {
       vipT = t;
       ev.push({ t, text: "🎩 VIP mehmon keldi!", money: 0, rep: 0 });
@@ -962,7 +936,7 @@ function buildCafeDay(start) {  // start: kun boshlanish vaqti (ms), bot bilan b
   const nServed = Math.min(D, cap);
   const lostIdx = new Set(sample([...Array(D).keys()], D - nServed));
   const special = owned.length > 1 ? pick(owned) : null;
-  const weights = owned.map((d) => DISHES[d].w * (d === special ? 2 : 1) * (d === trend ? 2 : 1));
+  const weights = owned.map((d) => DISHES[d].w * (d === special ? 2 : 1));
   const tipProb = boosts.includes("music") ? 1.0 : 0.3 + 0.04 * p.decor;
   const tipMax = boosts.includes("music") ? 0.24 : 0.12;
   const costK = boosts.includes("chef") ? 0.75 : 1.0;
@@ -1002,7 +976,7 @@ function buildCafeDay(start) {  // start: kun boshlanish vaqti (ms), bot bilan b
   ev.sort((a, b) => a.t - b.t);
 
   return {
-    no: p.days + 1, start, end: start + L * 1000, len: L, owner: "site", special, trend, mood: mood[0], cap, boosts,
+    no: p.days + 1, start, end: start + L * 1000, len: L, owner: "site", special, mood: mood[0], cap, boosts,
     cust, lost, ev, rent: 10000 + p.decor * 3000, salary: p.staff * 15000,
   };
 }
@@ -1053,6 +1027,7 @@ function finishCafeDay() {
   const evDelta = day.ev.reduce((s, e) => s + e.money, 0);
   const evRep = day.ev.reduce((s, e) => s + e.rep, 0);
   const profit = rev - cost + evDelta - day.rent - day.salary;
+  pushHist(p, { d: new Date(Date.now() + 5 * 3600000).getUTCDate(), p: Math.round(profit) });
 
   // reputatsiya
   const oldRep = p.rep;
@@ -1085,7 +1060,6 @@ function finishCafeDay() {
   }
   st.last_day = { start: day.start, no: day.no, served, lost, rev, profit, by: "site" };  // bot shu kun natijasini ko'rsatishi uchun
   p.stats = st;
-  p.hist = (p.hist || []).concat([{ n: day.no, p: profit, r: rev }]).slice(-CFG.HIST_DAYS);
 
   const interest = Math.floor((p.deposit || 0) * (CFG.DEPOSIT_RATE - 1));
   p.money = Math.max(0, p.money + profit + lvReward);
@@ -1190,14 +1164,11 @@ function claimCafeBonus() {
   const since = (now - p.bonusAt) / 1000;
   if (since < CFG.BONUS_H * 3600) return toast(`🎁 Keyingi bonus ${hm(CFG.BONUS_H * 3600 - since)}dan keyin`, "info");
   const streak = since < 48 * 3600 ? p.streak + 1 : 1;
-  // Kalendar: har 7 kunlik ketma-ketlikda bonus ×3
-  const weekly = streak % 7 === 0;
-  const amount = (20000 + 10000 * Math.min(streak, 10) + 5000 * levelOf(p.xp)) * (weekly ? CFG.WEEK_BONUS_MULT : 1);
+  const amount = Math.round((20000 + 10000 * Math.min(streak, 10) + 5000 * levelOf(p.xp)) * eventK());
   p.money += amount;
   p.bonusAt = now;
   p.streak = streak;
   openModal("🎁 Kunlik bonus", `<p class="hint">Har kuni kirsangiz bonus oshadi.</p>
-    ${weekly ? `<p class="hint">🗓 Haftalik bonus ×${CFG.WEEK_BONUS_MULT}: 7 kunlik ketma-ketlik uchun!</p>` : ""}
     <div class="lines"><div><span>Bonus</span><b class="pos">+${fmt(amount)}</b></div>
     <div><span>Ketma-ket kunlar</span><b>${streak}</b></div>
     <div><span>Hisobingiz</span><b>${fmt(p.money)}</b></div></div>`);
@@ -1268,6 +1239,7 @@ function paintWheel(ov, game) {
       <svg id="wheelSvg" class="wheel" viewBox="0 0 320 320">${wheelSvg()}</svg>
     </div>
     <div class="wheel-info" id="wheelInfo"></div>
+    ${autoBox(game)}
     <div id="wheelAct">${ready
       ? `<button class="btn btn-gold btn-block" id="wheelGo">🎡 Aylantirish</button>`
       : `<p class="hint">Keyingi aylantirish ${left}dan keyin</p><button class="btn btn-block" id="wheelClose">Yopish</button>`}</div>
@@ -1322,6 +1294,7 @@ function runWheel(game) {
     if (info) info.innerHTML = `<div class="wheel-win${prize.jackpot ? " jp" : ""}">${prize.jackpot ? "🎰 JEKPOT! " : "🎉 "}+${fmt(prize.v)}</div>`;
     if (act) act.innerHTML = `<p class="hint">Keyingi aylantirish ${CFG.SPIN_H} soatdan keyin</p><button class="btn btn-gold btn-block" id="wheelClose">Yopish</button>`;
     if (prize.jackpot) SFX.good(); else SFX.info();
+    haptic("success");
     render();
   };
   const step = (now) => {
@@ -1573,7 +1546,6 @@ function migrateState() {
     delete S.promo;
   }
   for (const g of ["cafe", "club"]) if (!Array.isArray(S[g].promos)) S[g].promos = [];
-  for (const g of ["cafe", "club"]) if (!Array.isArray(S[g].hist)) S[g].hist = [];
 }
 
 function notifyAch(list) {
@@ -1772,6 +1744,7 @@ function finishClubDay() {
   const evDelta = day.ev.reduce((a, e) => a + e.money, 0);
   const evRep = day.ev.reduce((a, e) => a + e.rep, 0);
   const profit = rev - power - snackCost + evDelta - day.rent - day.salary;
+  pushHist(c, { d: new Date(Date.now() + 5 * 3600000).getUTCDate(), p: Math.round(profit) });
   const hours = sess.reduce((a, s) => a + s.billed, 0);
 
   const oldRep = c.rep;
@@ -1792,7 +1765,6 @@ function finishClubDay() {
   st.last_lost = lostN;
   st.last_day = { start: day.start, no: day.no, served, lost: lostN, rev, profit, by: "site" };
   c.stats = st;
-  c.hist = (c.hist || []).concat([{ n: day.no, p: profit, r: rev }]).slice(-CFG.HIST_DAYS);
 
   const interest = Math.floor((c.deposit || 0) * (CFG.DEPOSIT_RATE - 1));
   c.money = Math.max(0, c.money + profit);
@@ -1860,13 +1832,11 @@ function claimClubBonus() {
   const since = (now - c.bonusAt) / 1000;
   if (since < CFG.BONUS_H * 3600) return toast(`🎁 Keyingi club bonusi ${hm(CFG.BONUS_H * 3600 - since)}dan keyin`, "info");
   const streak = since < 48 * 3600 ? c.streak + 1 : 1;
-  const weekly = streak % 7 === 0;
-  const amount = (20000 + 10000 * Math.min(streak, 10) + 3000 * Math.min(c.days, 50)) * (weekly ? CFG.WEEK_BONUS_MULT : 1);
+  const amount = Math.round((20000 + 10000 * Math.min(streak, 10) + 3000 * Math.min(c.days, 50)) * eventK());
   c.money += amount;
   c.bonusAt = now;
   c.streak = streak;
-  openModal("🎁 Club bonusi", `${weekly ? `<p class="hint">🗓 Haftalik bonus ×${CFG.WEEK_BONUS_MULT}!</p>` : ""}
-    <div class="lines"><div><span>Bonus</span><b class="pos">+${fmt(amount)}</b></div>
+  openModal("🎁 Club bonusi", `<div class="lines"><div><span>Bonus</span><b class="pos">+${fmt(amount)}</b></div>
     <div><span>Ketma-ket kunlar</span><b>${streak}</b></div><div><span>Club hisobi</span><b>${fmt(c.money)}</b></div></div>`);
 }
 function clubDepositAdd(pct) {
@@ -1891,127 +1861,520 @@ function notifyClubAch(list) {
   toast("🏅 Club: yangi yutuq: " + list.map((a) => a[2]).join(", ") + ` (+${fmt(reward)})`, "good");
 }
 
-/* ===================== REYTING (LEADERBOARD) VA DO'STLAR ===================== */
-// Har kun yakunlangach, o'yinchining ommaviy qisqa natijasi /board/<o'yin>/<login> ga yoziladi.
-// Eslatma: bu yozuv faqat sayt tomonidan yuboriladi; serverda tekshiruv qo'shilmaguncha soxtalashtirish mumkin.
-async function pushBoard(game) {
-  const acc = loadAccount();
-  if (!acc || !FIREBASE_URL) return;
-  const g = S[game], st = g.stats || {};
-  try {
-    await fbEnsure();
-    await fetchT(fbUrl("/board/" + game + "/" + acc.login + ".json"), { method: "PUT",
-      body: JSON.stringify({ name: acc.login, prestige: g.prestige || 0, best: st.best || 0,
-        rev: st.revenue || 0, days: g.days || 0, at: Date.now() }) });
-  } catch (e) { /* keyingi kunda qayta yoziladi */ }
+/* ===================== EKRANLAR: YORDAMCHILAR ===================== */
+const DAY_MS = 86400000;
+function btn(label, act, o = {}) {
+  const cls = ["btn", o.cls || "", o.small ? "btn-sm" : "", o.block ? "btn-block" : ""].join(" ");
+  return `<button class="${cls}" data-act="${act}"${o.dis ? " disabled" : ""}>${label}</button>`;
 }
-async function loadBoard() {
-  await fbEnsure();
-  if (!FIREBASE_URL) return;
-  try {
-    for (const g of ["cafe", "club"]) {
-      const r = await fetchT(fbUrl("/board/" + g + ".json"));
-      const d = r.ok ? await r.json() : null;
-      BOARD[g] = Object.values(d || {}).filter((x) => x && x.name)
-        .sort((a, b) => (b.best || 0) - (a.best || 0)).slice(0, CFG.BOARD_TOP);
-    }
-    BOARD.at = Date.now();
-  } catch (e) { /* keyingi tekshiruvda qayta */ }
-  if (ui.screen === "lb" && !ui.modalOpen && !isTyping()) render();
+function row(icon, title, sub, right) {
+  return `<div class="row"><div class="ico">${icon}</div><div class="info"><div class="name">${title}</div>` +
+    `${sub ? `<div class="sub">${sub}</div>` : ""}</div>${right || ""}</div>`;
 }
-function friendsList() {
-  try { return JSON.parse(localStorage.getItem(NS + "friends-v1") || "[]").filter((x) => typeof x === "string"); }
-  catch (e) { return []; }
+function linesHtml(rows) {
+  return `<div class="lines">${rows.map((r) => `<div><span>${r[0]}</span><b class="${r[2] || ""}">${r[1]}</b></div>`).join("")}</div>`;
 }
-function saveFriends(list) {
-  try { localStorage.setItem(NS + "friends-v1", JSON.stringify(list)); } catch (e) { /* xotira yopiq */ }
+function kvHtml(items) {
+  return `<div class="kv">${items.map((r) => `<div><span>${r[0]}</span><b>${r[1]}</b></div>`).join("")}</div>`;
 }
-function addFriend(raw) {
-  const login = String(raw || "").trim().toLowerCase();
-  const me = loadAccount();
-  if (!LOGIN_OK.test(login)) return toast("Login 3–20 belgi: a–z, 0–9, _", "bad");
-  if (me && me.login === login) return toast("O'zingizni do'st qilib bo'lmaydi", "bad");
-  const list = friendsList();
-  if (list.includes(login)) return toast("Bu do'st allaqachon ro'yxatda", "info");
-  list.push(login);
-  saveFriends(list);
-  ui.draft.friendLogin = "";
-  toast(`👥 ${login} do'stlar ro'yxatiga qo'shildi`, "good");
+function subtabsHtml(list, active, prefix) {
+  return `<nav class="subtabs">${list.map((t) => `<button class="${t[0] === active ? "on" : ""}" data-act="${prefix}:${t[0]}">${t[1]}</button>`).join("")}</nav>`;
 }
-function removeFriend(login) {
-  saveFriends(friendsList().filter((x) => x !== login));
-  toast("Do'st ro'yxatdan olindi", "info");
-}
-function viewLeaderboard() {
-  const game = ui.lbGame === "club" ? "club" : "cafe";
-  const list = BOARD[game] || [];
-  const me = loadAccount();
-  const tabs = [["cafe", "☕ Kafe"], ["club", "🎮 Club"]];
-  const top = list.length
-    ? list.map((x, i) => row(i < 3 ? ["🥇", "🥈", "🥉"][i] : String(i + 1),
-        esc(x.name) + (me && x.name === me.login ? " <span class=\"chip ok\">siz</span>" : ""),
-        `Eng yaxshi kun: ${fmt(x.best || 0)} · Tushum: ${fmt(x.rev || 0)} · Franchayzing: ${x.prestige || 0}`, "")).join("")
-    : `<p class="hint">Hozircha reyting bo'sh. Birinchi kunni yakunlang!</p>`;
-  const friends = friendsList().map((login) => {
-    const x = list.find((y) => y.name === login);
-    const sub = x ? `Eng yaxshi kun: ${fmt(x.best || 0)} · Franchayzing: ${x.prestige || 0}` : "TOP ro'yxatda yo'q yoki hali o'ynamagan";
-    return row("👤", esc(login), sub, btn("✖", "fr:del:" + login, { small: true, cls: "btn-ghost" }));
-  }).join("");
-  const board = BOARD.at ? "" : `<p class="hint">Yuklanmoqda...</p>`;
-  return `<section class="panel">
-    <div class="screen-head"><div><div class="eyebrow">Reyting</div><h2>🏆 Eng yaxshi o'yinchilar</h2></div>
-      ${btn("🔄 Yangilash", "lb:refresh", { small: true, cls: "btn-ghost" })}</div>
-    ${board}
-    <nav class="subtabs">${tabs.map((t) => `<button class="${t[0] === game ? "on" : ""}" data-act="lbgame:${t[0]}">${t[1]}</button>`).join("")}</nav>
-    ${top}
+function errClass(k) { return ui.err && ui.err.k === k ? "invalid" : ""; }
+function errLine(k) { return ui.err && ui.err.k === k ? `<div class="err">${esc(ui.err.msg)}</div>` : ""; }
+function until(ts) { return `<span class="cd" data-until="${ts}">—</span>`; }
+
+/* ===================== BOSH MENYU ===================== */
+function viewHome() {
+  const c = S.cafe, l = S.club;
+  const cafeTag = c.day ? " ⏳" : (canPrestige(c) ? " ✨" : "");
+  const clubTag = !l.open ? "" : (l.day ? " ⏳" : (canClubPrestige(l) ? " ✨" : ""));
+  return `
+  <section class="hero-home">
+    <div class="eyebrow">Verox Games</div>
+    <h1>Kafe <span>va</span> Club</h1>
+    <p class="muted">Ikki alohida o'yin: kafe — taom va mijozlar, club — kompyuter zali. Har birining o'z hisobi, darajasi va franchayzingi bor.</p>
   </section>
+  <div class="game-grid">
+    <button class="game-card" data-act="go:cafe">
+      <span class="gc-ico"><i class="ic">☕</i></span>
+      <span class="gc-title">CAFE${cafeTag}</span>
+      <span class="gc-bal">💰 ${fmt(c.money)}</span>
+      <span class="gc-sub">Kafe oching, taomlar sotib oling, mijozlarni kutib oling</span>
+    </button>
+    <button class="game-card club" data-act="go:club">
+      <span class="gc-ico"><i class="ic">🎮</i></span>
+      <span class="gc-title">GAME CLUB${clubTag}</span>
+      <span class="gc-bal">${l.open ? "💰 " + fmt(l.money) : "🔒 Hali ochilmagan (bepul)"}</span>
+      <span class="gc-sub">PC, PlayStation va VIP xona ijarasi, soatbay to'lov</span>
+    </button>
+  </div>
   <section class="panel">
-    <h3><i class="ic">👥</i> Do'stlarim</h3>
-    <p class="hint">Do'stning loginini yozing. Uning natijasi reytingdan olinadi (agar TOP'da bo'lsa). Ro'yxat shu qurilmada saqlanadi.</p>
-    <div class="lb-add"><input class="input" data-draft="friendLogin" placeholder="Do'st login" value="${esc(ui.draft.friendLogin || "")}" maxlength="20" autocapitalize="none" />${btn("➕ Qo'shish", "fr:add", { cls: "btn-teal" })}</div>
-    ${friends || `<p class="hint mt">Hali do'st qo'shilmagan.</p>`}
+    <h3><i class="ic">💾</i> Saqlash</h3>
+    <p class="hint">O'yin progressi hozircha shu brauzerda saqlanadi (brauzer ma'lumotlarini tozalasangiz, noldan boshlanadi). Hisob (login) esa bulutda saqlanadi: 👤 Hisob bo'limiga qarang.</p>
   </section>`;
 }
 
-/* ===================== STATISTIKA GRAFIGI ===================== */
-function chartSvg(hist) {
-  const h = Array.isArray(hist) ? hist : [];
-  if (h.length < 2) return `<p class="hint">Grafik uchun kamida 2 ta yakunlangan kun kerak.</p>`;
-  const W = 300, H = 110, pad = 8;
-  const vals = h.map((x) => x.p);
-  const mn = Math.min(0, ...vals), mx = Math.max(1, ...vals);
-  const X = (i) => pad + (i * (W - 2 * pad)) / (h.length - 1);
-  const Y = (v) => H - pad - ((v - mn) / (mx - mn || 1)) * (H - 2 * pad);
-  const pts = h.map((x, i) => X(i).toFixed(1) + "," + Y(x.p).toFixed(1)).join(" ");
-  const zeroY = Y(0).toFixed(1);
-  return `<svg viewBox="0 0 ${W} ${H}" class="chart" preserveAspectRatio="none">
-      <line x1="${pad}" x2="${W - pad}" y1="${zeroY}" y2="${zeroY}" stroke="rgba(246,234,215,.25)" stroke-dasharray="3 3"/>
-      <polyline points="${pts}" fill="none" stroke="var(--gold)" stroke-width="2.2" stroke-linejoin="round"/></svg>
-    <p class="hint">Oxirgi ${h.length} kun sof foydasi. Oxirgi kun: ${fmt(vals[vals.length - 1])}</p>`;
+/* ===================== KAFE EKRANI ===================== */
+function cafeHeader() {
+  const p = S.cafe, lv = levelOf(p.xp), lo = xpFor(lv), hi = xpFor(lv + 1);
+  const pct = Math.round(((p.xp - lo) / (hi - lo)) * 100);
+  return `<div class="screen-head"><div>
+      <div class="eyebrow">Kafe o'yini</div>
+      <h2>☕ Sizning kafe${p.prestige ? " 🏢×" + p.prestige : ""}</h2>
+    </div>
+    <div class="head-kv"><span class="pill">💰 ${fmt(p.money)}</span><span class="pill">⭐ ${p.rep.toFixed(1)}</span><span class="pill">🎖️ Daraja ${lv}</span></div></div>
+    <div class="bar small"><i style="width:${pct}%"></i></div>`;
 }
 
-/* ===================== SOZLAMALAR: ZAXIRA NUSXA ===================== */
-function exportBackup() {
-  ui.draft.bkText = JSON.stringify(S);
-  ui.err = { k: "bk", msg: "" };
-  toast("📤 Nusxa tayyor: matnni nusxalab xavfsiz joyga saqlang", "info");
+function liveBox(game, day) {
+  const club = game === "club";
+  const head = club ? `Club kuni ${day.no}` : `Kun ${day.no}`;
+  const extra = club
+    ? `<div class="muted">🕐 Soat: <b data-live="club-clock">12:00</b> · 🖥️ Band: <b data-live="club-busy">0</b>/${day.cap}</div>`
+    : `<div class="muted">${esc(day.mood)}${day.special ? " · 🍽 Kun taomi: " + DISHES[day.special].e + " " + DISHES[day.special].n + " (+15%)" : ""}</div>`;
+  const b = club ? "Mijozlar" : "Xizmat";
+  return `<section class="panel live ${club ? "club" : ""}">
+    <div class="live-head"><span class="badge">${head} DAVOM ETMOQDA</span><span class="cd" data-live="${game}-left">--:--</span></div>
+    ${extra}
+    <div class="bar"><i data-live="${game}-bar" style="width:0%"></i></div>
+    <div class="kv mt">
+      <div><span>👥 ${b}</span><b data-live="${game}-a">0</b></div>
+      <div><span>😔 Ketib qoldi</span><b data-live="${game}-b">0</b></div>
+      <div><span>💵 Tushum</span><b data-live="${game}-c">0</b></div>
+      <div><span>⏳ Qoldi</span><b data-live="${game}-t">--</b></div>
+    </div>
+    <div class="feed" data-live="${game}-feed"></div>
+  </section>`;
 }
-function importBackup() {
-  const raw = String(ui.draft.bkText || "").trim();
-  let d = null;
-  try { d = JSON.parse(raw); } catch (e) { d = null; }
-  if (!d || d.v !== 1 || !d.cafe || !d.club) {
-    ui.err = { k: "bk", msg: "❌ Nusxa noto'g'ri: JSON formati tekshirilmadi" };
-    return;
+
+function cafeDayView() {
+  const p = S.cafe;
+  if (p.day) return liveBox("cafe", p.day);
+  const bs = p.boosts.map((b) => BOOSTS[b].e + " " + BOOSTS[b].n).join(", ") || "yo'q";
+  return `<section class="panel">
+    <h3><i class="ic">☀️</i> Yangi kun</h3>
+    ${kvHtml([["Sig'im", capacity(p) + " mijoz"], ["Taomlar", p.dishes.length + "/" + DISH_LIST.length],
+      ["Narx siyosati", POLICIES[p.policy].e + " " + POLICIES[p.policy].n], ["Xodimlar", p.staff]])}
+    <p class="hint mt">Kun ${CFG.DAY_MIN}–${CFG.DAY_MAX} soniya davom etadi. Mijozlar real vaqtda keladi, natija kun tugagach hisoblanadi.</p>
+    <p class="hint">⚡ Keyingi kun uchun kuchaytirgichlar: ${bs}</p>
+    ${btn("▶️ Kunni boshlash", "day:start", { cls: "btn-gold", block: true })}
+  </section>`;
+}
+
+function cafeUpgView() {
+  const p = S.cafe;
+  let h = `<section class="panel"><h3><i class="ic">🔨</i> Kafeni yaxshilash</h3>
+    <p class="hint">Yangi daraja keyingi kundan kuchga kiradi.</p>`;
+  for (const [key, u] of Object.entries(UPGRADES)) {
+    const lv = p[key];
+    const right = lv >= u.max ? '<span class="chip ok">MAX</span>' : btn(`+1 · ${fmt(upgradePrice(key, lv))}`, "buy:" + key, { small: true });
+    h += row(u.e, `${u.n} <span class="lv">${lv}/${u.max}</span>`, u.info, right);
   }
-  S = d;
-  migrateState();
-  S.rev = Date.now();
-  sy.sig = "";
-  ui.err = null;
-  ui.draft.bkText = "";
-  saveState();
-  toast("📥 Nusxa tiklandi", "good");
+  if (p.staff > 0) h += row("➖", "Xodimni bo'shatish", "Pul qaytmaydi", btn("Bo'shatish", "fire", { small: true }));
+  h += "</section>";
+
+  h += `<section class="panel"><h3><i class="ic">🏷️</i> Narx siyosati</h3>
+    <div class="seg">${Object.entries(POLICIES).map(([k, pol]) =>
+      `<button class="${k === p.policy ? "on" : ""}" data-act="setpol:${k}">${pol.e} ${pol.n}<small>${pol.info}</small></button>`).join("")}</div></section>`;
+
+  h += `<section class="panel"><h3><i class="ic">⚡</i> Kuchaytirgichlar</h3>
+    <p class="hint">Sotib olingan kuchaytirgich keyingi boshlangan kunda ishlaydi va sarflanadi.</p>`;
+  for (const [k, b] of Object.entries(BOOSTS)) {
+    const right = p.boosts.includes(k) ? '<span class="chip ok">Tayyor</span>' : btn(fmt(boostPrice(p, k)), "bbuy:" + k, { small: true });
+    h += row(b.e, b.n, b.info, right);
+  }
+  return h + "</section>";
+}
+
+function cafeMenuView() {
+  const p = S.cafe, pm = POLICIES[p.policy].price;
+  let h = `<section class="panel"><h3><i class="ic">🍴</i> Menyu (${p.dishes.length}/${DISH_LIST.length})</h3>
+    <p class="hint">Menyuga taomni sotib oling. Menyudagi taom narxini o'zingiz belgilaysiz: limit asl narxning ~4% yuqorisi. Limitdan oshsa, narx qo'yilgan paytda har 3 000 so'mga 50 000 so'm jarima bir marta yechiladi.</p>`;
+  for (const d of DISH_LIST) {
+    const sell = sellPrice(d.k, pm), cost = dishCost(d.k, p.equip);
+    const owned = ownsDish(p, d.k);
+    const sub = `Sotish ${fmt(sell)} · Xarajat ${fmt(cost)} · Foyda ${fmt(sell - cost)}`;
+    const right = owned ? '<span class="chip ok">Menyuda</span>' : btn(fmt(d.price), "dish:" + d.k, { small: true });
+    h += row(d.e, d.n, sub, right);
+    if (owned) {
+      h += `<div class="pr-ed"><input class="input" type="number" inputmode="numeric" data-draft="pr_${d.k}" placeholder="Narx: ${fmt(sell)}" value="${esc(ui.draft["pr_" + d.k] || "")}"/>${btn("Saqlash", "dprice:" + d.k, { small: true })}
+        <div class="pr-lim">Asl narx ${fmt(d.sell)} · limit ${fmt(priceLimit(d.k))} (undan oshsa, narx qo'yilganda har 3 000 so'mga 50 000 jarima bir marta)</div></div>`;
+    }
+  }
+  return h + "</section>";
+}
+
+function loansBlock() {
+  const act = activeLoans();
+  const amt = ui.draft.loanAmt || "";
+  const term = Number(ui.draft.loanTerm) || 3;
+  const n = Number(amt);
+  const preview = n >= CFG.LOAN_MIN && n <= CFG.LOAN_MAX ? fmt(loanOwed(n, term)) : "—";
+  let h = `<h3 class="mt"><i class="ic">🏦</i> Bank krediti</h3>
+    <p class="hint">Bank pul beradi. Muddat tugasa, qarz avtomatik undiriladi. To'liq to'lanmasa, ishonch va reputatsiya tushadi.</p>
+    <div class="field"><input class="input ${errClass("loan")}" type="number" inputmode="numeric" data-draft="loanAmt"
+      placeholder="Summa, min ${fmt(CFG.LOAN_MIN)}" value="${esc(amt)}" /></div>
+    <div class="seg mt">${[1, 3, 7].map((d) => `<button class="${term === d ? "on" : ""}" data-act="loanterm:${d}">${d} kun<small>${Math.round(CFG.LOAN_TERMS[d] * 100)}% foiz</small></button>`).join("")}</div>
+    <p class="hint mt">Qaytarish summasi: <b data-live="loan-preview">${preview}</b> · faol kreditlar: ${act.length}/${CFG.LOAN_MAX_ACTIVE}</p>
+    ${errLine("loan")}
+    ${btn("🏦 Kredit olish", "loan:take", { cls: "btn-gold", block: true, dis: act.length >= CFG.LOAN_MAX_ACTIVE })}`;
+  for (const l of act) {
+    const right = `<div class="head-kv">${btn("Yarmi", "loan:half:" + l.id, { small: true })}${btn("Hammasi", "loan:all:" + l.id, { small: true, cls: "btn-teal" })}</div>`;
+    h += row("📄", `Kredit #${l.id} · ${fmt(l.amount)}`,
+      `Qaytarish: ${fmt(loanLeft(l))} · muddati: ${until(l.due)}`, right);
+  }
+  const past = S.loans.filter((l) => l.status !== "active").slice(-5).reverse();
+  for (const l of past) {
+    const st = l.status === "paid" ? '<span class="chip ok">To\'langan</span>' : '<span class="chip">Yozib yuborildi</span>';
+    h += row("🧾", `Kredit #${l.id} · ${fmt(l.amount)}`, `Qaytarilgan: ${fmt(l.paid)} / ${fmt(l.owed)}`, st);
+  }
+  return h;
+}
+
+function promoBlock(game) {
+  return `<h3 class="mt"><i class="ic">🎫</i> Promokod</h3>
+    <div class="field"><input class="input ${errClass("promo")}" data-draft="promo" placeholder="Masalan: START"
+      value="${esc(ui.draft.promo || "")}" maxlength="20" autocomplete="off" />${btn("Qo'llash", "promo:" + game, { cls: "btn-teal" })}</div>
+    ${errLine("promo")}
+    <p class="hint">Har promokod bir marta ishlaydi. Kafe va club uchun promokodlar alohida.</p>`;
+}
+
+function cafeMoneyView() {
+  const p = S.cafe, now = Date.now();
+  const bonusReady = now - p.bonusAt >= DAY_MS;
+  const spinReady = canSpin(p.spinAt);
+  return `<section class="panel">
+      <h3><i class="ic">🪙</i> Hisob</h3>
+      ${kvHtml([["💰 Hisob", fmt(p.money)], ["🏦 Omonat", fmt(p.deposit || 0)], ["🛡️ Ishonch", p.trust], ["📅 Kunlar", p.days]])}
+    </section>
+    <section class="panel">
+      <h3><i class="ic">🎁</i> Bonus va g'ildirak</h3>
+      <div class="field">${btn("🎁 Kunlik bonus" + (bonusReady ? " ✨" : ""), "bonus", { cls: "btn-gold" })}${btn("🎡 G'ildirak" + (spinReady ? " ✨" : ""), "spin", { cls: "btn-teal" })}</div>
+      <p class="hint mt">Bonus: ${bonusReady ? "tayyor" : until(p.bonusAt + DAY_MS)} · G'ildirak: ${spinReady ? "tayyor" : until(p.spinAt + CFG.SPIN_H * 3600000)}</p>
+    </section>
+    <section class="panel">
+      <h3><i class="ic">🐷</i> Omonat</h3>
+      <p class="hint">Har kafe kuni omonat 1% ga o'sadi. Franchayzingda nolga tushadi.</p>
+      <div class="field">${btn("➕ 10%", "dep:add:10")}${btn("➕ 50%", "dep:add:50")}${btn("➕ Hammasi", "dep:add:100")}</div>
+      ${p.deposit ? `<div class="mt">${btn("➖ Omonatni yechish (" + fmt(p.deposit) + ")", "dep:out", { block: true })}</div>` : ""}
+    </section>
+    <section class="panel">${loansBlock()}</section>
+    <section class="panel">${promoBlock("cafe")}</section>`;
+}
+
+function questsHtml(data, act, claimAct) {
+  let h = `<h3><i class="ic">📋</i> Kunlik vazifalar</h3>
+    <p class="hint">Yangi vazifalar har kuni yarim tunda (O'zbekiston vaqti) paydo bo'ladi.</p>`;
+  data.q.forEach((q, i) => {
+    const right = q[4] ? '<span class="chip ok">Olingan</span>'
+      : (q[2] >= q[1] ? btn("🎁 +" + fmt(q[3]), claimAct + i, { small: true, cls: "btn-gold" }) : '<span class="chip">Jarayonda</span>');
+    h += row("📜", `${i + 1}. ${act(q)}`, `${questStatus(q)} · Mukofot: ${fmt(q[3])}`, right);
+  });
+  return h;
+}
+function achGridHtml(list, have) {
+  return `<div class="ach-grid">${list.map((a) => {
+    const got = have.includes(a[0]);
+    return `<div class="ach-row ${got ? "got" : ""}"><div class="e">${got ? a[1] : "🔒"}</div><div>
+      <div class="n">${a[2]}</div><div class="d">${a[3]}</div><div class="r">+${fmt(a[4])}</div></div></div>`;
+  }).join("")}</div>`;
+}
+
+function cafeGoalsView() {
+  const p = S.cafe, st = p.stats || {};
+  const data = ensureQuests();
+  const lv = levelOf(p.xp);
+  return `<section class="panel">${questsHtml(data, questTitle, "quest:claim:")}</section>
+    <section class="panel"><h3><i class="ic">🏅</i> Yutuqlar (${p.ach.length}/${ACHS.length})</h3>
+      ${achGridHtml(ACHS, p.ach)}</section>
+    ${skinsBlock()}${histChart("cafe", "📈 Oxirgi kunlar: foyda")}
+    <section class="panel"><h3><i class="ic">📊</i> Statistika</h3>
+      ${kvHtml([["Kunlar", p.days], ["Daraja", lv], ["Xizmat qilingan", st.served || 0], ["Ketib qolgan", st.lost || 0],
+        ["Umumiy tushum", fmt(st.revenue || 0)], ["Eng yaxshi kun", fmt(st.best || 0)]])}</section>`;
+}
+
+function prestigeBlock(title, desc, checks, canDo, act, extraInfo) {
+  return `<section class="panel"><h3><i class="ic">🏢</i> ${title}</h3>
+    <p class="hint">${desc}</p>${extraInfo || ""}
+    <div class="checks mt">${checks.map((c) => `<div class="${c[0] ? "" : "no"}">${c[0] ? "✅" : "❌"} ${c[1]}</div>`).join("")}</div>
+    <div class="mt">${btn("🏢 Franchayzingni boshlash", act, { cls: "btn-gold", block: true, dis: !canDo })}</div></section>`;
+}
+function cafePrestView() {
+  const p = S.cafe, n = p.prestige;
+  const desc = `Franchayzing kafeni yangi bosqichga olib chiqadi: taomlar, xodimlar, reklama, interyer va jihozlar boshidan boshlanadi. Daraja, yutuqlar va statistika saqlanadi.`;
+  const info = `<p class="hint">Hozirgi franchayzing: <b>${n}</b> · bonus: +${Math.round(CFG.PRESTIGE_CUST * n * 100)}% mijoz, +${Math.round(CFG.PRESTIGE_INC * n * 100)}% daromad.
+    Keyingi boshlang'ich kapital: <b>${fmt(CFG.START_MONEY + 500000 * (n + 1))}</b>. Har franchayzing: doimiy +${Math.round(CFG.PRESTIGE_CUST * 100)}% mijoz va +${Math.round(CFG.PRESTIGE_INC * 100)}% daromad.</p>`;
+  return prestigeBlock("Franchayzing", desc, [
+    [p.dishes.length >= DISH_LIST.length, `Barcha taomlar ochilgan (${p.dishes.length}/${DISH_LIST.length})`],
+    [p.money >= CFG.PRESTIGE_MONEY, `Hisobda ${fmt(CFG.PRESTIGE_MONEY)} (hozir: ${fmt(p.money)})`],
+    [!p.day, "Hozir kun davom etmayapti"],
+  ], canPrestige(p), "prest:ask", info);
+}
+
+function viewCafe() {
+  const tabs = [["day", "▶️ Kun"], ["upg", "🛒 Yaxshilash"], ["menu", "📋 Menyu"], ["money", "💰 Pul"], ["goals", "🎯 Vazifa"], ["prest", "🏢 Franchayzing"]];
+  let body;
+  switch (ui.cTab) {
+    case "upg": body = cafeUpgView(); break;
+    case "menu": body = cafeMenuView(); break;
+    case "money": body = cafeMoneyView(); break;
+    case "goals": body = cafeGoalsView(); break;
+    case "prest": body = cafePrestView(); break;
+    default: body = cafeDayView();
+  }
+  return cafeHeader() + subtabsHtml(tabs, ui.cTab, "ctab") + body;
+}
+
+/* ===================== CLUB EKRANI ===================== */
+function clubHeader() {
+  const c = S.club;
+  return `<div class="screen-head"><div>
+      <div class="eyebrow">Game club</div>
+      <h2>🎮 Sizning club${c.prestige ? " 🏢×" + c.prestige : ""}</h2>
+    </div>
+    <div class="head-kv"><span class="pill">💰 ${fmt(c.money)}</span><span class="pill">⭐ ${c.rep.toFixed(1)}</span>
+      <span class="pill">🖥️ ${seatsOf(c)} joy</span><span class="pill">💲 ${CPOLICIES[c.policy].n}</span></div></div>`;
+}
+
+function clubOpenView() {
+  return `<section class="panel">
+    <h3><i class="ic">🎮</i> Game clubni ochish</h3>
+    <p class="hint">Kompyuter xonangizni oching va soatlik o'yin bilan pul ishlang.</p>
+    ${kvHtml([["Ochish", "BEPUL"], ["Boshlang'ich hisob", fmt(CFG.CLUB_START_MONEY)], ["Boshlang'ich PC", CFG.CLUB_START_PCS + " ta"], ["Alohida o'yin", "kafedan mustaqil"]])}
+    <p class="hint mt">Club o'z hisobi, daraja, reytingi va franchayzingi bilan kafedan alohida ishlaydi.</p>
+    ${btn("🎮 Club ochish", "copen", { cls: "btn-teal", block: true })}
+  </section>`;
+}
+
+function clubDayView() {
+  const c = S.club;
+  if (c.day) return liveBox("club", c.day);
+  const seats = seatsOf(c);
+  const bs = c.boosts.map((b) => CBOOSTS[b].e + " " + CBOOSTS[b].n).join(", ") || "yo'q";
+  return `<section class="panel">
+    <h3><i class="ic">▶️</i> Yangi club kuni</h3>
+    ${kvHtml([["O'yin joylari", seats], ["Tarif", CPOLICIES[c.policy].e + " " + CPOLICIES[c.policy].n], ["Bufet", c.snack], ["Administrator", c.admin]])}
+    <p class="hint mt">Kun ${CFG.CLUB_HOURS} o'yin soati (12:00–24:00) davom etadi. Ijara va elektr xarajati kun yakunida hisoblanadi.</p>
+    <p class="hint">⚡ Keyingi kun uchun aksiyalar: ${bs}</p>
+    ${btn("🎮 Club kunini boshlash", "cday:start", { cls: "btn-teal", block: true, dis: seats === 0 })}
+  </section>`;
+}
+
+function clubUpgView() {
+  const c = S.club;
+  let h = `<section class="panel"><h3><i class="ic">🔨</i> Club yaxshilash</h3>
+    <p class="hint">Yangi xarid keyingi club kunidan kuchga kiradi.</p>`;
+  for (const [key, u] of Object.entries(CUPGRADES)) {
+    const lv = c[key];
+    const right = lv >= u.max ? '<span class="chip ok">MAX</span>' : btn(`+1 · ${fmt(clubUpgradePrice(key, lv))}`, "cbuy:" + key, { small: true });
+    h += row(u.e, `${u.n} <span class="lv">${lv}/${u.max}</span>`, u.info, right);
+  }
+  h += "</section>";
+  h += `<section class="panel"><h3><i class="ic">🏷️</i> Tarif</h3>
+    <div class="seg">${Object.entries(CPOLICIES).map(([k, pol]) =>
+      `<button class="${k === c.policy ? "on" : ""}" data-act="csetpol:${k}">${pol.e} ${pol.n}<small>${pol.info}</small></button>`).join("")}</div></section>`;
+  h += `<section class="panel"><h3><i class="ic">⚡</i> Aksiyalar</h3>
+    <p class="hint">Sotib olingan aksiya keyingi club kunida ishlaydi va sarflanadi.</p>`;
+  for (const [k, b] of Object.entries(CBOOSTS)) {
+    const right = c.boosts.includes(k) ? '<span class="chip ok">Tayyor</span>' : btn(fmt(clubBoostPrice(c, k)), "cbbuy:" + k, { small: true });
+    h += row(b.e, b.n, b.info, right);
+  }
+  return h + "</section>";
+}
+
+function clubMoneyView() {
+  const c = S.club, now = Date.now();
+  const bonusReady = now - c.bonusAt >= DAY_MS;
+  const spinReady = canSpin(c.spinAt);
+  return `<section class="panel">
+      <h3><i class="ic">🪙</i> Club hisobi</h3>
+      ${kvHtml([["💰 Hisob", fmt(c.money)], ["🏦 Omonat", fmt(c.deposit || 0)], ["📅 Club kunlari", c.days], ["⭐ Reputatsiya", c.rep.toFixed(1)]])}
+    </section>
+    <section class="panel">
+      <h3><i class="ic">🎁</i> Bonus va g'ildirak</h3>
+      <div class="field">${btn("🎁 Club bonusi" + (bonusReady ? " ✨" : ""), "cbonus", { cls: "btn-teal" })}${btn("🎡 Club g'ildiragi" + (spinReady ? " ✨" : ""), "cspin", { cls: "btn-gold" })}</div>
+      <p class="hint mt">Bonus: ${bonusReady ? "tayyor" : until(c.bonusAt + DAY_MS)} · G'ildirak: ${spinReady ? "tayyor" : until(c.spinAt + CFG.SPIN_H * 3600000)}</p>
+    </section>
+    <section class="panel">
+      <h3><i class="ic">🐷</i> Club omonati</h3>
+      <p class="hint">Har club kuni omonat 1% ga o'sadi. Club franchayzingida nolga tushadi.</p>
+      <div class="field">${btn("➕ 10%", "cdep:add:10")}${btn("➕ 50%", "cdep:add:50")}${btn("➕ Hammasi", "cdep:add:100")}</div>
+      ${c.deposit ? `<div class="mt">${btn("➖ Omonatni yechish (" + fmt(c.deposit) + ")", "cdep:out", { block: true })}</div>` : ""}
+    </section>
+    <section class="panel">${promoBlock("club")}</section>`;
+}
+
+function clubGoalsView() {
+  const c = S.club, st = c.stats || {};
+  const data = ensureClubQuests();
+  return `<section class="panel">${questsHtml(data, clubQuestTitle, "cquest:claim:")}</section>
+    <section class="panel"><h3><i class="ic">🏅</i> Club yutuqlari (${c.ach.length}/${CACHS.length})</h3>
+      ${achGridHtml(CACHS, c.ach)}</section>
+    ${histChart("club", "📈 Oxirgi kunlar: foyda")}
+    <section class="panel"><h3><i class="ic">📊</i> Club statistikasi</h3>
+      ${kvHtml([["Kunlar", c.days], ["Mijozlar", st.served || 0], ["Yo'qotilgan", st.lost || 0], ["Soatlar", st.hours || 0],
+        ["Umumiy tushum", fmt(st.revenue || 0)], ["Eng yaxshi kun", fmt(st.best || 0)]])}</section>`;
+}
+
+function clubPrestView() {
+  const c = S.club, n = c.prestige;
+  const desc = `Club franchayzingi clubni boshidan boshlaydi: PC, PlayStation, VIP, bufet, reklama va administrator qaytadan. Yutuqlar, vazifalar va statistika saqlanadi. Kafega ta'sir qilmaydi.`;
+  const info = `<p class="hint">Hozirgi club franchayzingi: <b>${n}</b> · bonus: +${Math.round(CFG.PRESTIGE_CUST * n * 100)}% mijoz, +${Math.round(CFG.PRESTIGE_INC * n * 100)}% daromad.
+    Keyingi boshlang'ich club hisobi: <b>${fmt(CFG.CLUB_START_MONEY + 500000 * (n + 1))}</b>.</p>`;
+  return prestigeBlock("Club franchayzingi", desc, [
+    [Math.min(c.pro, c.vip, c.ps) >= 1, "Pro PC, VIP xona va PlayStation ochilgan"],
+    [c.money >= CFG.CLUB_PRESTIGE_MONEY, `Club hisobida ${fmt(CFG.CLUB_PRESTIGE_MONEY)} (hozir: ${fmt(c.money)})`],
+    [!c.day, "Hozir club kuni davom etmayapti"],
+  ], canClubPrestige(c), "cprest:ask", info);
+}
+
+function viewClub() {
+  const c = S.club;
+  if (!c.open) return clubOpenView();
+  const tabs = [["day", "▶️ Kun"], ["upg", "🖥️ Yaxshilash"], ["money", "💰 Bonus va pul"], ["goals", "🎯 Vazifa"], ["prest", "🏢 Franchayzing"]];
+  let body;
+  switch (ui.lTab) {
+    case "upg": body = clubUpgView(); break;
+    case "money": body = clubMoneyView(); break;
+    case "goals": body = clubGoalsView(); break;
+    case "prest": body = clubPrestView(); break;
+    default: body = clubDayView();
+  }
+  return clubHeader() + subtabsHtml(tabs, ui.lTab, "ltab") + body;
+}
+
+/* ===================== TAKLIF (REFERAL) ===================== */
+// Har o'yin uchun alohida havola: ?game=cafe&ref=LOGIN yoki ?game=club&ref=LOGIN.
+// Mukofot: 1–9 ta taklif uchun REF_BASE, REF_BONUS_FROM-taklifdan boshlab REF_BONUS (har biri).
+// Taklifni serverning o'zi sanaydi va jami mukofotni /referrals/<o'yin>/<login> ichidagi pending maydoniga yozadi.
+// Sayt faqat shu jami summadan hali balansga qo'shilmagan qismini (pending - refPaid) qo'shadi.
+const REF_LINK_KEY = NS + "ref-v1";        // havoladan olingan taklif (ro'yxatdan o'tguncha saqlanadi)
+const REF_CLAIM_KEY = NS + "refclaim-v1";  // serverga yuborilishi kerak bo'lgan yangi o'yinchi
+function refReward(n) { return n >= CFG.REF_BONUS_FROM ? CFG.REF_BONUS : CFG.REF_BASE; }
+function refLink(game, login) {
+  return `${location.origin}${location.pathname}?game=${game}&ref=${encodeURIComponent(login)}`;
+}
+function isTyping() { return !!(document.activeElement && /^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName)); }
+// Havola bo'yicha kelgan taklifni eslab qolamiz. Hisobi bor qurilmada taklif e'tiborga olinmaydi.
+function captureRef() {
+  if (loadAccount()) return;
+  const q = new URLSearchParams(location.search);
+  const ref = (q.get("ref") || "").trim().toLowerCase();
+  if (!LOGIN_OK.test(ref)) return;
+  const game = q.get("game") === "club" ? "club" : "cafe";
+  try { localStorage.setItem(REF_LINK_KEY, JSON.stringify({ game, ref })); } catch (e) { /* xotira yopiq */ }
+}
+function savedRef() {
+  try { return JSON.parse(localStorage.getItem(REF_LINK_KEY) || "null"); } catch (e) { return null; }
+}
+// Yangi ro'yxatdan o'tgan o'yinchi taklifini serverga yuboradi. Tarmoq uzilsa, keyinroq qayta yuboriladi.
+async function submitReferral(login, uid) {
+  const r = savedRef();
+  try { localStorage.removeItem(REF_LINK_KEY); } catch (e) { /* ignore */ }
+  if (!r || !LOGIN_OK.test(r.ref) || r.ref === login) return;  // o'zini o'zi taklif qilib bo'lmaydi
+  try {
+    localStorage.setItem(REF_CLAIM_KEY, JSON.stringify({ login, claim: { game: r.game, ref: r.ref, uid, at: Date.now(), dev: getDeviceId(), tg: TG_UID } }));
+  } catch (e) { /* ignore */ }
+  await flushRefClaim();
+}
+async function flushRefClaim() {
+  let p = null;
+  try { p = JSON.parse(localStorage.getItem(REF_CLAIM_KEY) || "null"); } catch (e) { p = null; }
+  if (!p || !FIREBASE_URL) return;
+  try {
+    await fbEnsure();
+    const r = await fetchT(fbUrl("/ref_claims/" + p.login + ".json"), { method: "PUT", body: JSON.stringify(p.claim) });
+    if (r.ok) localStorage.removeItem(REF_CLAIM_KEY);
+  } catch (e) { /* keyingi urinishda qayta yuboriladi */ }
+}
+// Serverdagi taklif natijasini o'qiydi va yangi mukofotlarni balansga qo'shadi
+async function refreshReferrals() {
+  const acc = loadAccount();
+  if (!acc || !FIREBASE_URL) return;
+  const login = acc.login;
+  const get = async (g) => {
+    const r = await fetchT(fbUrl("/referrals/" + g + "/" + login + ".json"));
+    const d = r.ok ? await r.json() : null;
+    return { count: Number(d && d.count) || 0, pending: Number(d && d.pending) || 0 };
+  };
+  let cafe, club;
+  try {
+    await fbEnsure();
+    cafe = await get("cafe");
+    club = await get("club");
+  } catch (e) { return; }
+  const now = loadAccount();
+  if (!now || now.login !== login) return;  // hisob almashgan bo'lsa, eski natija kerak emas
+  const next = { login, cafe, club };
+  const shown = JSON.stringify(next) !== JSON.stringify(ui.ref || null);
+  ui.ref = next;
+  const credited = sy.ready ? creditReferrals() : false;  // avval bulutdagi holat olinadi, keyin mukofot qo'shiladi
+  if (credited) saveState();
+  if ((credited || (shown && ui.screen === "acc")) && !ui.modalOpen && !isTyping()) render();
+}
+// Server summasi (pending) va balansga allaqachon qo'shilgan qism (refPaid) o'rtasidagi farqni qo'shadi
+function creditReferrals() {
+  if (!ui.ref) return false;
+  let changed = false;
+  const c = S.cafe, k = S.club;
+  const dc = ui.ref.cafe.pending - (c.refPaid || 0);
+  if (dc > 0) {
+    c.money += dc;
+    c.refPaid = ui.ref.cafe.pending;
+    changed = true;
+    toast(`🤝 Taklif mukofoti (kafe): +${fmt(dc)}`, "good");
+  }
+  // club ochilmagan bo'lsa, mukofot club ochilgach tushadi (openClub hisobni boshlang'ich qiymatga o'rnatadi)
+  const dk = k.open ? ui.ref.club.pending - (k.refPaid || 0) : 0;
+  if (dk > 0) {
+    k.money += dk;
+    k.refPaid = ui.ref.club.pending;
+    changed = true;
+    toast(`🤝 Taklif mukofoti (club): +${fmt(dk)}`, "good");
+  }
+  return changed;
+}
+// Havolani nusxalash (game: "cafe" yoki "club")
+function copyRef(game) {
+  const acc = loadAccount();
+  if (!acc) return;
+  const url = refLink(game, acc.login);
+  const ok = () => toast("🔗 Havola nusxalandi", "good");
+  const fallback = () => {
+    const ta = document.createElement("textarea");
+    ta.value = url;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    let done = false;
+    try { done = document.execCommand("copy"); } catch (e) { done = false; }
+    ta.remove();
+    if (done) ok(); else toast("Havolani qo'lda nusxalang: " + url, "info");
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(ok, fallback);
+  else fallback();
+}
+// Hisob ekranidagi taklif bloki
+function referralBlock(acc) {
+  const mine = ui.ref && ui.ref.login === acc.login ? ui.ref : null;
+  const card = (g, title, paid) => {
+    const s = mine ? mine[g] : { count: 0, pending: 0 };
+    const got = paid || 0;
+    return `<div class="mt"><b>${title}</b></div>
+      ${kvHtml([["Taklif qilganlar", s.count], ["Keyingi mukofot", fmt(refReward(s.count + 1))],
+        ["Olingan jami", fmt(got)], ["Kutilmoqda", fmt(Math.max(0, s.pending - got))]])}
+      <div class="field mt">${btn("🔗 Havolani nusxalash", "ref:copy:" + g, { cls: g === "cafe" ? "btn-gold" : "btn-teal", block: true })}</div>
+      <input class="input mt" readonly value="${esc(refLink(g, acc.login))}" onclick="this.select()" />`;
+  };
+  return `<h3 class="mt"><i class="ic">🤝</i> Do'stlarni taklif qilish</h3>
+    <p class="hint">Havola orqali ro'yxatdan o'tgan har bir yangi o'yinchi uchun mukofot: 1–${CFG.REF_BONUS_FROM - 1} ta taklif ${fmt(CFG.REF_BASE)}, ${CFG.REF_BONUS_FROM}-taklifdan boshlab ${fmt(CFG.REF_BONUS)} har biri. Mukofot o'sha o'yin balansiga tushadi.</p>
+    <p class="hint">⚠️ Bir telefonda ikkita hisob bo'lsa, ulardan birini ikkinchisiga taklif qilish taqiqlanadi: ikkala hisob 1 yilga bloklanadi.</p>
+    ${card("cafe", "☕ Kafe", S.cafe.refPaid)}
+    ${card("club", "🎮 Club", S.club.refPaid)}
+    ${S.club.open ? "" : '<p class="hint mt">Club ochilgandan keyin club mukofotlari shu balansga tushadi.</p>'}`;
 }
 
 /* ===================== HISOB (sayt + bot) ===================== */
@@ -2161,25 +2524,9 @@ async function doRegister() {
     }
     ui.draft.regPass = ""; ui.draft.regPass2 = "";
     ui.screen = "home";
-    maybeTour();
   } catch (e) {
     ui.err = { k: "reg", msg: PROMO_NET_MSG };
   } finally { authBusy = false; render(); }
-}
-// Birinchi marta ro'yxatdan o'tganda qisqa yo'riqnoma (bir marta ko'rsatiladi)
-function maybeTour() {
-  if (!loadAccount()) return;
-  try {
-    if (localStorage.getItem(NS + "tour-v1")) return;
-    localStorage.setItem(NS + "tour-v1", "1");
-  } catch (e) { return; }
-  openModal("👋 Xush kelibsiz!", `<ul>
-    <li>☕ <b>Kafe</b>: ▶️ Kun bo'limida kunni boshlang. Mijozlar real vaqtda keladi.</li>
-    <li>📋 <b>Menyu</b>: yangi taomlar sotib oling va narxini o'zingiz belgilang.</li>
-    <li>🎁 <b>Bonus</b> har kuni, 🎡 <b>g'ildirak</b> har ${CFG.SPIN_H} soatda.</li>
-    <li>🏆 <b>Reyting</b>: eng yaxshi o'yinchilar bilan solishtiring va do'stlaringizni qo'shing.</li>
-    <li>🤝 Do'stlarni taklif qilib mukofot oling (Hisob bo'limi).</li>
-  </ul>`);
 }
 const PW_LEVELS = [["Juda zaif", "#f87171"], ["Zaif", "#fb923c"], ["O'rtacha", "#facc15"], ["Yaxshi", "#a3e635"], ["Kuchli", "#34d399"]];
 function pwScore(p) {
@@ -2208,7 +2555,7 @@ function syncTG() {
     if (TG.BackButton) { if (ui.screen !== "home") TG.BackButton.show(); else TG.BackButton.hide(); }
   } catch (e) { /* eski Telegram versiyasi */ }
 }
-function viewAccount() {
+function viewAccountMain() {
   const acc = loadAccount();
   if (acc) {
     return `<section class="panel">
@@ -2221,8 +2568,7 @@ function viewAccount() {
       ${syncStatusHtml(acc)}
       ${errLine("logout")}
       <div class="mt">${btn("🚪 Hisobdan chiqish", "reg:reset", { cls: "btn-ghost", block: true })}</div>
-    </section>
-    ${settingsBlock()}`;
+    </section>`;
   }
   const tab = ui.authTab === "up" ? "up" : "in";
   return `<section class="panel">
@@ -2231,25 +2577,6 @@ function viewAccount() {
       ${btn("📝 Ro'yxatdan o'tish", "authtab:up", { cls: tab === "up" ? "btn-gold" : "btn-ghost" })}
     </div>
     ${tab === "in" ? signInForm() : signUpForm()}
-  </section>
-  ${settingsBlock()}`;
-}
-// Sozlamalar: ovoz, animatsiya, zaxira nusxa (hisobsiz ham ishlaydi)
-function settingsBlock() {
-  return `<section class="panel">
-    <h3><i class="ic">⚙️</i> Sozlamalar</h3>
-    <div class="field">
-      ${btn(FX_ON ? "🔊 Ovoz: yoqilgan" : "🔇 Ovoz: o'chirilgan", "set:sound", { cls: "btn-ghost" })}
-      ${btn(MOTION_OFF ? "🐢 Animatsiya: o'chirilgan" : "✨ Animatsiya: yoqilgan", "set:motion", { cls: "btn-ghost" })}
-    </div>
-  </section>
-  <section class="panel">
-    <h3><i class="ic">💾</i> Zaxira nusxa</h3>
-    <p class="hint">O'yin holatini matn sifatida nusxalab oling. Brauzer tozalansa yoki boshqa qurilmaga o'tsangiz, shu matn orqali tiklang.</p>
-    <div class="field">${btn("📤 Nusxa olish", "bk:export", { cls: "btn-gold" })}${btn("📥 Tiklash", "bk:import", { cls: "btn-teal" })}</div>
-    <textarea class="input mt" rows="4" data-draft="bkText" placeholder="Nusxani shu yerga joylang">${esc(ui.draft.bkText || "")}</textarea>
-    ${errLine("bk")}
-    <p class="hint mt">⚠️ Tiklash joriy o'yin holatini almashtiradi.</p>
   </section>`;
 }
 function signInForm() {
@@ -2329,6 +2656,7 @@ function viewOwner() {
     ${bal("c", "☕")}
     <h3>🎮 Club balansi: ${fmt(S.club.money)}</h3>
     ${bal("k", "🎮")}
+    ${banAdminBlock()}
     <h3>🎫 Promokod yaratish</h3>
     <div class="field"><input class="input" data-draft="ownCode" placeholder="Kod (masalan: SALE2026)" value="${esc(d.ownCode || "")}"></div>
     <div class="field"><input class="input" type="number" inputmode="numeric" data-draft="ownReward" placeholder="Mukofot (masalan: 500000)" value="${esc(d.ownReward || "")}"></div>
@@ -2339,6 +2667,7 @@ function viewOwner() {
 }
 async function ownerAct(a, b) {
   if (!isOwner()) return;
+  if (a === "ban") return ownerBan(b);
   if (a === "cadd" || a === "kadd") {
     const n = Number(b) || 0;
     if (a === "cadd") S.cafe.money += n; else S.club.money += n;
@@ -2376,16 +2705,13 @@ function viewHelp() {
     <ul>
       <li>▶️ <b>Kunni boshlang</b>. Kun ${CFG.DAY_MIN}–${CFG.DAY_MAX} soniya davom etadi, mijozlar real vaqtda keladi.</li>
       <li>📋 <b>Menyuga taom qo'shing</b>. Har taom sotiladi va xarajati bor. Taom qancha ko'p bo'lsa, mijozlar ham ko'p.</li>
-      <li>🔥 <b>Kun trendi</b>: har kuni bitta taom ikki baravar ko'p sotiladi.</li>
       <li>🛒 <b>Kafeni yaxshilang</b>: xodimlar (sig'im), reklama, interyer, yetkazib berish va jihozlar.</li>
       <li>💲 <b>Narx siyosati</b>: arzon tanlasangiz mijozlar ko'p, qimmat tanlasangiz har bir mijozdan ko'proq olasiz.</li>
       <li>⚡ <b>Kuchaytirgichlar</b> bir kunlik imkoniyat beradi: aksiya, mohir oshpaz, jonli musiqa, VIP taklif.</li>
-      <li>📈 <b>Statistika</b> bo'limida oxirgi ${CFG.HIST_DAYS} kunlik foyda grafigi bor.</li>
     </ul>
     <h3>💰 Pul va kredit</h3>
     <ul>
       <li>🎁 Kunlik bonus va 🎡 g'ildirak (har ${CFG.SPIN_H} soatda) pul beradi.</li>
-      <li>🗓 <b>Haftalik bonus</b>: har 7 kunlik ketma-ketlikda kunlik bonus ×${CFG.WEEK_BONUS_MULT}.</li>
       <li>🏦 <b>Omonat</b> har kafe kunida 1% o'sadi.</li>
       <li>🏦 <b>Bank krediti</b>: kamida ${fmt(CFG.LOAN_MIN)}. Muddat: 1 kun (5%), 3 kun (10%), 7 kun (20%). Muddat tugasa, pul avtomatik undiriladi.
         To'liq to'lanmasa 🛡️ ishonch va ⭐ reputatsiya tushadi. Bir vaqtda ${CFG.LOAN_MAX_ACTIVE} tadan ko'p kredit bo'lmaydi.</li>
@@ -2400,24 +2726,17 @@ function viewHelp() {
       <li>Ijara, elektr va administrator xarajatlari har kun hisoblanadi. Buzilish va elektr o'chishi ham bo'lishi mumkin.</li>
       <li>🏢 Pro PC, VIP xona va PlayStation ochilib, ${fmt(CFG.CLUB_PRESTIGE_MONEY)} to'plangach, club franchayzing qilinadi.</li>
     </ul>
-    <h3>🏆 Reyting va do'stlar</h3>
-    <ul>
-      <li>Har kun yakunlangach, natijangiz reytingga yoziladi. Kafe va club uchun alohida TOP.</li>
-      <li>👥 Do'stingizning loginini yozib, uning natijasini kuzatishingiz mumkin.</li>
-    </ul>
     <h3>🤝 Do'stlarni taklif qilish</h3>
     <ul>
-      <li>👤 Hisob bo'limidagi havolani do'stingizga yuboring yoki 📤 Telegram orqali ulashing. Havola orqali yangi o'yinchi ro'yxatdan o'tsa, mukofot olasiz.</li>
+      <li>👤 Hisob bo'limidagi havolani do'stingizga yuboring. Havola orqali yangi o'yinchi ro'yxatdan o'tsa, mukofot olasiz.</li>
       <li>💰 1–9 ta taklif uchun har biri ${fmt(CFG.REF_BASE)}, ${CFG.REF_BONUS_FROM}-taklifdan boshlab har biri ${fmt(CFG.REF_BONUS)}.</li>
       <li>☕ Kafe va 🎮 club uchun havolalar alohida: mukofot o'sha o'yin balansiga tushadi.</li>
       <li>⚠️ Bir telefonda ikkita hisob bo'lsa, ulardan birini ikkinchisiga taklif qilish taqiqlanadi: ikkala hisob 1 yilga bloklanadi.</li>
     </ul>
     <h3>🎫 Promokodlar</h3>
-    <p>Har o'yinda promokodlar alohida. Har kod bir marta ishlaydi. Mavsumiy kodlar (masalan, NAVROZ) vaqti-vaqti bilan chiqadi.</p>
-    <h3>💾 Zaxira nusxa</h3>
-    <p>Hisob bo'limida o'yin holatini nusxalab olishingiz mumkin. Bu qurilmani almashtirganda foydali.</p>
+    <p>Har o'yinda promokodlar alohida. Har kod bir marta ishlaydi.</p>
     <h3>⚠️ Eslatma</h3>
-    <p class="muted">Hisob va o'yin holati bulutda saqlanadi. Qarz almashish hali ishlamaydi.</p>
+    <p class="muted">Hisob va o'yin holati bulutda saqlanadi. Reyting va o'yinchilar o'rtasida qarz almashish hali to'liq ishlamaydi.</p>
   </section>`;
 }
 
@@ -2425,15 +2744,16 @@ function viewHelp() {
 function render() {
   const app = document.getElementById("app");
   const locked = !loadAccount();  // hisob yaratilmagan: faqat "Hisob" bo'limi ochiq, qolgani yopiq
-  if (locked && ui.screen !== "help") ui.screen = "acc";
+  if (locked) ui.screen = "acc";
   const vk = ui.screen + "|" + (ui.screen === "cafe" ? ui.cTab : ui.screen === "club" ? ui.lTab + (S.club.open ? "" : "x") : "");
   const entering = vk !== ui.vk;
   ui.vk = vk;
   app.className = (ui.screen === "club" ? "club" : "") + (entering ? " enter" : "");
   document.body.classList.toggle("club-mode", ui.screen === "club");
+  document.body.dataset.skin = S.cafe.skin || "classic";
   document.querySelectorAll(".tab").forEach((b) => {
     b.classList.toggle("on", b.dataset.screen === ui.screen);
-    b.disabled = locked && b.dataset.screen !== "acc" && b.dataset.screen !== "help";
+    b.disabled = locked && b.dataset.screen !== "acc";
     b.classList.toggle("dim", b.disabled);
   });
   const ot = document.getElementById("ownerTab");
@@ -2441,11 +2761,11 @@ function render() {
   if (ui.screen === "owner" && !isOwner()) ui.screen = "home";
   let html;
   if (ui.screen === "owner") html = viewOwner();
-  else if (ui.screen === "home") html = viewHome();
+  else if (ui.screen === "home") html = eventBanner() + viewHome();
   else if (ui.screen === "cafe") html = viewCafe();
   else if (ui.screen === "club") html = viewClub();
-  else if (ui.screen === "lb") html = viewLeaderboard();
   else if (ui.screen === "acc") html = viewAccount();
+  else if (ui.screen === "lb") html = viewLB();
   else html = viewHelp();
   if (isBanned()) html = viewBanned();
   if (ui.spinning) html = `<div class="spinning">🎡 G'ildirak aylanmoqda...<br>🔄 🔄 🔄</div>` + html;
@@ -2513,6 +2833,7 @@ function setLiveHtml(name, html) {
 
 // har 0.5 soniyada faqat jonli qismlar yangilanadi (to'liq qayta chizilmaydi)
 function updateLive() {
+  updateSyncDot();
   const now = Date.now();
   const cd = S.cafe.day;
   if (cd) {
@@ -2569,24 +2890,6 @@ function readyKey() {
     now - l.bonusAt >= DAY_MS, canSpin(l.spinAt), !!l.day, l.open,
     S.loans.map((x) => x.id + x.status + x.warned).join(","),
   ].join("|");
-}
-
-/* ===================== TANLOVLI VOQEALAR ===================== */
-// Tanlov natijasi ev.money / ev.rep ga yoziladi: kun yakunida xuddi oddiy voqea kabi hisoblanadi
-function openChoice(ev) {
-  openModal("🎯 Qaror kerak", `<p class="hint">${esc(ev.choice.q)}</p>`,
-    ev.choice.opts.map((o, i) => btn(esc(o.l), "ch:cafe:" + i, { block: true, cls: "btn-ghost" })).join(""));
-}
-function pickChoice(game, i) {
-  const day = S[game] && S[game].day;
-  const ev = day && day.ev.find((e) => e.choice && e.asked && !e.picked);
-  const o = ev && ev.choice.opts[i];
-  if (!o) return;
-  ev.money = o.money;
-  ev.rep = o.rep;
-  ev.text += " → " + o.t;
-  ev.picked = true;
-  toast(o.t, "info");
 }
 
 /* ===================== NATIJA OYNALARI ===================== */
@@ -2713,41 +3016,24 @@ function handleAct(act) {
   const parts = act.split(":");
   const verb = parts[0], a = parts[1], b = parts[2];
   if (isBanned() && !(verb === "go" || (verb === "reg" && a === "reset"))) return toast("🚫 Hisob bloklangan", "bad");
-  const authVerb = verb === "reg" || verb === "signin" || verb === "authtab" || verb === "terms" || verb === "logout"
-    || verb === "set" || verb === "bk" || (verb === "go" && (a === "acc" || a === "help"));
+  const authVerb = verb === "set" || verb === "lb" || verb === "reg" || verb === "signin" || verb === "authtab" || verb === "terms" || verb === "logout" || (verb === "go" && a === "acc");
   if (!loadAccount() && !authVerb) {
     toast("Avval hisob yarating: 👤 Hisob bo'limi", "bad");  // hisobsiz hech qanday amal bajarilmaydi
     return;
   }
   switch (verb) {
-    case "go":
-      if (a === "owner" && !isOwner()) break;
-      ui.screen = a; ui.err = null;
-      if (a === "acc") refreshReferrals();
-      if (a === "lb") loadBoard();
-      break;
+    case "go": if (a === "owner" && !isOwner()) break; ui.screen = a; ui.err = null; if (a === "acc") refreshReferrals(); if (a === "lb") fetchLB(); break;
     case "owner": ownerAct(a, b); break;
     case "reg": if (a === "reset") resetAccount(); else doRegister(); break;
     case "signin": doSignIn(); break;
     case "authtab": ui.authTab = a; ui.err = null; break;
     case "terms": if (a === "toggle") toggleTerms(); break;
-    case "set":
-      if (a === "sound") toggleSound();
-      else if (a === "motion") toggleMotion();
-      break;
-    case "bk":
-      if (a === "export") exportBackup();
-      else if (a === "import") importBackup();
-      break;
-    case "lbgame": ui.lbGame = a === "club" ? "club" : "cafe"; break;
-    case "lb": if (a === "refresh") loadBoard(); break;
-    case "fr":
-      if (a === "add") addFriend(ui.draft.friendLogin);
-      else if (a === "del") removeFriend(b);
-      break;
-    case "ch": pickChoice(a, Number(b)); break;
     case "ctab": ui.cTab = a; ui.err = null; break;
     case "ltab": ui.lTab = a; ui.err = null; break;
+    case "set": setAct(a, b); break;
+    case "auto": toggleAuto(a); break;
+    case "lb": if (a === "refresh") fetchLB(); break;
+    case "skin": skinAct(a, b); break;
     case "modal": closeModal(); break;
     case "day": if (a === "start") beginDay("cafe"); break;
     case "buy": buyUpgrade(a); break;
@@ -2785,10 +3071,7 @@ function handleAct(act) {
       break;
     }
     case "cprest": if (a === "ask") askClubPrestige(); else doClubPrestige(); break;
-    case "ref":
-      if (a === "copy") copyRef(b);
-      else if (a === "share") shareRef(b);
-      break;
+    case "ref": if (a === "copy") copyRef(b); break;
     default: break;
   }
 }
@@ -2806,7 +3089,7 @@ document.addEventListener("click", (e) => {
   // bosish animatsiyasi: muvaffaqiyat - uchqunlar, xato - titrash
   const ts = document.querySelectorAll("#toasts .toast");
   const last = ts.length > nToast ? ts[ts.length - 1] : null;
-  const errNow = /^(loan:take|promo:|bk:|fr:add)/.test(act) && ui.err;
+  const errNow = /^(loan:take|promo:)/.test(act) && ui.err;
   const bad = (last && last.classList.contains("bad")) || errNow;
   const good = !bad && ((last && last.classList.contains("good")) || m0 !== S.cafe.money + "|" + S.club.money);
   const again = [...document.querySelectorAll("[data-act]")].find((n) => n.dataset.act === act);
@@ -2840,29 +3123,25 @@ function tick() {
   if (isBanned()) return;
   const now = Date.now();
   let changed = false;
-  // Tanlovli voqea: vaqti kelganda bir marta so'raladi (yopilsa, standart natija qoladi)
-  if (S.cafe.day && !ui.modalOpen) {
-    const dayS = S.cafe.day;
-    const ch = dayS.ev.find((e) => e.choice && !e.asked && now >= dayS.start + e.t * 1000);
-    if (ch) { ch.asked = true; changed = true; openChoice(ch); }
-  }
   const cafeDue = dayDue(S.cafe.day, now), clubDue = dayDue(S.club.day, now);
   if ((cafeDue || clubDue) && syncOn() && now - sy.pullAt > 4000) { syncPull(); return; }  // avval botdagi yangi holat olinadi
   if (cafeDue) {
     const r = finishCafeDay();
     changed = true;
-    if (r) { showCafeResult(r); pushBoard("cafe"); }
+    if (r && !S.cafe.auto) showCafeResult(r);
   }
   if (clubDue) {
     const r = finishClubDay();
     changed = true;
-    if (r) { showClubResult(r); pushBoard("club"); }
+    if (r && !S.club.auto) showClubResult(r);
   }
   const msgs = collectLoans(now);
   if (msgs.length) {
     changed = true;
     msgs.forEach((m) => toast(m.text, m.kind));
   }
+  autoTick();
+  if (Date.now() - LB_AT > 15000) { LB_AT = Date.now(); pushLB(); }
   const rk = readyKey();
   if (rk !== ui.rk) {
     ui.rk = rk;
@@ -2955,7 +3234,6 @@ function normDay(d, club) {
   } else {
     d.cust = arr(d.cust).map((c) => Object.assign(c, { dishes: arr(c.dishes) }));
     d.special = d.special || null;
-    d.trend = d.trend || null;
   }
   return d;
 }
@@ -2965,7 +3243,6 @@ function normGame(r) {
     o.boosts = arr(o.boosts); o.ach = arr(o.ach);
     o.promos = arr(o.promos).filter((x) => typeof x === "string");
     o.stats = o.stats && typeof o.stats === "object" ? o.stats : {};
-    o.hist = arr(o.hist);
     const q = o.quests && typeof o.quests === "object" ? o.quests : {};
     o.quests = { d: typeof q.d === "number" ? q.d : -1, q: arr(q.q).map(arr) };
   }
@@ -3079,564 +3356,383 @@ function syncStart() {
   if (!syncOn()) { sy.ready = true; return; }
   syncPull();
   syncLive();
-  setInterval(() => {
-    if (!document.hidden) {
-      syncLive(); syncPull(); loadSiteRepl().then((c) => { if (c) render(); });
-      refreshReferrals(); flushRefClaim(); refreshBan();
-      if (ui.screen === "lb") loadBoard();
-    }
-  }, SYNC_POLL_MS);
+  setInterval(() => { if (!document.hidden) { syncLive(); syncPull(); loadSiteRepl().then((c) => { if (c) render(); }); refreshReferrals(); flushRefClaim(); refreshBan(); } }, SYNC_POLL_MS);
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) { if (sy.dirty) syncPushNow(true); }
     else { syncLive(); syncPull(); }
   });
 }
 
-/* ===================== TAKLIF (REFERAL) ===================== */
-// Har o'yin uchun alohida havola: ?game=cafe&ref=LOGIN yoki ?game=club&ref=LOGIN.
-// Mukofot: 1–9 ta taklif uchun REF_BASE, REF_BONUS_FROM-taklifdan boshlab REF_BONUS (har biri).
-// Taklifni serverning o'zi sanaydi va jami mukofotni /referrals/<o'yin>/<login> ichidagi pending maydoniga yozadi.
-// Sayt faqat shu jami summadan hali balansga qo'shilmagan qismini (pending - refPaid) qo'shadi.
-const REF_LINK_KEY = NS + "ref-v1";        // havoladan olingan taklif (ro'yxatdan o'tguncha saqlanadi)
-const REF_CLAIM_KEY = NS + "refclaim-v1";  // serverga yuborilishi kerak bo'lgan yangi o'yinchi
-function refReward(n) { return n >= CFG.REF_BONUS_FROM ? CFG.REF_BONUS : CFG.REF_BASE; }
-function refLink(game, login) {
-  return `${location.origin}${location.pathname}?game=${game}&ref=${encodeURIComponent(login)}`;
+/* ===================== ISHGA TUSHIRISH ===================== */
+/* ===================== YANGI FUNKSIYALAR ===================== */
+const AUTO_REF = 5;                         // avto-rejim uchun kerakli taklif soni (ikkala o'yin jami)
+const LANG_KEY = "kafe-lang-v1";            // global sozlama: til
+const MOTION_KEY = "kafe-motion-v1";        // global sozlama: "0" = animatsiya o'chiq
+const TOUR_KEY = NS + "tour-v1";
+let LB_AT = 0;
+const LANGS = { uz: "O'zbekcha", ru: "Русский", en: "English" };
+const I18N = {
+  uz: {
+    home: "Bosh", cafe: "Kafe", club: "Club", lb: "Reyting", help: "Qoidalar", acc: "Hisob", owner: "Ega",
+    settings: "Sozlamalar", lang: "Til", sound: "Tovush", motion: "Animatsiya", tour: "Qo'llanmani ko'rish",
+    share: "Do'stga ulashish", backup: "Zaxira nusxa", restore: "Tiklash", auto: "Avto-rejim", on: "Yoqilgan", off: "O'chiq",
+    lbTitle: "Reyting (top 20)", lbHint: "Umumiy balans bo'yicha: kafe + club.", lbEmpty: "Hali ma'lumot yo'q",
+    lbOff: "Reyting hozir mavjud emas (internet yoki ruxsat)", refresh: "Yangilash",
+    restoreHint: "Zaxira nusxani shu yerga qo'yib «Tiklash» ni bosing. Joriy o'yin almashtiriladi.",
+  },
+  ru: {
+    home: "Главная", cafe: "Кафе", club: "Клуб", lb: "Рейтинг", help: "Правила", acc: "Аккаунт", owner: "Владелец",
+    settings: "Настройки", lang: "Язык", sound: "Звук", motion: "Анимация", tour: "Показать обучение",
+    share: "Поделиться с другом", backup: "Резервная копия", restore: "Восстановить", auto: "Авторежим", on: "Вкл", off: "Выкл",
+    lbTitle: "Рейтинг (топ 20)", lbHint: "По общему балансу: кафе + клуб.", lbEmpty: "Пока нет данных",
+    lbOff: "Рейтинг сейчас недоступен (интернет или доступ)", refresh: "Обновить",
+    restoreHint: "Вставьте резервную копию и нажмите «Восстановить». Текущая игра будет заменена.",
+  },
+  en: {
+    home: "Home", cafe: "Cafe", club: "Club", lb: "Ranking", help: "Rules", acc: "Account", owner: "Owner",
+    settings: "Settings", lang: "Language", sound: "Sound", motion: "Animations", tour: "Show tutorial",
+    share: "Share with a friend", backup: "Backup", restore: "Restore", auto: "Auto mode", on: "On", off: "Off",
+    lbTitle: "Ranking (top 20)", lbHint: "By total balance: cafe + club.", lbEmpty: "No data yet",
+    lbOff: "Ranking unavailable (internet or access)", refresh: "Refresh",
+    restoreHint: "Paste a backup here and press «Restore». The current game will be replaced.",
+  },
+};
+let LANG = "uz";
+try { const l = localStorage.getItem(LANG_KEY); if (I18N[l]) LANG = l; } catch (e) { /* ignore */ }
+function T(k) { const d = I18N[LANG] || I18N.uz; return d[k] || I18N.uz[k] || k; }
+function applyLang() {
+  document.documentElement.lang = LANG;
+  document.querySelectorAll("[data-i18n]").forEach((el) => { el.textContent = T(el.dataset.i18n); });
 }
-function isTyping() { return !!(document.activeElement && /^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName)); }
-// Havola bo'yicha kelgan taklifni eslab qolamiz. Hisobi bor qurilmada taklif e'tiborga olinmaydi.
-function captureRef() {
-  if (loadAccount()) return;
-  const q = new URLSearchParams(location.search);
-  const ref = (q.get("ref") || "").trim().toLowerCase();
-  if (!LOGIN_OK.test(ref)) return;
-  const game = q.get("game") === "club" ? "club" : "cafe";
-  try { localStorage.setItem(REF_LINK_KEY, JSON.stringify({ game, ref })); } catch (e) { /* xotira yopiq */ }
+function setLang(l) {
+  if (!I18N[l]) return;
+  LANG = l;
+  try { localStorage.setItem(LANG_KEY, l); } catch (e) { /* ignore */ }
+  applyLang();
+  toast(l === "ru" ? "Язык: Русский" : l === "en" ? "Language: English" : "Til: O'zbekcha", "info");
 }
-function savedRef() {
-  try { return JSON.parse(localStorage.getItem(REF_LINK_KEY) || "null"); } catch (e) { return null; }
+
+// ---- Animatsiya va tovush sozlamalari ----
+function isNoMotion() { try { return localStorage.getItem(MOTION_KEY) === "0"; } catch (e) { return false; } }
+function applyMotion() { document.body.classList.toggle("no-motion", isNoMotion()); }
+function toggleMotion() {
+  try { localStorage.setItem(MOTION_KEY, isNoMotion() ? "1" : "0"); } catch (e) { /* ignore */ }
+  applyMotion();
 }
-// Yangi ro'yxatdan o'tgan o'yinchi taklifini serverga yuboradi. Tarmoq uzilsa, keyinroq qayta yuboriladi.
-async function submitReferral(login, uid) {
-  const r = savedRef();
-  try { localStorage.removeItem(REF_LINK_KEY); } catch (e) { /* ignore */ }
-  if (!r || !LOGIN_OK.test(r.ref) || r.ref === login) return;  // o'zini o'zi taklif qilib bo'lmaydi
-  try {
-    localStorage.setItem(REF_CLAIM_KEY, JSON.stringify({ login, claim: { game: r.game, ref: r.ref, uid, at: Date.now(), dev: getDeviceId(), tg: TG_UID } }));
-  } catch (e) { /* ignore */ }
-  await flushRefClaim();
+
+// ---- Telegram: tebranish (haptic) va ulashish ----
+function haptic(kind) {
+  try { if (TG && TG.HapticFeedback) TG.HapticFeedback.notificationOccurred(kind); } catch (e) { /* eski versiya */ }
 }
-async function flushRefClaim() {
-  let p = null;
-  try { p = JSON.parse(localStorage.getItem(REF_CLAIM_KEY) || "null"); } catch (e) { p = null; }
-  if (!p || !FIREBASE_URL) return;
-  try {
-    await fbEnsure();
-    const r = await fetchT(fbUrl("/ref_claims/" + p.login + ".json"), { method: "PUT", body: JSON.stringify(p.claim) });
-    if (r.ok) localStorage.removeItem(REF_CLAIM_KEY);
-  } catch (e) { /* keyingi urinishda qayta yuboriladi */ }
-}
-// Serverdagi taklif natijasini o'qiydi va yangi mukofotlarni balansga qo'shadi
-async function refreshReferrals() {
-  const acc = loadAccount();
-  if (!acc || !FIREBASE_URL) return;
-  const login = acc.login;
-  const get = async (g) => {
-    const r = await fetchT(fbUrl("/referrals/" + g + "/" + login + ".json"));
-    const d = r.ok ? await r.json() : null;
-    return { count: Number(d && d.count) || 0, pending: Number(d && d.pending) || 0 };
-  };
-  let cafe, club;
-  try {
-    await fbEnsure();
-    cafe = await get("cafe");
-    club = await get("club");
-  } catch (e) { return; }
-  const now = loadAccount();
-  if (!now || now.login !== login) return;  // hisob almashgan bo'lsa, eski natija kerak emas
-  const next = { login, cafe, club };
-  const shown = JSON.stringify(next) !== JSON.stringify(ui.ref || null);
-  ui.ref = next;
-  const credited = sy.ready ? creditReferrals() : false;  // avval bulutdagi holat olinadi, keyin mukofot qo'shiladi
-  if (credited) saveState();
-  if ((credited || (shown && ui.screen === "acc")) && !ui.modalOpen && !isTyping()) render();
-}
-// Server summasi (pending) va balansga allaqachon qo'shilgan qism (refPaid) o'rtasidagi farqni qo'shadi
-function creditReferrals() {
-  if (!ui.ref) return false;
-  let changed = false;
-  const c = S.cafe, k = S.club;
-  const dc = ui.ref.cafe.pending - (c.refPaid || 0);
-  if (dc > 0) {
-    c.money += dc;
-    c.refPaid = ui.ref.cafe.pending;
-    changed = true;
-    toast(`🤝 Taklif mukofoti (kafe): +${fmt(dc)}`, "good");
-  }
-  // club ochilmagan bo'lsa, mukofot club ochilgach tushadi (openClub hisobni boshlang'ich qiymatga o'rnatadi)
-  const dk = k.open ? ui.ref.club.pending - (k.refPaid || 0) : 0;
-  if (dk > 0) {
-    k.money += dk;
-    k.refPaid = ui.ref.club.pending;
-    changed = true;
-    toast(`🤝 Taklif mukofoti (club): +${fmt(dk)}`, "good");
-  }
-  return changed;
-}
-// Havolani nusxalash (game: "cafe" yoki "club")
-function copyRef(game) {
-  const acc = loadAccount();
-  if (!acc) return;
-  const url = refLink(game, acc.login);
-  const ok = () => toast("🔗 Havola nusxalandi", "good");
-  const fallback = () => {
-    const ta = document.createElement("textarea");
-    ta.value = url;
-    ta.setAttribute("readonly", "");
-    ta.style.position = "fixed";
-    ta.style.opacity = "0";
-    document.body.appendChild(ta);
-    ta.select();
-    let done = false;
-    try { done = document.execCommand("copy"); } catch (e) { done = false; }
-    ta.remove();
-    if (done) ok(); else toast("Havolani qo'lda nusxalang: " + url, "info");
-  };
-  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(ok, fallback);
-  else fallback();
-}
-// Telegram ichida ulashish: do'st bevosita Telegram chatida havolani ochadi
 function shareRef(game) {
   const acc = loadAccount();
-  if (!acc) return;
+  if (!acc) return toast("Avval hisob yarating", "bad");
   const url = refLink(game, acc.login);
-  const text = "VEROX GAMES: kafe va club o'yini. Men bilan qo'shiling!";
-  const share = "https://t.me/share/url?url=" + encodeURIComponent(url) + "&text=" + encodeURIComponent(text);
+  const text = "VEROX GAMES: kafe oching va o'ynang!";
+  const link = "https://t.me/share/url?url=" + encodeURIComponent(url) + "&text=" + encodeURIComponent(text);
   try {
-    if (TG && TG.openTelegramLink) TG.openTelegramLink(share);
-    else window.open(share, "_blank");
-  } catch (e) { window.open(share, "_blank"); }
-}
-// Hisob ekranidagi taklif bloki
-function referralBlock(acc) {
-  const mine = ui.ref && ui.ref.login === acc.login ? ui.ref : null;
-  const card = (g, title, paid) => {
-    const s = mine ? mine[g] : { count: 0, pending: 0 };
-    const got = paid || 0;
-    return `<div class="mt"><b>${title}</b></div>
-      ${kvHtml([["Taklif qilganlar", s.count], ["Keyingi mukofot", fmt(refReward(s.count + 1))],
-        ["Olingan jami", fmt(got)], ["Kutilmoqda", fmt(Math.max(0, s.pending - got))]])}
-      <div class="field mt">${btn("🔗 Nusxalash", "ref:copy:" + g, { cls: g === "cafe" ? "btn-gold" : "btn-teal" })}${btn("📤 Telegram'da ulashish", "ref:share:" + g, { cls: "btn-ghost" })}</div>
-      <input class="input mt" readonly value="${esc(refLink(g, acc.login))}" onclick="this.select()" />`;
-  };
-  return `<h3 class="mt"><i class="ic">🤝</i> Do'stlarni taklif qilish</h3>
-    <p class="hint">Havola orqali ro'yxatdan o'tgan har bir yangi o'yinchi uchun mukofot: 1–${CFG.REF_BONUS_FROM - 1} ta taklif ${fmt(CFG.REF_BASE)}, ${CFG.REF_BONUS_FROM}-taklifdan boshlab ${fmt(CFG.REF_BONUS)} har biri. Mukofot o'sha o'yin balansiga tushadi.</p>
-    <p class="hint">⚠️ Bir telefonda ikkita hisob bo'lsa, ulardan birini ikkinchisiga taklif qilish taqiqlanadi: ikkala hisob 1 yilga bloklanadi.</p>
-    ${card("cafe", "☕ Kafe", S.cafe.refPaid)}
-    ${card("club", "🎮 Club", S.club.refPaid)}
-    ${S.club.open ? "" : '<p class="hint mt">Club ochilgandan keyin club mukofotlari shu balansga tushadi.</p>'}`;
+    if (TG && TG.openTelegramLink) return TG.openTelegramLink(link);
+  } catch (e) { /* ishlamadi: quyida */ }
+  if (navigator.share) return navigator.share({ title: "VEROX GAMES", text, url }).catch(() => {});
+  copyRef(game);
 }
 
-/* ===================== EKRANLAR: YORDAMCHILAR ===================== */
-const DAY_MS = 86400000;
-function btn(label, act, o = {}) {
-  const cls = ["btn", o.cls || "", o.small ? "btn-sm" : "", o.block ? "btn-block" : ""].join(" ");
-  return `<button class="${cls}" data-act="${act}"${o.dis ? " disabled" : ""}>${label}</button>`;
-}
-function row(icon, title, sub, right) {
-  return `<div class="row"><div class="ico">${icon}</div><div class="info"><div class="name">${title}</div>` +
-    `${sub ? `<div class="sub">${sub}</div>` : ""}</div>${right || ""}</div>`;
-}
-function linesHtml(rows) {
-  return `<div class="lines">${rows.map((r) => `<div><span>${r[0]}</span><b class="${r[2] || ""}">${r[1]}</b></div>`).join("")}</div>`;
-}
-function kvHtml(items) {
-  return `<div class="kv">${items.map((r) => `<div><span>${r[0]}</span><b>${r[1]}</b></div>`).join("")}</div>`;
-}
-function subtabsHtml(list, active, prefix) {
-  return `<nav class="subtabs">${list.map((t) => `<button class="${t[0] === active ? "on" : ""}" data-act="${prefix}:${t[0]}">${t[1]}</button>`).join("")}</nav>`;
-}
-function errClass(k) { return ui.err && ui.err.k === k ? "invalid" : ""; }
-function errLine(k) { return ui.err && ui.err.k === k && ui.err.msg ? `<div class="err">${esc(ui.err.msg)}</div>` : ""; }
-function until(ts) { return `<span class="cd" data-until="${ts}">—</span>`; }
-
-/* ===================== BOSH MENYU ===================== */
-function viewHome() {
-  const c = S.cafe, l = S.club;
-  const cafeTag = c.day ? " ⏳" : (canPrestige(c) ? " ✨" : "");
-  const clubTag = !l.open ? "" : (l.day ? " ⏳" : (canClubPrestige(l) ? " ✨" : ""));
-  return `
-  <section class="hero-home">
-    <div class="eyebrow">Verox Games</div>
-    <h1>Kafe <span>va</span> Club</h1>
-    <p class="muted">Ikki alohida o'yin: kafe — taom va mijozlar, club — kompyuter zali. Har birining o'z hisobi, darajasi va franchayzingi bor.</p>
-  </section>
-  <div class="game-grid">
-    <button class="game-card" data-act="go:cafe">
-      <span class="gc-ico"><i class="ic">☕</i></span>
-      <span class="gc-title">CAFE${cafeTag}</span>
-      <span class="gc-bal">💰 ${fmt(c.money)}</span>
-      <span class="gc-sub">Kafe oching, taomlar sotib oling, mijozlarni kutib oling</span>
-    </button>
-    <button class="game-card club" data-act="go:club">
-      <span class="gc-ico"><i class="ic">🎮</i></span>
-      <span class="gc-title">GAME CLUB${clubTag}</span>
-      <span class="gc-bal">${l.open ? "💰 " + fmt(l.money) : "🔒 Hali ochilmagan (bepul)"}</span>
-      <span class="gc-sub">PC, PlayStation va VIP xona ijarasi, soatbay to'lov</span>
-    </button>
-  </div>
-  <section class="panel">
-    <h3><i class="ic">💾</i> Saqlash</h3>
-    <p class="hint">O'yin progressi hozircha shu brauzerda saqlanadi (brauzer ma'lumotlarini tozalasangiz, noldan boshlanadi). Hisob (login) esa bulutda saqlanadi: 👤 Hisob bo'limiga qarang. Zaxira nusxa ham shu yerda: ⚙️ Hisob bo'limida.</p>
-  </section>`;
+// ---- Sinxronlash holati (sarlavhadagi nuqta) ----
+function updateSyncDot() {
+  const el = document.getElementById("syncDot");
+  if (!el) return;
+  let st = "off", label = "Mahalliy (hisob yo'q)";
+  if (syncOn()) {
+    if (sy.down > Date.now()) { st = "err"; label = "Internet bilan aloqa yo'q"; }
+    else if (sy.dirty) { st = "wait"; label = "Saqlanmoqda..."; }
+    else { st = "ok"; label = "Bulutda saqlangan"; }
+  }
+  if (el.dataset.st !== st) { el.dataset.st = st; el.title = label; }
 }
 
-/* ===================== KAFE EKRANI ===================== */
-function cafeHeader() {
-  const p = S.cafe, lv = levelOf(p.xp), lo = xpFor(lv), hi = xpFor(lv + 1);
-  const pct = Math.round(((p.xp - lo) / (hi - lo)) * 100);
-  return `<div class="screen-head"><div>
-      <div class="eyebrow">Kafe o'yini</div>
-      <h2>☕ Sizning kafe${p.prestige ? " 🏢×" + p.prestige : ""}</h2>
-    </div>
-    <div class="head-kv"><span class="pill">💰 ${fmt(p.money)}</span><span class="pill">⭐ ${p.rep.toFixed(1)}</span><span class="pill">🎖️ Daraja ${lv}</span></div></div>
-    <div class="bar small"><i style="width:${pct}%"></i></div>`;
+// ---- Qo'llanma (onboarding) ----
+const TOUR = [
+  "☕ Kafe: «Kunni boshlash» ni bosing. Mijozlar real vaqtda keladi.",
+  "📋 Menyu: taom sotib oling va narxini o'zingiz belgilang.",
+  "🎡 Omad charxi: har 8 soatda aylantirasiz. Jekpot ham bor!",
+  "🤝 Do'stlarni taklif qiling: 5 ta taklifdan keyin avto-rejim ochiladi.",
+  "🏆 Reyting: eng boy kafe va clublar ro'yxati.",
+];
+function startTour(force) {
+  if (!force) { try { if (localStorage.getItem(TOUR_KEY) === "1") return; } catch (e) { return; } }
+  try { localStorage.setItem(TOUR_KEY, "1"); } catch (e) { /* ignore */ }
+  TOUR.forEach((t, i) => openModal(`📖 ${i + 1}/${TOUR.length}`, `<p>${esc(t)}</p>`,
+    `<button class="btn btn-gold btn-block" data-act="modal:ok">${i === TOUR.length - 1 ? "Tushunarli ✅" : "Keyingisi ➡️"}</button>`));
 }
 
-function liveBox(game, day) {
-  const club = game === "club";
-  const head = club ? `Club kuni ${day.no}` : `Kun ${day.no}`;
-  const extra = club
-    ? `<div class="muted">🕐 Soat: <b data-live="club-clock">12:00</b> · 🖥️ Band: <b data-live="club-busy">0</b>/${day.cap}</div>`
-    : `<div class="muted">${esc(day.mood)}${day.special ? " · 🍽 Kun taomi: " + DISHES[day.special].e + " " + DISHES[day.special].n + " (+15%)" : ""}${day.trend ? " · 🔥 Trend: " + DISHES[day.trend].e + " " + DISHES[day.trend].n + " (×2 mijoz)" : ""}</div>`;
-  const b = club ? "Mijozlar" : "Xizmat";
-  return `<section class="panel live ${club ? "club" : ""}">
-    <div class="live-head"><span class="badge">${head} DAVOM ETMOQDA</span><span class="cd" data-live="${game}-left">--:--</span></div>
-    ${extra}
-    <div class="bar"><i data-live="${game}-bar" style="width:0%"></i></div>
-    <div class="kv mt">
-      <div><span>👥 ${b}</span><b data-live="${game}-a">0</b></div>
-      <div><span>😔 Ketib qoldi</span><b data-live="${game}-b">0</b></div>
-      <div><span>💵 Tushum</span><b data-live="${game}-c">0</b></div>
-      <div><span>⏳ Qoldi</span><b data-live="${game}-t">--</b></div>
-    </div>
-    <div class="feed" data-live="${game}-feed"></div>
-  </section>`;
+// ---- Zaxira nusxa: eksport va tiklash ----
+function showBackup() {
+  const data = JSON.stringify({ v: 1, exportedAt: new Date().toISOString(), cafe: S.cafe, club: S.club, loans: S.loans, nextLoan: S.nextLoan });
+  openModal("💾 " + T("backup"),
+    `<p class="hint">Quyidagi matnni nusxalab, xavfsiz joyda saqlang.</p><textarea class="input" rows="6" readonly onclick="this.select()">${esc(data)}</textarea>`,
+    `<button class="btn btn-gold btn-block" data-act="modal:ok">Yopish</button>`);
 }
-
-function cafeDayView() {
-  const p = S.cafe;
-  if (p.day) return liveBox("cafe", p.day);
-  const bs = p.boosts.map((b) => BOOSTS[b].e + " " + BOOSTS[b].n).join(", ") || "yo'q";
+function importBackup(text) {
+  if (!loadAccount()) return;
+  let d;
+  try { d = JSON.parse(String(text || "").trim()); } catch (e) { return toast("❌ Matn noto'g'ri (JSON emas)", "bad"); }
+  if (!d || d.v !== 1 || !d.cafe || !d.club) return toast("❌ Bu zaxira nusxa emas", "bad");
+  const n = normGame({ cafe: d.cafe, club: d.club });
+  S.cafe = n.cafe;
+  S.club = n.club;
+  S.loans = arr(d.loans).filter((l) => l && Number(l.id) && typeof l.status === "string");
+  S.nextLoan = Math.max(1, Number(d.nextLoan) || S.loans.length + 1);
+  ui.draft.impText = "";
+  saveState();                       // o'zgarish bo'lgani uchun bulutga ham yuboriladi
+  toast("♻️ O'yin tiklandi", "good");
+}
+function setAct(a, b) {
+  if (a === "lang") return setLang(b);
+  if (a === "sound") return toggleSound();
+  if (a === "motion") return toggleMotion();
+  if (a === "tour") return startTour(true);
+  if (a === "share") return shareRef("cafe");
+  if (a === "export") return showBackup();
+  if (a === "import") return importBackup(ui.draft.impText);
+}
+function settingsBlock() {
+  const motionOn = !isNoMotion();
   return `<section class="panel">
-    <h3><i class="ic">☀️</i> Yangi kun</h3>
-    ${kvHtml([["Sig'im", capacity(p) + " mijoz"], ["Taomlar", p.dishes.length + "/" + DISH_LIST.length],
-      ["Narx siyosati", POLICIES[p.policy].e + " " + POLICIES[p.policy].n], ["Xodimlar", p.staff]])}
-    <p class="hint mt">Kun ${CFG.DAY_MIN}–${CFG.DAY_MAX} soniya davom etadi. Mijozlar real vaqtda keladi, natija kun tugagach hisoblanadi.</p>
-    <p class="hint">⚡ Keyingi kun uchun kuchaytirgichlar: ${bs}</p>
-    ${btn("▶️ Kunni boshlash", "day:start", { cls: "btn-gold", block: true })}
+    <h3><i class="ic">⚙️</i> ${T("settings")}</h3>
+    <p class="hint">${T("lang")}</p>
+    <div class="seg">${Object.entries(LANGS).map(([k, n]) => `<button class="${k === LANG ? "on" : ""}" data-act="set:lang:${k}">${n}</button>`).join("")}</div>
+    <div class="field mt">
+      ${btn("🔊 " + T("sound") + ": " + (FX_ON ? T("on") : T("off")), "set:sound", { small: true })}
+      ${btn("✨ " + T("motion") + ": " + (motionOn ? T("on") : T("off")), "set:motion", { small: true })}
+    </div>
+    <div class="field mt">
+      ${btn("📖 " + T("tour"), "set:tour", { small: true })}
+      ${btn("📤 " + T("share"), "set:share", { small: true })}
+      ${btn("💾 " + T("backup"), "set:export", { small: true })}
+    </div>
+    <p class="hint mt">${T("restoreHint")}</p>
+    <textarea class="input" data-draft="impText" rows="3" placeholder="{ ... }">${esc(ui.draft.impText || "")}</textarea>
+    <div class="mt">${btn("♻️ " + T("restore"), "set:import", { small: true, cls: "btn-ghost" })}</div>
   </section>`;
 }
+function viewAccount() { return viewAccountMain() + settingsBlock(); }
 
-function cafeUpgView() {
-  const p = S.cafe;
-  let h = `<section class="panel"><h3><i class="ic">🔨</i> Kafeni yaxshilash</h3>
-    <p class="hint">Yangi daraja keyingi kundan kuchga kiradi.</p>`;
-  for (const [key, u] of Object.entries(UPGRADES)) {
-    const lv = p[key];
-    const right = lv >= u.max ? '<span class="chip ok">MAX</span>' : btn(`+1 · ${fmt(upgradePrice(key, lv))}`, "buy:" + key, { small: true });
-    h += row(u.e, `${u.n} <span class="lv">${lv}/${u.max}</span>`, u.info, right);
-  }
-  if (p.staff > 0) h += row("➖", "Xodimni bo'shatish", "Pul qaytmaydi", btn("Bo'shatish", "fire", { small: true }));
-  h += "</section>";
-
-  h += `<section class="panel"><h3><i class="ic">🏷️</i> Narx siyosati</h3>
-    <div class="seg">${Object.entries(POLICIES).map(([k, pol]) =>
-      `<button class="${k === p.policy ? "on" : ""}" data-act="setpol:${k}">${pol.e} ${pol.n}<small>${pol.info}</small></button>`).join("")}</div></section>`;
-
-  h += `<section class="panel"><h3><i class="ic">⚡</i> Kuchaytirgichlar</h3>
-    <p class="hint">Sotib olingan kuchaytirgich keyingi boshlangan kunda ishlaydi va sarflanadi.</p>`;
-  for (const [k, b] of Object.entries(BOOSTS)) {
-    const right = p.boosts.includes(k) ? '<span class="chip ok">Tayyor</span>' : btn(fmt(boostPrice(p, k)), "bbuy:" + k, { small: true });
-    h += row(b.e, b.n, b.info, right);
-  }
-  return h + "</section>";
+// ---- Reyting (top 20) ----
+function lbScore() { return (S.cafe.money || 0) + (S.club.open ? S.club.money || 0 : 0); }
+let LB_SIG = "";
+// Egasi reytingga kirmaydi (isOwner). Balans o'zgarganda yoziladi.
+async function pushLB() {
+  const acc = loadAccount();
+  if (!acc || !FIREBASE_URL || !syncOn() || isOwner()) return;
+  const body = { name: acc.login, score: Math.round(lbScore()), cafeP: S.cafe.prestige || 0, clubP: S.club.prestige || 0, at: Date.now() };
+  const sig = JSON.stringify([body.score, body.cafeP, body.clubP]);
+  if (sig === LB_SIG) return;
+  try {
+    await fbEnsure();
+    const r = await fetchT(fbUrl("/lb/" + acc.login + ".json"), { method: "PUT", body: JSON.stringify(body) });
+    if (r.ok) LB_SIG = sig;
+  } catch (e) { /* keyingi safar */ }
+}
+async function fetchLB() {
+  if (!FIREBASE_URL) { ui.lb = { err: true, rows: [] }; return render(); }
+  ui.lb = { loading: true, rows: (ui.lb && ui.lb.rows) || [] };
+  try {
+    await fbEnsure();
+    const r = await fetchT(fbUrl("/lb.json?orderBy=%22score%22&limitToLast=20"));
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    const d = (await r.json()) || {};
+    const rows = Object.values(d).filter((x) => x && typeof x.name === "string")
+      .sort((x, y) => (Number(y.score) || 0) - (Number(x.score) || 0));
+    ui.lb = { rows, at: Date.now() };
+  } catch (e) { ui.lb = { err: true, rows: (ui.lb && ui.lb.rows) || [] }; }
+  if (ui.screen === "lb") render();
+}
+function viewLB() {
+  const L = ui.lb || {};
+  const me = loadAccount();
+  let body;
+  if (L.err) body = `<p class="hint">${T("lbOff")}</p>`;
+  else if (!L.rows || !L.rows.length) body = `<p class="hint">${L.loading ? "⏳ ..." : T("lbEmpty")}</p>`;
+  else body = `<div class="lb">${L.rows.map((r, i) => `<div class="lb-row${me && me.login === r.name ? " me" : ""}">
+      <span class="lb-n">${i + 1}</span>
+      <span class="lb-name">${esc(r.name)}${(r.cafeP || r.clubP) ? ` <small class="muted">🏢${(r.cafeP || 0) + (r.clubP || 0)}</small>` : ""}</span>
+      <b>${fmt(r.score || 0)}</b></div>`).join("")}</div>`;
+  return `<section class="panel"><h3><i class="ic">🏆</i> ${T("lbTitle")}</h3>
+    <p class="hint">${T("lbHint")}</p>${body}
+    <div class="mt">${btn("🔄 " + T("refresh"), "lb:refresh", { small: true })}</div></section>`;
 }
 
-function cafeMenuView() {
-  const p = S.cafe, pm = POLICIES[p.policy].price;
-  let h = `<section class="panel"><h3><i class="ic">🍴</i> Menyu (${p.dishes.length}/${DISH_LIST.length})</h3>
-    <p class="hint">Menyuga taomni sotib oling. Menyudagi taom narxini o'zingiz belgilaysiz: limit asl narxning ~4% yuqorisi. Limitdan oshsa, narx qo'yilgan paytda har 3 000 so'mga 50 000 so'm jarima bir marta yechiladi.</p>`;
-  for (const d of DISH_LIST) {
-    const sell = sellPrice(d.k, pm), cost = dishCost(d.k, p.equip);
-    const owned = ownsDish(p, d.k);
-    const sub = `Sotish ${fmt(sell)} · Xarajat ${fmt(cost)} · Foyda ${fmt(sell - cost)}`;
-    const right = owned ? '<span class="chip ok">Menyuda</span>' : btn(fmt(d.price), "dish:" + d.k, { small: true });
-    h += row(d.e, d.n, sub, right);
-    if (owned) {
-      h += `<div class="pr-ed"><input class="input" type="number" inputmode="numeric" data-draft="pr_${d.k}" placeholder="Narx: ${fmt(sell)}" value="${esc(ui.draft["pr_" + d.k] || "")}"/>${btn("Saqlash", "dprice:" + d.k, { small: true })}
-        <div class="pr-lim">Asl narx ${fmt(d.sell)} · limit ${fmt(priceLimit(d.k))} (undan oshsa, narx qo'yilganda har 3 000 so'mga 50 000 jarima bir marta)</div></div>`;
-    }
+// ---- Avto-rejim (5 ta do'st taklif qilinganda ochiladi) ----
+function autoUnlocked() {
+  const r = ui.ref;
+  return !!(r && (r.cafe.count + r.club.count) >= AUTO_REF);
+}
+function autoBox(game) {
+  const n = ui.ref ? ui.ref.cafe.count + ui.ref.club.count : 0;
+  if (!autoUnlocked()) return `<p class="hint mt">🔒 ${T("auto")}: ${AUTO_REF} ta do'st taklif qiling (hozir: ${n}/${AUTO_REF})</p>`;
+  const on = !!S[game].auto;
+  return `<div class="mt">${btn("🤖 " + T("auto") + ": " + (on ? T("on") : T("off")), "auto:" + game, { small: true, cls: on ? "btn-gold" : "btn-ghost" })}</div>`;
+}
+function toggleAuto(game) {
+  if (!autoUnlocked()) return toast(`🔒 Avto-rejim uchun ${AUTO_REF} ta taklif kerak`, "bad");
+  S[game].auto = !S[game].auto;
+  toast(`🤖 Avto-rejim ${S[game].auto ? "yoqildi" : "o'chirildi"}`, S[game].auto ? "good" : "info");
+  const ov = document.getElementById("wheelOv");  // charx oynasi ochiq bo'lsa, tugmani yangilaymiz
+  if (ov && !ov.hidden && !WHEEL.busy) paintWheel(ov, game);
+}
+function silentSpin(game) {
+  const g = S[game];
+  const prize = WHEEL_PRIZES[rollWheel(g.prestige)];
+  g.money += prize.v;
+  g.spinAt = Date.now();
+  toast(`🤖 Avto charx: ${prize.jackpot ? "🎰 JEKPOT " : ""}+${fmt(prize.v)}`, prize.jackpot ? "good" : "info");
+}
+function autoClaim() {
+  const before = S.cafe.money + S.club.money;
+  if (S.cafe.auto) ensureQuests().q.forEach((q, i) => claimQuest(i));
+  if (S.club.auto && S.club.open) ensureClubQuests().q.forEach((q, i) => claimClubQuest(i));
+  const got = S.cafe.money + S.club.money - before;
+  if (got > 0) toast(`🤖 Avto vazifa mukofoti: +${fmt(got)}`, "good");
+}
+// tick() ichidan chaqiriladi
+function autoTick() {
+  if (!loadAccount() || !autoUnlocked()) return;
+  if (S.cafe.auto && !S.cafe.day && !dayStarting) beginDay("cafe");
+  if (S.club.auto && S.club.open && !S.club.day && !dayStarting) beginDay("club");
+  if (S.cafe.auto && canSpin(S.cafe.spinAt)) silentSpin("cafe");
+  if (S.club.auto && S.club.open && canSpin(S.club.spinAt)) silentSpin("club");
+  if (S.cafe.auto && Date.now() - S.cafe.bonusAt >= DAY_MS) claimCafeBonus();
+  if (S.club.auto && S.club.open && Date.now() - S.club.bonusAt >= DAY_MS) claimClubBonus();
+  autoClaim();
+}
+
+// ---- Mavsumiy tadbirlar (MM-KK formatida; yil ichida qo'shing/yangilang) ----
+const EVENTS = [
+  { n: "🌸 Navro'z", from: "03-19", to: "03-23", k: 1.25, text: "mijozlar +25%" },
+  { n: "🇺🇿 Mustaqillik kuni", from: "08-31", to: "09-01", k: 1.2, text: "mijozlar +20%" },
+  { n: "🎄 Yangi yil", from: "12-25", to: "01-02", k: 1.3, text: "mijozlar +30%" },
+];
+function eventNow() {
+  const d = new Date(Date.now() + 5 * 3600000);  // Toshkent vaqti
+  return String(d.getUTCMonth() + 1).padStart(2, "0") + "-" + String(d.getUTCDate()).padStart(2, "0");
+}
+function activeEvent() {
+  const t = eventNow();
+  return EVENTS.find((e) => (e.from <= e.to ? (t >= e.from && t <= e.to) : (t >= e.from || t <= e.to))) || null;
+}
+function eventK() { const e = activeEvent(); return e ? e.k : 1; }
+function eventBanner() { const e = activeEvent(); return e ? `<div class="event-banner">🎉 ${e.n}: ${e.text}</div>` : ""; }
+
+// ---- Interyer mavzulari (faqat ko'rinish) ----
+const SKINS = {
+  classic: { n: "Klassik", cost: 0 },
+  neon: { n: "Neon", cost: 5000000 },
+  royal: { n: "Shohona", cost: 50000000 },
+  garden: { n: "Bog'", cost: 200000000 },
+};
+function skinsBlock() {
+  const p = S.cafe, owned = arr(p.skins).length ? arr(p.skins) : ["classic"];
+  const cur = p.skin || "classic";
+  return `<section class="panel"><h3><i class="ic">🎨</i> Interyer mavzusi</h3>
+    <p class="hint">Faqat ko'rinish o'zgaradi, o'yinga ta'siri yo'q.</p>
+    ${Object.entries(SKINS).map(([k, s]) => {
+      const has = owned.includes(k);
+      const right = cur === k ? '<span class="chip ok">Tanlangan</span>'
+        : has ? btn("Tanlash", "skin:use:" + k, { small: true }) : btn(fmt(s.cost), "skin:buy:" + k, { small: true });
+      return row("🎨", s.n, has ? "Sotib olingan" : "Narxi: " + fmt(s.cost), right);
+    }).join("")}
+  </section>`;
+}
+function skinAct(mode, key) {
+  const p = S.cafe, s = SKINS[key];
+  if (!s) return;
+  p.skins = arr(p.skins);
+  if (!p.skins.includes("classic")) p.skins.push("classic");
+  if (mode === "buy") {
+    if (p.skins.includes(key)) return toast("Bu mavzu allaqachon bor", "info");
+    if (p.money < s.cost) return toast(`Pul yetmaydi. Yana ${fmt(s.cost - p.money)} kerak`, "bad");
+    p.money -= s.cost;
+    p.skins.push(key);
+    p.skin = key;
+    toast(`🎨 ${s.n} mavzusi sotib olindi`, "good");
+  } else if (mode === "use" && p.skins.includes(key)) {
+    p.skin = key;
+    toast(`🎨 ${s.n} mavzusi tanlandi`, "good");
   }
-  return h + "</section>";
 }
 
-function loansBlock() {
-  const act = activeLoans();
-  const amt = ui.draft.loanAmt || "";
-  const term = Number(ui.draft.loanTerm) || 3;
-  const n = Number(amt);
-  const preview = n >= CFG.LOAN_MIN && n <= CFG.LOAN_MAX ? fmt(loanOwed(n, term)) : "—";
-  let h = `<h3 class="mt"><i class="ic">🏦</i> Bank krediti</h3>
-    <p class="hint">Bank pul beradi. Muddat tugasa, qarz avtomatik undiriladi. To'liq to'lanmasa, ishonch va reputatsiya tushadi.</p>
-    <div class="field"><input class="input ${errClass("loan")}" type="number" inputmode="numeric" data-draft="loanAmt"
-      placeholder="Summa, min ${fmt(CFG.LOAN_MIN)}" value="${esc(amt)}" /></div>
-    <div class="seg mt">${[1, 3, 7].map((d) => `<button class="${term === d ? "on" : ""}" data-act="loanterm:${d}">${d} kun<small>${Math.round(CFG.LOAN_TERMS[d] * 100)}% foiz</small></button>`).join("")}</div>
-    <p class="hint mt">Qaytarish summasi: <b data-live="loan-preview">${preview}</b> · faol kreditlar: ${act.length}/${CFG.LOAN_MAX_ACTIVE}</p>
-    ${errLine("loan")}
-    ${btn("🏦 Kredit olish", "loan:take", { cls: "btn-gold", block: true, dis: act.length >= CFG.LOAN_MAX_ACTIVE })}`;
-  for (const l of act) {
-    const right = `<div class="head-kv">${btn("Yarmi", "loan:half:" + l.id, { small: true })}${btn("Hammasi", "loan:all:" + l.id, { small: true, cls: "btn-teal" })}</div>`;
-    h += row("📄", `Kredit #${l.id} · ${fmt(l.amount)}`,
-      `Qaytarish: ${fmt(loanLeft(l))} · muddati: ${until(l.due)}`, right);
-  }
-  const past = S.loans.filter((l) => l.status !== "active").slice(-5).reverse();
-  for (const l of past) {
-    const st = l.status === "paid" ? '<span class="chip ok">To\'langan</span>' : '<span class="chip">Yozib yuborildi</span>';
-    h += row("🧾", `Kredit #${l.id} · ${fmt(l.amount)}`, `Qaytarilgan: ${fmt(l.paid)} / ${fmt(l.owed)}`, st);
-  }
-  return h;
-}
-
-function promoBlock(game) {
-  return `<h3 class="mt"><i class="ic">🎫</i> Promokod</h3>
-    <div class="field"><input class="input ${errClass("promo")}" data-draft="promo" placeholder="Masalan: START"
-      value="${esc(ui.draft.promo || "")}" maxlength="20" autocomplete="off" />${btn("Qo'llash", "promo:" + game, { cls: "btn-teal" })}</div>
-    ${errLine("promo")}
-    <p class="hint">Har promokod bir marta ishlaydi. Kafe va club uchun promokodlar alohida.</p>`;
-}
-
-function cafeMoneyView() {
-  const p = S.cafe, now = Date.now();
-  const bonusReady = now - p.bonusAt >= DAY_MS;
-  const spinReady = canSpin(p.spinAt);
-  return `<section class="panel">
-      <h3><i class="ic">🪙</i> Hisob</h3>
-      ${kvHtml([["💰 Hisob", fmt(p.money)], ["🏦 Omonat", fmt(p.deposit || 0)], ["🛡️ Ishonch", p.trust], ["📅 Kunlar", p.days]])}
-    </section>
-    <section class="panel">
-      <h3><i class="ic">🎁</i> Bonus va g'ildirak</h3>
-      <div class="field">${btn("🎁 Kunlik bonus" + (bonusReady ? " ✨" : ""), "bonus", { cls: "btn-gold" })}${btn("🎡 G'ildirak" + (spinReady ? " ✨" : ""), "spin", { cls: "btn-teal" })}</div>
-      <p class="hint mt">Bonus: ${bonusReady ? "tayyor" : until(p.bonusAt + DAY_MS)} · G'ildirak: ${spinReady ? "tayyor" : until(p.spinAt + CFG.SPIN_H * 3600000)} · 🗓 Haftalik ketma-ketlik: ${p.streak % 7}/7</p>
-    </section>
-    <section class="panel">
-      <h3><i class="ic">🐷</i> Omonat</h3>
-      <p class="hint">Har kafe kuni omonat 1% ga o'sadi. Franchayzingda nolga tushadi.</p>
-      <div class="field">${btn("➕ 10%", "dep:add:10")}${btn("➕ 50%", "dep:add:50")}${btn("➕ Hammasi", "dep:add:100")}</div>
-      ${p.deposit ? `<div class="mt">${btn("➖ Omonatni yechish (" + fmt(p.deposit) + ")", "dep:out", { block: true })}</div>` : ""}
-    </section>
-    <section class="panel">${loansBlock()}</section>
-    <section class="panel">${promoBlock("cafe")}</section>`;
-}
-
-function questsHtml(data, act, claimAct) {
-  let h = `<h3><i class="ic">📋</i> Kunlik vazifalar</h3>
-    <p class="hint">Yangi vazifalar har kuni yarim tunda (O'zbekiston vaqti) paydo bo'ladi.</p>`;
-  data.q.forEach((q, i) => {
-    const right = q[4] ? '<span class="chip ok">Olingan</span>'
-      : (q[2] >= q[1] ? btn("🎁 +" + fmt(q[3]), claimAct + i, { small: true, cls: "btn-gold" }) : '<span class="chip">Jarayonda</span>');
-    h += row("📜", `${i + 1}. ${act(q)}`, `${questStatus(q)} · Mukofot: ${fmt(q[3])}`, right);
+// ---- Statistika grafigi (oxirgi 30 kun) ----
+function pushHist(obj, entry) { obj.hist = arr(obj.hist).concat([entry]).slice(-30); }
+function histChart(game, title) {
+  const h = arr(S[game].hist).slice(-14);
+  if (!h.length) return `<section class="panel"><h3>${title}</h3><p class="hint">Birinchi kun yakunlangach grafik chiqadi.</p></section>`;
+  const W = 320, H = 150, pad = 8;
+  const max = Math.max(1, ...h.map((x) => Math.abs(x.p)));
+  const gap = (W - pad * 2) / h.length, bw = gap * 0.7;
+  let bars = "";
+  h.forEach((x, i) => {
+    const bh = Math.max(2, (Math.abs(x.p) / max) * (H - 32));
+    const xx = pad + i * gap + (gap - bw) / 2, y = H - 18 - bh;
+    const col = x.p >= 0 ? "#4ade80" : "#f87171";
+    bars += `<rect x="${xx.toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}" height="${bh.toFixed(1)}" rx="3" fill="${col}"><title>Kun ${x.d}: ${fmt(x.p)}</title></rect>`;
+    bars += `<text x="${(xx + bw / 2).toFixed(1)}" y="${H - 4}" font-size="9" text-anchor="middle" fill="#a99a88">${x.d}</text>`;
   });
-  return h;
-}
-function achGridHtml(list, have) {
-  return `<div class="ach-grid">${list.map((a) => {
-    const got = have.includes(a[0]);
-    return `<div class="ach-row ${got ? "got" : ""}"><div class="e">${got ? a[1] : "🔒"}</div><div>
-      <div class="n">${a[2]}</div><div class="d">${a[3]}</div><div class="r">+${fmt(a[4])}</div></div></div>`;
-  }).join("")}</div>`;
+  return `<section class="panel"><h3>${title}</h3><svg class="chart" viewBox="0 0 ${W} ${H}">${bars}</svg></section>`;
 }
 
-function cafeGoalsView() {
-  const p = S.cafe, st = p.stats || {};
-  const data = ensureQuests();
-  const lv = levelOf(p.xp);
-  return `<section class="panel">${questsHtml(data, questTitle, "quest:claim:")}</section>
-    <section class="panel"><h3><i class="ic">🏅</i> Yutuqlar (${p.ach.length}/${ACHS.length})</h3>
-      ${achGridHtml(ACHS, p.ach)}</section>
-    <section class="panel"><h3><i class="ic">📊</i> Statistika</h3>
-      ${kvHtml([["Kunlar", p.days], ["Daraja", lv], ["Xizmat qilingan", st.served || 0], ["Ketib qolgan", st.lost || 0],
-        ["Umumiy tushum", fmt(st.revenue || 0)], ["Eng yaxshi kun", fmt(st.best || 0)]])}
-      <div class="mt">${chartSvg(p.hist)}</div></section>`;
+// ---- Egasi: blok boshqaruvi ----
+async function ownerCheck(login) {
+  if (!FIREBASE_URL) return toast("Firebase ulanmagan", "bad");
+  try {
+    await fbEnsure();
+    const get = async (p) => { const r = await fetchT(fbUrl(p)); return r.ok ? await r.json() : null; };
+    const [dev, ban, lb] = await Promise.all([get("/devices/" + login + ".json"), get("/bans/" + login + ".json"), get("/lb/" + login + ".json")]);
+    const blockTo = ban && Number(ban.until) > Date.now() ? new Date(Number(ban.until)).toLocaleDateString("uz-UZ") : "yo'q";
+    openModal("🔎 " + login, kvHtml([
+      ["Qurilma", dev && dev.dev ? String(dev.dev).slice(0, 12) + "…" : "noma'lum"],
+      ["Telegram ID", dev && dev.tg ? String(dev.tg) : "noma'lum"],
+      ["Oxirgi kirish", dev && dev.at ? new Date(dev.at).toLocaleString("uz-UZ") : "noma'lum"],
+      ["Blok (gacha)", blockTo],
+      ["Reyting balansi", lb ? fmt(lb.score || 0) : "yo'q"],
+    ]), `<button class="btn btn-gold btn-block" data-act="modal:ok">Yopish</button>`);
+  } catch (e) { toast("❌ Ma'lumot olinmadi", "bad"); }
+}
+async function ownerBan(mode) {
+  const login = String(ui.draft.ownBanLogin || "").trim().toLowerCase();
+  if (!LOGIN_OK.test(login)) return toast("Login noto'g'ri", "bad");
+  if (mode === "check") return ownerCheck(login);
+  if (!FIREBASE_URL) return toast("Firebase ulanmagan", "bad");
+  try {
+    await fbEnsure();
+    const url = fbUrl("/bans/" + login + ".json");
+    const r = mode === "add"
+      ? await fetchT(url, { method: "PUT", body: JSON.stringify({ until: Date.now() + 365 * 86400000, reason: "admin" }) })
+      : await fetchT(url, { method: "DELETE" });
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    toast(mode === "add" ? `🚫 ${login}: 1 yilga bloklandi` : `✅ ${login}: blokdan chiqarildi`, "good");
+  } catch (e) { toast("❌ Yozib bo'lmadi (ruxsat yoki internet)", "bad"); }
+}
+function banAdminBlock() {
+  return `<h3>🚫 Blok boshqaruvi</h3>
+    <div class="field"><input class="input" data-draft="ownBanLogin" placeholder="Login" value="${esc(ui.draft.ownBanLogin || "")}"></div>
+    <div class="seg mt"><button data-act="owner:ban:add">🚫 1 yilga bloklash</button><button data-act="owner:ban:rm">✅ Blokdan chiqarish</button><button data-act="owner:ban:check">🔎 Tekshirish</button></div>`;
 }
 
-function prestigeBlock(title, desc, checks, canDo, act, extraInfo) {
-  return `<section class="panel"><h3><i class="ic">🏢</i> ${title}</h3>
-    <p class="hint">${desc}</p>${extraInfo || ""}
-    <div class="checks mt">${checks.map((c) => `<div class="${c[0] ? "" : "no"}">${c[0] ? "✅" : "❌"} ${c[1]}</div>`).join("")}</div>
-    <div class="mt">${btn("🏢 Franchayzingni boshlash", act, { cls: "btn-gold", block: true, dis: !canDo })}</div></section>`;
-}
-function cafePrestView() {
-  const p = S.cafe, n = p.prestige;
-  const desc = `Franchayzing kafeni yangi bosqichga olib chiqadi: taomlar, xodimlar, reklama, interyer va jihozlar boshidan boshlanadi. Daraja, yutuqlar va statistika saqlanadi.`;
-  const info = `<p class="hint">Hozirgi franchayzing: <b>${n}</b> · bonus: +${Math.round(CFG.PRESTIGE_CUST * n * 100)}% mijoz, +${Math.round(CFG.PRESTIGE_INC * n * 100)}% daromad.
-    Keyingi boshlang'ich kapital: <b>${fmt(CFG.START_MONEY + 500000 * (n + 1))}</b>. Har franchayzing: doimiy +${Math.round(CFG.PRESTIGE_CUST * 100)}% mijoz va +${Math.round(CFG.PRESTIGE_INC * 100)}% daromad.</p>`;
-  return prestigeBlock("Franchayzing", desc, [
-    [p.dishes.length >= DISH_LIST.length, `Barcha taomlar ochilgan (${p.dishes.length}/${DISH_LIST.length})`],
-    [p.money >= CFG.PRESTIGE_MONEY, `Hisobda ${fmt(CFG.PRESTIGE_MONEY)} (hozir: ${fmt(p.money)})`],
-    [!p.day, "Hozir kun davom etmayapti"],
-  ], canPrestige(p), "prest:ask", info);
-}
 
-function viewCafe() {
-  const tabs = [["day", "▶️ Kun"], ["upg", "🛒 Yaxshilash"], ["menu", "📋 Menyu"], ["money", "💰 Pul"], ["goals", "🎯 Vazifa"], ["prest", "🏢 Franchayzing"]];
-  let body;
-  switch (ui.cTab) {
-    case "upg": body = cafeUpgView(); break;
-    case "menu": body = cafeMenuView(); break;
-    case "money": body = cafeMoneyView(); break;
-    case "goals": body = cafeGoalsView(); break;
-    case "prest": body = cafePrestView(); break;
-    default: body = cafeDayView();
-  }
-  return cafeHeader() + subtabsHtml(tabs, ui.cTab, "ctab") + body;
-}
-
-/* ===================== CLUB EKRANI ===================== */
-function clubHeader() {
-  const c = S.club;
-  return `<div class="screen-head"><div>
-      <div class="eyebrow">Game club</div>
-      <h2>🎮 Sizning club${c.prestige ? " 🏢×" + c.prestige : ""}</h2>
-    </div>
-    <div class="head-kv"><span class="pill">💰 ${fmt(c.money)}</span><span class="pill">⭐ ${c.rep.toFixed(1)}</span>
-      <span class="pill">🖥️ ${seatsOf(c)} joy</span><span class="pill">💲 ${CPOLICIES[c.policy].n}</span></div></div>`;
-}
-
-function clubOpenView() {
-  return `<section class="panel">
-    <h3><i class="ic">🎮</i> Game clubni ochish</h3>
-    <p class="hint">Kompyuter xonangizni oching va soatlik o'yin bilan pul ishlang.</p>
-    ${kvHtml([["Ochish", "BEPUL"], ["Boshlang'ich hisob", fmt(CFG.CLUB_START_MONEY)], ["Boshlang'ich PC", CFG.CLUB_START_PCS + " ta"], ["Alohida o'yin", "kafedan mustaqil"]])}
-    <p class="hint mt">Club o'z hisobi, daraja, reytingi va franchayzingi bilan kafedan alohida ishlaydi.</p>
-    ${btn("🎮 Club ochish", "copen", { cls: "btn-teal", block: true })}
-  </section>`;
-}
-
-function clubDayView() {
-  const c = S.club;
-  if (c.day) return liveBox("club", c.day);
-  const seats = seatsOf(c);
-  const bs = c.boosts.map((b) => CBOOSTS[b].e + " " + CBOOSTS[b].n).join(", ") || "yo'q";
-  return `<section class="panel">
-    <h3><i class="ic">▶️</i> Yangi club kuni</h3>
-    ${kvHtml([["O'yin joylari", seats], ["Tarif", CPOLICIES[c.policy].e + " " + CPOLICIES[c.policy].n], ["Bufet", c.snack], ["Administrator", c.admin]])}
-    <p class="hint mt">Kun ${CFG.CLUB_HOURS} o'yin soati (12:00–24:00) davom etadi. Ijara va elektr xarajati kun yakunida hisoblanadi.</p>
-    <p class="hint">⚡ Keyingi kun uchun aksiyalar: ${bs}</p>
-    ${btn("🎮 Club kunini boshlash", "cday:start", { cls: "btn-teal", block: true, dis: seats === 0 })}
-  </section>`;
-}
-
-function clubUpgView() {
-  const c = S.club;
-  let h = `<section class="panel"><h3><i class="ic">🔨</i> Club yaxshilash</h3>
-    <p class="hint">Yangi xarid keyingi club kunidan kuchga kiradi.</p>`;
-  for (const [key, u] of Object.entries(CUPGRADES)) {
-    const lv = c[key];
-    const right = lv >= u.max ? '<span class="chip ok">MAX</span>' : btn(`+1 · ${fmt(clubUpgradePrice(key, lv))}`, "cbuy:" + key, { small: true });
-    h += row(u.e, `${u.n} <span class="lv">${lv}/${u.max}</span>`, u.info, right);
-  }
-  h += "</section>";
-  h += `<section class="panel"><h3><i class="ic">🏷️</i> Tarif</h3>
-    <div class="seg">${Object.entries(CPOLICIES).map(([k, pol]) =>
-      `<button class="${k === c.policy ? "on" : ""}" data-act="csetpol:${k}">${pol.e} ${pol.n}<small>${pol.info}</small></button>`).join("")}</div></section>`;
-  h += `<section class="panel"><h3><i class="ic">⚡</i> Aksiyalar</h3>
-    <p class="hint">Sotib olingan aksiya keyingi club kunida ishlaydi va sarflanadi.</p>`;
-  for (const [k, b] of Object.entries(CBOOSTS)) {
-    const right = c.boosts.includes(k) ? '<span class="chip ok">Tayyor</span>' : btn(fmt(clubBoostPrice(c, k)), "cbbuy:" + k, { small: true });
-    h += row(b.e, b.n, b.info, right);
-  }
-  return h + "</section>";
-}
-
-function clubMoneyView() {
-  const c = S.club, now = Date.now();
-  const bonusReady = now - c.bonusAt >= DAY_MS;
-  const spinReady = canSpin(c.spinAt);
-  return `<section class="panel">
-      <h3><i class="ic">🪙</i> Club hisobi</h3>
-      ${kvHtml([["💰 Hisob", fmt(c.money)], ["🏦 Omonat", fmt(c.deposit || 0)], ["📅 Club kunlari", c.days], ["⭐ Reputatsiya", c.rep.toFixed(1)]])}
-    </section>
-    <section class="panel">
-      <h3><i class="ic">🎁</i> Bonus va g'ildirak</h3>
-      <div class="field">${btn("🎁 Club bonusi" + (bonusReady ? " ✨" : ""), "cbonus", { cls: "btn-teal" })}${btn("🎡 Club g'ildiragi" + (spinReady ? " ✨" : ""), "cspin", { cls: "btn-gold" })}</div>
-      <p class="hint mt">Bonus: ${bonusReady ? "tayyor" : until(c.bonusAt + DAY_MS)} · G'ildirak: ${spinReady ? "tayyor" : until(c.spinAt + CFG.SPIN_H * 3600000)} · 🗓 Haftalik ketma-ketlik: ${c.streak % 7}/7</p>
-    </section>
-    <section class="panel">
-      <h3><i class="ic">🐷</i> Club omonati</h3>
-      <p class="hint">Har club kuni omonat 1% ga o'sadi. Club franchayzingida nolga tushadi.</p>
-      <div class="field">${btn("➕ 10%", "cdep:add:10")}${btn("➕ 50%", "cdep:add:50")}${btn("➕ Hammasi", "cdep:add:100")}</div>
-      ${c.deposit ? `<div class="mt">${btn("➖ Omonatni yechish (" + fmt(c.deposit) + ")", "cdep:out", { block: true })}</div>` : ""}
-    </section>
-    <section class="panel">${promoBlock("club")}</section>`;
-}
-
-function clubGoalsView() {
-  const c = S.club, st = c.stats || {};
-  const data = ensureClubQuests();
-  return `<section class="panel">${questsHtml(data, clubQuestTitle, "cquest:claim:")}</section>
-    <section class="panel"><h3><i class="ic">🏅</i> Club yutuqlari (${c.ach.length}/${CACHS.length})</h3>
-      ${achGridHtml(CACHS, c.ach)}</section>
-    <section class="panel"><h3><i class="ic">📊</i> Club statistikasi</h3>
-      ${kvHtml([["Kunlar", c.days], ["Mijozlar", st.served || 0], ["Yo'qotilgan", st.lost || 0], ["Soatlar", st.hours || 0],
-        ["Umumiy tushum", fmt(st.revenue || 0)], ["Eng yaxshi kun", fmt(st.best || 0)]])}
-      <div class="mt">${chartSvg(c.hist)}</div></section>`;
-}
-
-function clubPrestView() {
-  const c = S.club, n = c.prestige;
-  const desc = `Club franchayzingi clubni boshidan boshlaydi: PC, PlayStation, VIP, bufet, reklama va administrator qaytadan. Yutuqlar, vazifalar va statistika saqlanadi. Kafega ta'sir qilmaydi.`;
-  const info = `<p class="hint">Hozirgi club franchayzingi: <b>${n}</b> · bonus: +${Math.round(CFG.PRESTIGE_CUST * n * 100)}% mijoz, +${Math.round(CFG.PRESTIGE_INC * n * 100)}% daromad.
-    Keyingi boshlang'ich club hisobi: <b>${fmt(CFG.CLUB_START_MONEY + 500000 * (n + 1))}</b>.</p>`;
-  return prestigeBlock("Club franchayzingi", desc, [
-    [Math.min(c.pro, c.vip, c.ps) >= 1, "Pro PC, VIP xona va PlayStation ochilgan"],
-    [c.money >= CFG.CLUB_PRESTIGE_MONEY, `Club hisobida ${fmt(CFG.CLUB_PRESTIGE_MONEY)} (hozir: ${fmt(c.money)})`],
-    [!c.day, "Hozir club kuni davom etmayapti"],
-  ], canClubPrestige(c), "cprest:ask", info);
-}
-
-function viewClub() {
-  const c = S.club;
-  if (!c.open) return clubOpenView();
-  const tabs = [["day", "▶️ Kun"], ["upg", "🖥️ Yaxshilash"], ["money", "💰 Bonus va pul"], ["goals", "🎯 Vazifa"], ["prest", "🏢 Franchayzing"]];
-  let body;
-  switch (ui.lTab) {
-    case "upg": body = clubUpgView(); break;
-    case "money": body = clubMoneyView(); break;
-    case "goals": body = clubGoalsView(); break;
-    case "prest": body = clubPrestView(); break;
-    default: body = clubDayView();
-  }
-  return clubHeader() + subtabsHtml(tabs, ui.lTab, "ltab") + body;
-}
-
-// Brauzer ochilganda va har 500 ms da ishlaydi
-const _unusedGuard = null;
-
-/* ===================== ISHGA TUSHIRISH ===================== */
 function boot() {
   S = loadState();
   migrateState();
   captureRef();
-  applyMotion();
   syncStart();
   refreshBan();
   const _acc = loadAccount();
   if (_acc) touchDevice(_acc.login);
   loadPromoCatalog();
+  applyLang();
+  applyMotion();
+  if (loadAccount()) startTour(false);
   flushRefClaim();
   refreshReferrals();
-  loadBoard();
   loadSiteRepl().then((c) => { if (c) render(); });
   ui.rk = readyKey();
   if (!loadAccount()) ui.screen = "acc";  // hisob hali yo'q: avval ro'yxatdan o'tish
