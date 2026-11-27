@@ -299,6 +299,28 @@
   body[data-skin="garden"]{--gold:#86efac;--gold2:#16a34a}
   body.no-motion *,body.no-motion *::before,body.no-motion *::after{animation:none!important;transition:none!important}
   .wheel-ov[hidden]{display:none}
+  .confetti{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:200}
+  .cafe-name{font-family:Orbitron,Inter,sans-serif;font-weight:700;color:var(--gold);margin:4px 0 6px}
+  .event-soon{margin:8px 0;padding:8px 12px;border-radius:10px;background:rgba(96,165,250,.12);border:1px solid rgba(96,165,250,.35);font-size:.95rem}
+  .tip{margin:8px 0;padding:8px 12px;border-radius:10px;background:rgba(74,222,128,.10);border:1px solid rgba(74,222,128,.3);font-size:.92rem}
+  /* ---- Joylashuv tartibi: tugmalar teng kenglikda, bo'limlar bir xil oraliqda ---- */
+  .field{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;align-items:stretch}
+  .field>.input,.field>textarea{grid-column:1/-1}
+  .field>.btn{width:100%;min-width:0;white-space:normal;text-align:center;line-height:1.25;padding:10px 8px}
+  .sub-h{font-family:Rajdhani,"Apple Color Emoji","Noto Color Emoji",sans-serif;font-weight:700;font-size:.8rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin:16px 0 8px}
+  .sub-h:first-of-type{margin-top:8px}
+  .tabs{scroll-snap-type:x proximity;scroll-padding:0 12px}
+  .tab{flex:0 0 auto;scroll-snap-align:center}
+  #app{padding-bottom:48px}
+  .lb-row b{white-space:nowrap;flex-shrink:0}
+  .lb-row .lb-name{min-width:0}
+  #sndBtn{left:12px!important;right:auto!important;bottom:12px!important;top:auto!important;width:40px!important;height:40px!important}
+.mf-code{font-size:34px;font-weight:800;letter-spacing:6px;text-align:center;padding:10px 6px;border-radius:14px;background:rgba(255,255,255,.08);user-select:all}
+.mf-timer{font-weight:800;color:#ffd166;margin-left:6px}
+.mf-chat{max-height:240px;overflow:auto;padding:4px 2px;margin-bottom:8px}
+.mf-chat .m{padding:5px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:14px}
+.mf-chat .m b{color:#ffd166}
+.mf-log{font-size:13px;line-height:1.5;max-height:200px;overflow:auto}
 </style>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
@@ -311,6 +333,7 @@
       <button class="tab" data-screen="home" data-act="go:home"><i class="ic">🏠</i> <span data-i18n="home">Bosh</span></button>
       <button class="tab" data-screen="cafe" data-act="go:cafe"><i class="ic">🍴</i> <span data-i18n="cafe">Kafe</span></button>
       <button class="tab" data-screen="lb" data-act="go:lb"><i class="ic">🏆</i> <span data-i18n="lb">Reyting</span></button>
+      <button class="tab" data-screen="mf" data-act="go:mf"><i class="ic">🕵️</i> <span>Mafia</span></button>
       <button class="tab" data-screen="club" data-act="go:club"><i class="ic">🎮</i> <span data-i18n="club">Club</span></button>
       <button class="tab" data-screen="help" data-act="go:help"><i class="ic">❓</i> <span data-i18n="help">Qoidalar</span></button>
       <button class="tab" data-screen="acc" data-act="go:acc"><i class="ic">👤</i> <span data-i18n="acc">Hisob</span></button>
@@ -775,8 +798,10 @@ function toast(text, kind) {
   sfx(kind === "good" ? "good" : kind === "bad" ? "bad" : "info");
   const box = document.getElementById("toasts");
   if (!box) return;
+  for (const n of [...box.children]) if (n.dataset.msg === String(text) || box.children.length >= 3) n.remove();  // takror va ortiqcha xabarlarni olib tashlaydi
   const el = document.createElement("div");
   el.className = "toast " + (kind || "info");
+  el.dataset.msg = String(text);
   el.textContent = text;
   box.appendChild(el);
   setTimeout(() => el.remove(), 3800);
@@ -1295,6 +1320,7 @@ function runWheel(game) {
     if (act) act.innerHTML = `<p class="hint">Keyingi aylantirish ${CFG.SPIN_H} soatdan keyin</p><button class="btn btn-gold btn-block" id="wheelClose">Yopish</button>`;
     if (prize.jackpot) SFX.good(); else SFX.info();
     haptic("success");
+    if (prize.jackpot) confetti();
     render();
   };
   const step = (now) => {
@@ -1551,7 +1577,7 @@ function migrateState() {
 function notifyAch(list) {
   if (!list || !list.length) return;
   const reward = list.reduce((s, a) => s + a[4], 0);
-  toast("🏅 Yangi yutuq: " + list.map((a) => a[2]).join(", ") + ` (+${fmt(reward)})`, "good");
+  confetti(); toast("🏅 Yangi yutuq: " + list.map((a) => a[2]).join(", ") + ` (+${fmt(reward)})`, "good");
 }
 
 /* ===================== CLUB: VAZIFALAR VA YUTUQLAR ===================== */
@@ -1858,7 +1884,7 @@ function clubDepositOut() {
 function notifyClubAch(list) {
   if (!list || !list.length) return;
   const reward = list.reduce((s, a) => s + a[4], 0);
-  toast("🏅 Club: yangi yutuq: " + list.map((a) => a[2]).join(", ") + ` (+${fmt(reward)})`, "good");
+  confetti(); toast("🏅 Club: yangi yutuq: " + list.map((a) => a[2]).join(", ") + ` (+${fmt(reward)})`, "good");
 }
 
 /* ===================== EKRANLAR: YORDAMCHILAR ===================== */
@@ -1971,7 +1997,7 @@ function cafeUpgView() {
     const right = lv >= u.max ? '<span class="chip ok">MAX</span>' : btn(`+1 · ${fmt(upgradePrice(key, lv))}`, "buy:" + key, { small: true });
     h += row(u.e, `${u.n} <span class="lv">${lv}/${u.max}</span>`, u.info, right);
   }
-  if (p.staff > 0) h += row("➖", "Xodimni bo'shatish", "Pul qaytmaydi", btn("Bo'shatish", "fire", { small: true }));
+  if (p.staff > 0) h += row("➖", "Xodimni bo'shatish", "Pul qaytmaydi", btn("👋 Bo'shatish", "fire", { small: true }));
   h += "</section>";
 
   h += `<section class="panel"><h3><i class="ic">🏷️</i> Narx siyosati</h3>
@@ -1998,7 +2024,7 @@ function cafeMenuView() {
     const right = owned ? '<span class="chip ok">Menyuda</span>' : btn(fmt(d.price), "dish:" + d.k, { small: true });
     h += row(d.e, d.n, sub, right);
     if (owned) {
-      h += `<div class="pr-ed"><input class="input" type="number" inputmode="numeric" data-draft="pr_${d.k}" placeholder="Narx: ${fmt(sell)}" value="${esc(ui.draft["pr_" + d.k] || "")}"/>${btn("Saqlash", "dprice:" + d.k, { small: true })}
+      h += `<div class="pr-ed"><input class="input" type="number" inputmode="numeric" data-draft="pr_${d.k}" placeholder="Narx: ${fmt(sell)}" value="${esc(ui.draft["pr_" + d.k] || "")}"/>${btn("💾 Saqlash", "dprice:" + d.k, { small: true })}
         <div class="pr-lim">Asl narx ${fmt(d.sell)} · limit ${fmt(priceLimit(d.k))} (undan oshsa, narx qo'yilganda har 3 000 so'mga 50 000 jarima bir marta)</div></div>`;
     }
   }
@@ -2020,7 +2046,7 @@ function loansBlock() {
     ${errLine("loan")}
     ${btn("🏦 Kredit olish", "loan:take", { cls: "btn-gold", block: true, dis: act.length >= CFG.LOAN_MAX_ACTIVE })}`;
   for (const l of act) {
-    const right = `<div class="head-kv">${btn("Yarmi", "loan:half:" + l.id, { small: true })}${btn("Hammasi", "loan:all:" + l.id, { small: true, cls: "btn-teal" })}</div>`;
+    const right = `<div class="head-kv">${btn("🌓 Yarmi", "loan:half:" + l.id, { small: true })}${btn("💯 Hammasi", "loan:all:" + l.id, { small: true, cls: "btn-teal" })}</div>`;
     h += row("📄", `Kredit #${l.id} · ${fmt(l.amount)}`,
       `Qaytarish: ${fmt(loanLeft(l))} · muddati: ${until(l.due)}`, right);
   }
@@ -2035,7 +2061,7 @@ function loansBlock() {
 function promoBlock(game) {
   return `<h3 class="mt"><i class="ic">🎫</i> Promokod</h3>
     <div class="field"><input class="input ${errClass("promo")}" data-draft="promo" placeholder="Masalan: START"
-      value="${esc(ui.draft.promo || "")}" maxlength="20" autocomplete="off" />${btn("Qo'llash", "promo:" + game, { cls: "btn-teal" })}</div>
+      value="${esc(ui.draft.promo || "")}" maxlength="20" autocomplete="off" />${btn("✔️ Qo'llash", "promo:" + game, { cls: "btn-teal" })}</div>
     ${errLine("promo")}
     <p class="hint">Har promokod bir marta ishlaydi. Kafe va club uchun promokodlar alohida.</p>`;
 }
@@ -2657,6 +2683,7 @@ function viewOwner() {
     <h3>🎮 Club balansi: ${fmt(S.club.money)}</h3>
     ${bal("k", "🎮")}
     ${banAdminBlock()}
+    ${ownerPlayersBlock()}
     <h3>🎫 Promokod yaratish</h3>
     <div class="field"><input class="input" data-draft="ownCode" placeholder="Kod (masalan: SALE2026)" value="${esc(d.ownCode || "")}"></div>
     <div class="field"><input class="input" type="number" inputmode="numeric" data-draft="ownReward" placeholder="Mukofot (masalan: 500000)" value="${esc(d.ownReward || "")}"></div>
@@ -2668,6 +2695,12 @@ function viewOwner() {
 async function ownerAct(a, b) {
   if (!isOwner()) return;
   if (a === "ban") return ownerBan(b);
+  if (a === "quick") { ui.draft.ownBanLogin = b; return ownerBan("add"); }
+  if (a === "list") {
+    if (b === "load") { ui.ownPage = 0; return ownerLoadAll(); }
+    ui.ownPage = Math.max(0, (ui.ownPage || 0) + (b === "next" ? 1 : -1));
+    return;
+  }
   if (a === "cadd" || a === "kadd") {
     const n = Number(b) || 0;
     if (a === "cadd") S.cafe.money += n; else S.club.money += n;
@@ -2741,6 +2774,649 @@ function viewHelp() {
 }
 
 /* ===================== RENDER VA JONLI YANGILASH ===================== */
+/* ===================== MAFIA (jonli, haqiqiy o'yinchilar, Firebase) ===================== */
+// Ma'lumot tuzilishi (Firebase Realtime DB):
+//   mafia/rooms/<KOD>        — xona: host, phase, day, ends, players, night, votes, log, winner, reveal, gen
+//   mafia/priv/<KOD>/<uid>   — shaxsiy: role, mates, checks (faqat o'sha o'yinchi o'qiy oladi)
+//   mafia/chat/<KOD>/<id>    — chat xabarlari
+// Host (xona yaratuvchisi) rollarni tarqatadi va fazalarni o'zi almashtiradi.
+const MF_MIN = 4, MF_MAX = 14;
+const MF_TIME = { night: 45, day: 90, vote: 40 };  // soniya
+const MF_REWARD = 100000, MF_DAILY_CAP = 3;
+const MF_CODE_CH = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+const MF_KEY = NS + "mafia-v1";
+const MF = { code: null, room: null, role: null, mates: [], checks: {}, gen: null, roles: null, chat: [], sig: "", poll: null, busy: false, err: "", seenAt: 0 };
+
+/* ---- Matnlar (3 til) ---- */
+const MFROLE = {
+  uz: {
+    mafia: { n: "🔪 Mafiya", d: "Tunda birgalikda bitta o'yinchini o'ldirasiz. Kunduzi o'zingizni tinch aholidek tutasiz." },
+    doctor: { n: "💉 Doktor", d: "Tunda bitta o'yinchini davolaysiz (o'zingizni ham). Davolangan o'sha tun o'lmaydi." },
+    detective: { n: "🔎 Tergovchi", d: "Tunda bitta o'yinchini tekshirasiz va uning rolini bilib olasiz." },
+    civ: { n: "🙂 Tinch aholi", d: "Maxsus kuchingiz yo'q. Muhokama va ovoz berish orqali mafiyani toping." },
+  },
+  ru: {
+    mafia: { n: "🔪 Мафия", d: "Ночью вместе с сообщниками убиваете одного игрока. Днём притворяетесь мирным жителем." },
+    doctor: { n: "💉 Доктор", d: "Ночью лечите одного игрока (можно себя). Вылеченный в эту ночь не погибнет." },
+    detective: { n: "🔎 Следователь", d: "Ночью проверяете одного игрока и узнаёте его роль." },
+    civ: { n: "🙂 Мирный житель", d: "Особых способностей нет. Находите мафию через обсуждение и голосование." },
+  },
+  en: {
+    mafia: { n: "🔪 Mafia", d: "At night, together with your teammates, you kill one player. By day, pretend to be a civilian." },
+    doctor: { n: "💉 Doctor", d: "At night, heal one player (you can heal yourself). The healed player survives that night." },
+    detective: { n: "🔎 Detective", d: "At night, check one player and learn their role." },
+    civ: { n: "🙂 Civilian", d: "You have no special power. Find the mafia through discussion and voting." },
+  },
+};
+const MFT = {
+  uz: {
+    title: "🕵️ Mafia", needAcc: "O'ynash uchun avval 👤 Hisob bo'limida ro'yxatdan o'ting.",
+    intro: (a, b) => `${a}–${b} ta haqiqiy o'yinchi bilan. Tunda mafiya o'ldiradi, kunduzi shubhalanib ovoz berasiz.`,
+    newRoom: "🆕 Yangi xona", newHint: "Xona yarating va kodni do'stlaringizga yuboring.", createBtn: "🕵️ Xona yaratish",
+    joinRoom: "🚪 Xonaga kirish", codePh: "Xona kodi (6 belgi)", joinBtn: "➡️ Kirish", loading: "⏳ Xona yuklanmoqda...",
+    codeLabel: "Xona kodi", copyBtn: "📋 Nusxalash", copied: "📋 Kod nusxalandi", copyFail: (c) => `Kodni qo'lda nusxalang: ${c}`,
+    phase: { lobby: "⏳ Kutish zali", night: "🌙 Tun", day: "☀️ Kun: muhokama", vote: "🗳️ Ovoz berish", over: "🏁 O'yin tugadi" },
+    dayN: (d) => `${d}-kun`, players: (n, m) => `👥 O'yinchilar (${n}/${m})`, alive: (a, n) => `👥 Tirik: ${a} / ${n}`,
+    you: "(siz)", roleTitle: (r) => `🎭 Sizning rolingiz: ${r}`, mates: (s) => `Sheriklaringiz: ${s}`,
+    check: (d, n, r) => `🔎 ${d}-kun: ${n} — ${r}`, noChecks: "Hali tekshiruv yo'q", action: "🎯 Harakat",
+    hostHint: (n, m) => `Hozir ${n}/${MF_MAX} o'yinchi. Boshlash uchun kamida ${m} ta kerak.`, startBtn: "▶️ O'yinni boshlash", addBot: "🤖 Bot qo'shish", removeBots: "🧹 Botlarni olib tashlash", botName: (n) => `🤖 Bot ${n}`,
+    onlineTitle: "🌐 Onlayn o'yin", onlineHint: "Do'stlaringiz bilan xona kodi orqali o'ynang.", botTitle: "🤖 Botlar bilan o'yin", botHint: "Do'stlar kerak emas: botlar bilan o'zingiz o'ynang.", botBtn: "🤖 Botlar bilan boshlash", modeOnline: "🌐 Onlayn xona", modeBot: "🤖 Botlar bilan xona",
+    waitHost: "⏳ Xost o'yinni boshlashini kuting...", dead: "💀 Siz o'lgansiz. Kuzatishda davom eting.",
+    deadDay: "💀 Siz o'lgansiz. Faqat kuzatish mumkin.", nightNone: "😴 Tun. Maxsus rolingiz yo'q, kuting...",
+    act: { kill: "🔪 O'ldirish", save: "💉 Davolash", check: "🔎 Tekshirish" }, pick: (l) => `${l} uchun o'yinchini tanlang:`,
+    dayHint: "🗣️ Muhokama qiling. Shubhali o'yinchini aniqlang, ovoz berish keyin boshlanadi.",
+    voteHint: "Chiqarmoqchi bo'lgan o'yinchini tanlang:", nobody: "🤷 Hech kim",
+    winMafia: "🔪 Mafiya g'alaba qozondi!", winCiv: "🙂 Tinch aholi g'alaba qozondi!", newGame: "🔁 Yangi o'yin",
+    leave: "🚪 Xonadan chiqish", chat: "💬 Chat", chatPh: "Xabar yozing...", send: "📤 Yuborish", noMsg: "Hali xabar yo'q",
+    logT: "📜 Jurnal", noLog: "Hali voqea yo'q", lastRole: "Rol",
+    log: {
+      start: "🎲 O'yin boshlandi!", kill: (d, n) => `💀 ${d}-tun: ${n} o'ldirildi`, saved: (d) => `💉 ${d}-tun: kimdir hujumdan omon qoldi!`,
+      quiet: (d) => `😴 ${d}-tun tinch o'tdi`, vote: (d, n, r) => `🗳️ ${d}-kun: ${n} chiqarildi (${r})`, novote: (d) => `🗳️ ${d}-kun: ovozlar yetarli emas, hech kim chiqarilmadi`,
+    },
+    err: {
+      codeLen: "Xona kodi 6 belgidan iborat bo'lishi kerak", botRoom: "Bu xona botlar bilan o'yin uchun, unga kirish mumkin emas", notFound: "Bunday xona topilmadi", started: "O'yin allaqachon boshlangan",
+      full: (m) => `Xona to'lgan (${m}/${m})`, createFail: "Xona yaratilmadi. Qayta urinib ko'ring.", net: "Xonaga ulanib bo'lmadi. Internetni tekshiring.",
+      startCount: (n, a, b) => `O'yinchilar soni ${a} dan ${b} gacha bo'lishi kerak (hozir: ${n})`, startFail: "O'yinni boshlab bo'lmadi. Qayta urinib ko'ring.",
+      newFail: "Yangi o'yin ochilmadi", save: "Tanlov saqlanmadi", voteFail: "Ovoz saqlanmadi", kicked: "Siz bu xonadan chiqarilgansiz",
+      closed: "Xona yopildi yoki topilmadi", chatOff: "🤐 Hozir yozish mumkin emas", chatFail: "Xabar yuborilmadi", self: "🙅 O'zingizni tanlay olmaysiz",
+      noRoles: "Rollar topilmadi: bu qurilmada xost ma'lumoti yo'q", kicked2: "Siz o'yinda emassiz",
+    },
+    reward: (s) => `🏆 G'alaba! +${s}`, rewardCap: (c) => `🏆 G'alaba! Bugungi mukofot limiti (${c}) tugagan`,
+    needAcc2: "Avval hisob yarating: 👤 Hisob bo'limi",
+  },
+  ru: {
+    title: "🕵️ Мафия", needAcc: "Чтобы играть, сначала зарегистрируйтесь в разделе 👤 Аккаунт.",
+    intro: (a, b) => `Для ${a}–${b} живых игроков. Ночью мафия убивает, днём вы голосуете, подозревая друг друга.`,
+    newRoom: "🆕 Новая комната", newHint: "Создайте комнату и отправьте код друзьям.", createBtn: "🕵️ Создать комнату",
+    joinRoom: "🚪 Войти в комнату", codePh: "Код комнаты (6 символов)", joinBtn: "➡️ Войти", loading: "⏳ Загрузка комнаты...",
+    codeLabel: "Код комнаты", copyBtn: "📋 Копировать", copied: "📋 Код скопирован", copyFail: (c) => `Скопируйте код вручную: ${c}`,
+    phase: { lobby: "⏳ Ожидание", night: "🌙 Ночь", day: "☀️ День: обсуждение", vote: "🗳️ Голосование", over: "🏁 Игра окончена" },
+    dayN: (d) => `День ${d}`, players: (n, m) => `👥 Игроки (${n}/${m})`, alive: (a, n) => `👥 Живых: ${a} / ${n}`,
+    you: "(вы)", roleTitle: (r) => `🎭 Ваша роль: ${r}`, mates: (s) => `Ваши сообщники: ${s}`,
+    check: (d, n, r) => `🔎 День ${d}: ${n} — ${r}`, noChecks: "Пока проверок нет", action: "🎯 Действие",
+    hostHint: (n, m) => `Сейчас игроков: ${n}/${MF_MAX}. Для старта нужно минимум ${m}.`, startBtn: "▶️ Начать игру", addBot: "🤖 Добавить бота", removeBots: "🧹 Убрать ботов", botName: (n) => `🤖 Бот ${n}`,
+    onlineTitle: "🌐 Онлайн-игра", onlineHint: "Играйте с друзьями по коду комнаты.", botTitle: "🤖 Игра с ботами", botHint: "Друзья не нужны: играйте против ботов.", botBtn: "🤖 Начать с ботами", modeOnline: "🌐 Онлайн-комната", modeBot: "🤖 Комната с ботами",
+    waitHost: "⏳ Ждите, пока хост начнёт игру...", dead: "💀 Вы выбыли. Продолжайте наблюдать.",
+    deadDay: "💀 Вы выбыли. Можно только наблюдать.", nightNone: "😴 Ночь. У вас нет особой роли, ждите...",
+    act: { kill: "🔪 Убийство", save: "💉 Лечение", check: "🔎 Проверка" }, pick: (l) => `${l}: выберите игрока:`,
+    dayHint: "🗣️ Обсуждайте. Найдите подозрительного игрока, голосование начнётся позже.",
+    voteHint: "Выберите игрока для исключения:", nobody: "🤷 Никто",
+    winMafia: "🔪 Мафия победила!", winCiv: "🙂 Мирные жители победили!", newGame: "🔁 Новая игра",
+    leave: "🚪 Выйти из комнаты", chat: "💬 Чат", chatPh: "Напишите сообщение...", send: "📤 Отправить", noMsg: "Сообщений пока нет",
+    logT: "📜 Журнал", noLog: "Событий пока нет", lastRole: "Роль",
+    log: {
+      start: "🎲 Игра началась!", kill: (d, n) => `💀 Ночь ${d}: ${n} убит`, saved: (d) => `💉 Ночь ${d}: кто-то выжил после нападения!`,
+      quiet: (d) => `😴 Ночь ${d} прошла спокойно`, vote: (d, n, r) => `🗳️ День ${d}: ${n} исключён (${r})`, novote: (d) => `🗳️ День ${d}: голосов недостаточно, никто не исключён`,
+    },
+    err: {
+      codeLen: "Код комнаты должен состоять из 6 символов", botRoom: "Эта комната для игры с ботами, войти в неё нельзя", notFound: "Комната не найдена", started: "Игра уже началась",
+      full: (m) => `Комната заполнена (${m}/${m})`, createFail: "Комната не создана. Попробуйте ещё раз.", net: "Не удалось подключиться к комнате. Проверьте интернет.",
+      startCount: (n, a, b) => `Игроков должно быть от ${a} до ${b} (сейчас: ${n})`, startFail: "Не удалось начать игру. Попробуйте ещё раз.",
+      newFail: "Новая игра не открылась", save: "Выбор не сохранён", voteFail: "Голос не сохранён", kicked: "Вас исключили из этой комнаты",
+      closed: "Комната закрыта или не найдена", chatOff: "🤐 Сейчас писать нельзя", chatFail: "Сообщение не отправлено", self: "🙅 Нельзя выбрать себя",
+      noRoles: "Роли не найдены: на этом устройстве нет данных ведущего", kicked2: "Вы не участвуете в игре",
+    },
+    reward: (s) => `🏆 Победа! +${s}`, rewardCap: (c) => `🏆 Победа! Дневной лимит наград (${c}) исчерпан`,
+    needAcc2: "Сначала создайте аккаунт: 👤 Аккаунт",
+  },
+  en: {
+    title: "🕵️ Mafia", needAcc: "To play, first register in the 👤 Account section.",
+    intro: (a, b) => `For ${a}–${b} real players. At night the mafia kills; by day you vote on who you suspect.`,
+    newRoom: "🆕 New room", newHint: "Create a room and send the code to your friends.", createBtn: "🕵️ Create room",
+    joinRoom: "🚪 Join a room", codePh: "Room code (6 characters)", joinBtn: "➡️ Join", loading: "⏳ Loading room...",
+    codeLabel: "Room code", copyBtn: "📋 Copy", copied: "📋 Code copied", copyFail: (c) => `Copy the code manually: ${c}`,
+    phase: { lobby: "⏳ Lobby", night: "🌙 Night", day: "☀️ Day: discussion", vote: "🗳️ Voting", over: "🏁 Game over" },
+    dayN: (d) => `Day ${d}`, players: (n, m) => `👥 Players (${n}/${m})`, alive: (a, n) => `👥 Alive: ${a} / ${n}`,
+    you: "(you)", roleTitle: (r) => `🎭 Your role: ${r}`, mates: (s) => `Your teammates: ${s}`,
+    check: (d, n, r) => `🔎 Day ${d}: ${n} — ${r}`, noChecks: "No checks yet", action: "🎯 Action",
+    hostHint: (n, m) => `Players now: ${n}/${MF_MAX}. At least ${m} are needed to start.`, startBtn: "▶️ Start game", addBot: "🤖 Add bot", removeBots: "🧹 Remove bots", botName: (n) => `🤖 Bot ${n}`,
+    onlineTitle: "🌐 Online game", onlineHint: "Play with friends using a room code.", botTitle: "🤖 Play with bots", botHint: "No friends needed: play against bots.", botBtn: "🤖 Start with bots", modeOnline: "🌐 Online room", modeBot: "🤖 Room with bots",
+    waitHost: "⏳ Wait for the host to start the game...", dead: "💀 You are out. Keep watching.",
+    deadDay: "💀 You are out. You can only watch.", nightNone: "😴 Night. You have no special role, wait...",
+    act: { kill: "🔪 Kill", save: "💉 Heal", check: "🔎 Check" }, pick: (l) => `${l}: choose a player:`,
+    dayHint: "🗣️ Discuss. Find the suspicious player; voting starts later.",
+    voteHint: "Choose a player to eliminate:", nobody: "🤷 Nobody",
+    winMafia: "🔪 The mafia wins!", winCiv: "🙂 Civilians win!", newGame: "🔁 New game",
+    leave: "🚪 Leave room", chat: "💬 Chat", chatPh: "Type a message...", send: "📤 Send", noMsg: "No messages yet",
+    logT: "📜 Log", noLog: "No events yet", lastRole: "Role",
+    log: {
+      start: "🎲 Game started!", kill: (d, n) => `💀 Night ${d}: ${n} was killed`, saved: (d) => `💉 Night ${d}: someone survived the attack!`,
+      quiet: (d) => `😴 Night ${d} passed quietly`, vote: (d, n, r) => `🗳️ Day ${d}: ${n} was eliminated (${r})`, novote: (d) => `🗳️ Day ${d}: not enough votes, nobody was eliminated`,
+    },
+    err: {
+      codeLen: "The room code must be 6 characters", botRoom: "This room is for playing with bots; you cannot join it", notFound: "Room not found", started: "The game has already started",
+      full: (m) => `Room is full (${m}/${m})`, createFail: "Room was not created. Try again.", net: "Could not connect to the room. Check your internet.",
+      startCount: (n, a, b) => `Players must be between ${a} and ${b} (now: ${n})`, startFail: "Could not start the game. Try again.",
+      newFail: "Could not open a new game", save: "Choice was not saved", voteFail: "Vote was not saved", kicked: "You were removed from this room",
+      closed: "The room was closed or not found", chatOff: "🤐 You cannot write right now", chatFail: "Message was not sent", self: "🙅 You cannot choose yourself",
+      noRoles: "Roles not found: this device has no host data", kicked2: "You are not in this game",
+    },
+    reward: (s) => `🏆 Victory! +${s}`, rewardCap: (c) => `🏆 Victory! Today's reward limit (${c}) is reached`,
+    needAcc2: "Create an account first: 👤 Account",
+  },
+};
+const mtL = () => (MFT[LANG] ? LANG : "uz");
+const mt = (k, ...a) => { const v = MFT[mtL()][k]; return typeof v === "function" ? v(...a) : v; };
+const mtE = (k, ...a) => { const d = MFT[mtL()].err; const v = d[k]; return typeof v === "function" ? v(...a) : v; };
+const mfRole = (r) => (MFROLE[mtL()][r] || MFROLE.uz.civ);
+function mfLogText(e) {
+  const L = MFT[mtL()].log;
+  if (e.k === "start") return L.start;
+  if (e.k === "kill") return L.kill(e.d, e.n);
+  if (e.k === "saved") return L.saved(e.d);
+  if (e.k === "quiet") return L.quiet(e.d);
+  if (e.k === "vote") return L.vote(e.d, e.n, mfRole(e.r).n);
+  if (e.k === "novote") return L.novote(e.d);
+  return "";
+}
+
+function mfUid() { return FB_AUTH && FB_AUTH.uid ? FB_AUTH.uid : null; }
+function mfIsHost() { return !!MF.room && MF.room.host === mfUid(); }
+function mfMyName() { const a = loadAccount(); return String((S.cafe && S.cafe.cname) || (a && a.login) || "O'yinchi").slice(0, 20); }
+function mfNameOf(id) { const p = MF.room && MF.room.players && MF.room.players[id]; return p ? p.name : "?"; }
+function mfErr(msg) { MF.err = msg; render(); }
+function mfBotPick(role, self, alive, roles) {
+  const pick = (arr) => (arr.length ? arr[Math.floor(Math.random() * arr.length)] : null);
+  if (role === "mafia") return pick(alive.filter((id) => id !== self && roles[id] !== "mafia"));
+  if (role === "doctor") return pick(alive);
+  if (role === "detective") return pick(alive.filter((id) => id !== self));
+  return null;
+}
+async function mfAddBot() {
+  const room = MF.room;
+  if (!mfIsHost() || !room || room.phase !== "lobby" || room.mode !== "bot") return;
+  const players = room.players || {};
+  if (Object.keys(players).length >= MF_MAX) return mfErr(mtE("full", MF_MAX));
+  const n = Object.keys(players).filter((id) => players[id].bot).length + 1;
+  const id = "bot" + Math.random().toString(36).slice(2, 8);
+  try {
+    await mfPut(`rooms/${MF.code}/players/${id}`, { name: mt("botName", n), alive: true, bot: true });
+    await mfRefresh(true);
+  } catch (e) { mfErr(mtE("net")); }
+}
+async function mfRemoveBots() {
+  const room = MF.room;
+  if (!mfIsHost() || !room || room.phase !== "lobby" || room.mode !== "bot") return;
+  const upd = {};
+  Object.keys(room.players || {}).forEach((id) => { if (room.players[id].bot) upd[`players/${id}`] = null; });
+  if (!Object.keys(upd).length) return;
+  try { await mfPatch(`rooms/${MF.code}`, upd); await mfRefresh(true); } catch (e) { mfErr(mtE("net")); }
+}
+
+function mfShuffle(a) { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+// n o'yinchi uchun rollar: mafiya = max(1, n/4), doktor, tergovchi (5+), qolganlari tinch aholi
+function mfRoles(n) {
+  const out = [];
+  for (let i = 0; i < Math.max(1, Math.floor(n / 4)); i++) out.push("mafia");
+  out.push("doctor");
+  if (n >= 5) out.push("detective");
+  while (out.length < n) out.push("civ");
+  return out;
+}
+function mfSaveLocal() { try { localStorage.setItem(MF_KEY, JSON.stringify({ code: MF.code })); } catch (e) { /* xotira yopiq */ } }
+function mfClearLocal() { try { localStorage.removeItem(MF_KEY); } catch (e) { /* ignore */ } }
+function mfHostKey(code) { return NS + "mafia-host-" + code; }
+
+async function mfReq(method, p, body, q) {
+  await fbEnsure();
+  const o = { method: method || "GET" };
+  if (body !== undefined) o.body = JSON.stringify(body);
+  const r = await fetchT(fbUrl("/mafia/" + p + ".json" + (q ? "?" + q : "")), o);
+  if (!r.ok) throw new Error("HTTP " + r.status);
+  return r.status === 204 ? null : r.json();
+}
+const mfGet = (p, q) => mfReq("GET", p, undefined, q);
+const mfPut = (p, b) => mfReq("PUT", p, b);
+const mfPatch = (p, b) => mfReq("PATCH", p, b);
+const mfPost = (p, b) => mfReq("POST", p, b);
+const mfDel = (p) => mfReq("DELETE", p);
+
+async function mfLog(e) {
+  try { await mfPost(`rooms/${MF.code}/log`, Object.assign({ ts: Date.now() }, e)); } catch (err) { /* jurnal yozilmasa ham o'yin davom etadi */ }
+}
+
+function mfForget(msg) {
+  MF.code = null; MF.room = null; MF.role = null; MF.mates = []; MF.checks = {}; MF.gen = null; MF.roles = null; MF.chat = []; MF.sig = "";
+  mfClearLocal();
+  MF.err = msg || "";
+  render();
+}
+
+async function mfCreate(mode) {
+  const uid = mfUid();
+  if (!uid) return mfErr(mt("needAcc2"));
+  const code = Array.from({ length: 6 }, () => MF_CODE_CH[Math.floor(Math.random() * MF_CODE_CH.length)]).join("");
+  const players = { [uid]: { name: mfMyName(), alive: true, seen: Date.now() } };
+  if (mode === "bot") for (let k = 1; k <= 3; k++) players["bot" + Math.random().toString(36).slice(2, 8)] = { name: mt("botName", k), alive: true, bot: true };
+  try {
+    await mfPut(`rooms/${code}`, { host: uid, mode: mode || "online", phase: "lobby", day: 0, ends: 0, players });
+    MF.code = code; MF.err = ""; mfSaveLocal();
+    await mfRefresh(true);
+  } catch (e) { mfErr(mtE("createFail")); }
+}
+
+async function mfJoin(raw) {
+  const uid = mfUid();
+  if (!uid) return mfErr(mt("needAcc2"));
+  const code = String(raw || "").toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 6);
+  if (code.length !== 6) return mfErr(mtE("codeLen"));
+  try {
+    const room = await mfGet(`rooms/${code}`);
+    if (!room) return mfErr(mtE("notFound"));
+    const players = room.players || {};
+    if (!players[uid]) {
+      if (room.mode === "bot") return mfErr(mtE("botRoom"));
+      if (room.phase !== "lobby") return mfErr(mtE("started"));
+      if (Object.keys(players).length >= MF_MAX) return mfErr(mtE("full", MF_MAX));
+      await mfPut(`rooms/${code}/players/${uid}`, { name: mfMyName(), alive: true, seen: Date.now() });
+    }
+    MF.code = code; MF.err = ""; mfSaveLocal(); ui.draft.mfCode = "";
+    await mfRefresh(true);
+  } catch (e) { mfErr(mtE("net")); }
+}
+
+async function mfLeave() {
+  const uid = mfUid(), code = MF.code, room = MF.room;
+  try {
+    if (code && room) {
+      if (room.phase === "lobby") {
+        if (room.host === uid) await mfDel(`rooms/${code}`); else await mfDel(`rooms/${code}/players/${uid}`);
+      } else if (room.phase !== "over") {
+        await mfPatch(`rooms/${code}/players/${uid}`, { alive: false });  // o'yin davom etadi, siz o'lgan hisoblanasiz
+      }
+    }
+  } catch (e) { /* ulanish yo'q bo'lsa ham mahalliy holat tozalanadi */ }
+  try { if (code) localStorage.removeItem(mfHostKey(code)); } catch (e) { /* ignore */ }
+  mfForget("");
+}
+
+async function mfStart() {
+  if (!mfIsHost() || !MF.room) return;
+  const ids = Object.keys(MF.room.players || {});
+  if (ids.length < MF_MIN || ids.length > MF_MAX) return mfErr(mtE("startCount", ids.length, MF_MIN, MF_MAX));
+  try {
+    const order = mfShuffle(ids), roleList = mfShuffle(mfRoles(ids.length));
+    const roles = {};
+    order.forEach((id, i) => { roles[id] = roleList[i]; });
+    const mafiaIds = order.filter((id) => roles[id] === "mafia");
+    const gen = Date.now();
+    await Promise.all(order.filter((id) => !MF.room.players[id].bot).map((id) => mfPut(`priv/${MF.code}/${id}`, { role: roles[id], mates: roles[id] === "mafia" ? mafiaIds.filter((x) => x !== id) : [] })));
+    MF.roles = roles;
+    try { localStorage.setItem(mfHostKey(MF.code), JSON.stringify(roles)); } catch (e) { /* ignore */ }
+    const patch = { phase: "night", day: 1, ends: Date.now() + MF_TIME.night * 1000, gen, winner: null, reveal: null, night: null, votes: null, log: null };
+    ids.forEach((id) => { patch[`players/${id}/alive`] = true; });
+    await mfPatch(`rooms/${MF.code}`, patch);
+    await mfLog({ k: "start" });
+    await mfRefresh(true);
+  } catch (e) { mfErr(mtE("startFail")); }
+}
+
+async function mfAgain() {
+  if (!mfIsHost()) return;
+  try {
+    await mfPatch(`rooms/${MF.code}`, { phase: "lobby", day: 0, ends: 0, winner: null, reveal: null, night: null, votes: null, log: null });
+    await mfRefresh(true);
+  } catch (e) { mfErr(mtE("newFail")); }
+}
+
+async function mfNight(t) {
+  const uid = mfUid(), room = MF.room;
+  if (!room || room.phase !== "night" || !MF.role) return;
+  const me = (room.players || {})[uid];
+  if (!me || me.alive !== true) return;
+  const act = MF.role === "mafia" ? "kill" : MF.role === "doctor" ? "save" : MF.role === "detective" ? "check" : null;
+  if (!act) return;
+  if (!(room.players[t] && room.players[t].alive === true)) return;
+  if (act !== "save" && t === uid) return toast(mtE("self"), "bad");
+  try {
+    await mfPut(`rooms/${MF.code}/night/${uid}`, { act, t });
+    await mfRefresh(true);
+  } catch (e) { mfErr(mtE("save")); }
+}
+
+async function mfVote(t) {
+  const uid = mfUid(), room = MF.room;
+  if (!room || room.phase !== "vote") return;
+  const me = (room.players || {})[uid];
+  if (!me || me.alive !== true) return;
+  if (t !== "skip" && (t === uid || !(room.players[t] && room.players[t].alive === true))) return;
+  try {
+    await mfPut(`rooms/${MF.code}/votes/${uid}`, t);
+    await mfRefresh(true);
+  } catch (e) { mfErr(mtE("voteFail")); }
+}
+
+async function mfChat() {
+  const uid = mfUid(), room = MF.room;
+  const text = String(ui.draft.mfChat || "").trim().slice(0, 200);
+  if (!text || !room) return;
+  const me = (room.players || {})[uid] || {};
+  const canWrite = room.phase === "lobby" || room.phase === "over" || (room.phase === "day" || room.phase === "vote") && me.alive === true;
+  if (!canWrite) return toast(mtE("chatOff"), "info");
+  try {
+    await mfPost(`chat/${MF.code}`, { n: mfNameOf(uid), u: uid, m: text, ts: Date.now() });
+    ui.draft.mfChat = "";
+    await mfRefresh(true);
+  } catch (e) { toast(mtE("chatFail"), "bad"); }
+}
+
+/* ---- Host: fazalarni hisoblash ---- */
+async function mfHostStep(room) {
+  const now = Date.now(), code = MF.code, players = room.players || {};
+  const alive = Object.keys(players).filter((id) => players[id].alive === true);
+  if (room.phase === "night") {
+    if (!MF.roles) return mfErr(mtE("noRoles"));
+    const night = room.night || {};
+    const botActs = alive.filter((id) => players[id].bot && ["mafia", "doctor", "detective"].includes(MF.roles[id]) && !(night[id] && night[id].t));
+    if (botActs.length) {
+      const upd = {};
+      botActs.forEach((id) => {
+        const r = MF.roles[id];
+        const t = mfBotPick(r, id, alive, MF.roles);
+        if (t) upd[id] = { act: r === "mafia" ? "kill" : r === "doctor" ? "save" : "check", t };
+      });
+      if (Object.keys(upd).length) await mfPatch(`rooms/${code}/night`, upd);
+      return;
+    }
+    const need = alive.filter((id) => ["mafia", "doctor", "detective"].includes(MF.roles[id]));
+    const waiting = need.filter((id) => !(night[id] && night[id].t));
+    if (now < room.ends && waiting.length) return;
+    await mfResolveNight(room, alive);
+  } else if (room.phase === "day") {
+    if (now >= room.ends) await mfPatch(`rooms/${code}`, { phase: "vote", ends: now + MF_TIME.vote * 1000 });
+  } else if (room.phase === "vote") {
+    const votes = room.votes || {};
+    const botVotes = alive.filter((id) => players[id].bot && !votes[id]);
+    if (botVotes.length) {
+      const upd = {};
+      botVotes.forEach((id) => {
+        const cands = alive.filter((x) => x !== id);
+        upd[id] = !cands.length || Math.random() < 0.15 ? "skip" : cands[Math.floor(Math.random() * cands.length)];
+      });
+      await mfPatch(`rooms/${code}/votes`, upd);
+      return;
+    }
+    const waiting = alive.filter((id) => !votes[id]);
+    if (now < room.ends && waiting.length) return;
+    await mfResolveVote(room, alive);
+  }
+}
+
+function mfWinner(alive, roles) {
+  const mafiaAlive = alive.filter((id) => roles[id] === "mafia").length;
+  const others = alive.length - mafiaAlive;
+  if (mafiaAlive === 0) return "civ";
+  if (mafiaAlive >= others) return "mafia";
+  return null;
+}
+function mfRevealMap(room) {
+  const out = {};
+  Object.keys(room.players || {}).forEach((id) => { out[id] = MF.roles[id]; });
+  return out;
+}
+
+async function mfResolveNight(room, alive) {
+  const code = MF.code, roles = MF.roles, night = room.night || {}, day = room.day;
+  const count = {};
+  let saved = null, checkBy = null, checkT = null;
+  alive.forEach((id) => {
+    const x = night[id];
+    if (!x || !x.t) return;
+    if (roles[id] === "mafia" && x.act === "kill") count[x.t] = (count[x.t] || 0) + 1;
+    if (roles[id] === "doctor" && x.act === "save") saved = x.t;
+    if (roles[id] === "detective" && x.act === "check") { checkBy = id; checkT = x.t; }
+  });
+  let victim = null, best = 0;
+  Object.keys(count).forEach((t) => { if (count[t] > best) { best = count[t]; victim = t; } });
+  const killed = victim && victim !== saved && room.players[victim] && room.players[victim].alive === true ? victim : null;
+  const aliveAfter = alive.filter((id) => id !== killed);
+  const winner = mfWinner(aliveAfter, roles);
+  const patch = {};
+  if (killed) patch[`players/${killed}/alive`] = false;
+  if (winner) Object.assign(patch, { phase: "over", winner, ends: 0, reveal: mfRevealMap(room), night: null, votes: null });
+  else Object.assign(patch, { phase: "day", ends: Date.now() + MF_TIME.day * 1000, night: null, votes: null });
+  await mfPatch(`rooms/${code}`, patch);
+  if (checkBy && checkT) await mfPatch(`priv/${code}/${checkBy}/checks`, { [day]: { n: mfNameOf(checkT), r: roles[checkT] } });
+  await mfLog(killed ? { k: "kill", d: day, n: mfNameOf(killed) } : (victim ? { k: "saved", d: day } : { k: "quiet", d: day }));
+}
+
+async function mfResolveVote(room, alive) {
+  const code = MF.code, roles = MF.roles, votes = room.votes || {}, day = room.day;
+  const count = {};
+  alive.forEach((id) => { const v = votes[id]; if (v && v !== "skip") count[v] = (count[v] || 0) + 1; });
+  let top = null, best = 0, tie = false;
+  Object.keys(count).forEach((t) => {
+    if (count[t] > best) { best = count[t]; top = t; tie = false; } else if (count[t] === best) tie = true;
+  });
+  const out = top && !tie && best * 2 > alive.length ? top : null;  // chiqarish uchun yarimdan ko'p ovoz kerak
+  const aliveAfter = alive.filter((id) => id !== out);
+  const winner = mfWinner(aliveAfter, roles);
+  const patch = {};
+  if (out) patch[`players/${out}/alive`] = false;
+  if (winner) Object.assign(patch, { phase: "over", winner, ends: 0, reveal: mfRevealMap(room), votes: null });
+  else Object.assign(patch, { phase: "night", day: day + 1, ends: Date.now() + MF_TIME.night * 1000, night: null, votes: null });
+  await mfPatch(`rooms/${code}`, patch);
+  await mfLog(out ? { k: "vote", d: day, n: mfNameOf(out), r: roles[out] } : { k: "novote", d: day });
+}
+
+/* ---- Mukofot (faqat g'olib tomon, bir o'yinda bir marta, kuniga cheklangan) ---- */
+function mfRewardOnce(room) {
+  if (!MF.role || !room.winner || room.gen == null) return;
+  const key = NS + "mafia-rw-" + MF.code + "-" + room.gen;
+  try { if (localStorage.getItem(key)) return; localStorage.setItem(key, "1"); } catch (e) { /* ignore */ }
+  const won = (room.winner === "mafia") === (MF.role === "mafia");
+  if (!won) return;
+  const today = new Date().toISOString().slice(0, 10);
+  let rec = { d: today, n: 0 };
+  try { const s = JSON.parse(localStorage.getItem(NS + "mafia-day") || "null"); if (s && s.d === today) rec = s; } catch (e) { /* ignore */ }
+  if (rec.n >= MF_DAILY_CAP) return toast(mt("reward") && mtE("rewardCap", MF_DAILY_CAP) || "", "info");
+  rec.n += 1;
+  try { localStorage.setItem(NS + "mafia-day", JSON.stringify(rec)); } catch (e) { /* ignore */ }
+  S.cafe.money += MF_REWARD;
+  saveState();
+  toast(mt("reward", fmt(MF_REWARD)), "good");
+}
+
+/* ---- Asosiy yangilash sikli (har 2 soniyada) ---- */
+async function mfRefresh(force) {
+  if (!MF.code || MF.busy || !mfUid()) return;
+  MF.busy = true;
+  try {
+    const uid = mfUid(), code = MF.code;
+    const room = await mfGet(`rooms/${code}`);
+    if (!room) return mfForget(mtE("closed"));
+    if (!room.players || !room.players[uid]) return mfForget(room.phase === "lobby" ? "" : mtE("kicked"));
+    MF.room = room;
+    if (!MF.roles && mfIsHost() && room.gen) {
+      try { MF.roles = JSON.parse(localStorage.getItem(mfHostKey(code)) || "null"); } catch (e) { MF.roles = null; }
+    }
+    if (Date.now() - MF.seenAt > 6000) {
+      MF.seenAt = Date.now();
+      mfPatch(`rooms/${code}/players/${uid}`, { seen: Date.now() }).catch(() => {});
+    }
+    if (room.gen && room.phase !== "lobby") {
+      const pv = await mfGet(`priv/${code}/${uid}`);
+      MF.role = pv ? pv.role : null;
+      MF.mates = pv && pv.mates ? pv.mates : [];
+      MF.checks = pv && pv.checks ? pv.checks : {};
+      MF.gen = room.gen;
+    } else if (room.phase === "lobby") {
+      MF.role = null; MF.mates = []; MF.checks = {};
+    }
+    const chatRaw = await mfGet(`chat/${code}`, 'orderBy="$key"&limitToLast=40');
+    MF.chat = chatRaw ? Object.keys(chatRaw).sort().map((k) => Object.assign({ k }, chatRaw[k])) : [];
+    if (mfIsHost() && room.phase !== "lobby" && room.phase !== "over") await mfHostStep(room);
+    if (room.phase === "over") mfRewardOnce(room);
+    const sig = JSON.stringify([room.phase, room.day, room.ends, room.winner || "", room.votes || {}, room.night ? Object.keys(room.night).length : 0,
+      Object.keys(room.players).map((k) => [k, room.players[k].alive]), room.log ? Object.keys(room.log).length : 0,
+      MF.role, MF.checks, MF.chat.length, MF.chat.length ? MF.chat[MF.chat.length - 1].k : "", MF.err, room.reveal ? 1 : 0, LANG]);
+    if ((sig !== MF.sig || force) && ui.screen === "mf" && !isTyping()) { MF.sig = sig; render(); }
+  } catch (e) {
+    /* tarmoq uzilsa, keyingi urinishda qayta uriniladi */
+  } finally { MF.busy = false; }
+}
+
+let mfTimerOn = false;
+function mfStartPoll() {
+  if (MF.poll) return;
+  MF.poll = setInterval(() => { if (MF.code) mfRefresh(false); }, 2000);
+  if (!mfTimerOn) {
+    mfTimerOn = true;
+    setInterval(() => {
+      document.querySelectorAll("[data-mfend]").forEach((el) => {
+        const left = Math.max(0, Math.ceil((Number(el.dataset.mfend) - Date.now()) / 1000));
+        el.textContent = left + " s";
+      });
+    }, 500);
+  }
+}
+function mfEnter() {
+  if (!mfUid()) return;
+  if (!MF.code) { try { const s = JSON.parse(localStorage.getItem(MF_KEY) || "null"); if (s && s.code) MF.code = s.code; } catch (e) { /* ignore */ } }
+  mfStartPoll();
+  if (MF.code) mfRefresh(true);
+}
+// Sahifa yuklangach, avval kirgan xonaga avtomatik qayta ulanish (oynani yopib ochsa ham)
+setTimeout(() => {
+  if (!mfUid()) return;
+  try { const s = JSON.parse(localStorage.getItem(MF_KEY) || "null"); if (s && s.code) { MF.code = s.code; mfStartPoll(); mfRefresh(true); } } catch (e) { /* ignore */ }
+}, 2500);
+
+function mfAct(a, b) {
+  if (a === "create") return mfCreate("online");
+  if (a === "botroom") return mfCreate("bot");
+  if (a === "join") return mfJoin(ui.draft.mfCode);
+  if (a === "leave") return mfLeave();
+  if (a === "start") return mfStart();
+  if (a === "again") return mfAgain();
+  if (a === "addbot") return mfAddBot();
+  if (a === "rmbots") return mfRemoveBots();
+  if (a === "night") return mfNight(b);
+  if (a === "vote") return mfVote(b);
+  if (a === "chat") return mfChat();
+  if (a === "copy") {
+    try { navigator.clipboard.writeText(MF.code); toast(mt("copied"), "good"); } catch (e) { toast(mt("copyFail", MF.code), "info"); }
+  }
+}
+
+function mfPlayerRows(room, uid) {
+  const players = room.players || {};
+  return Object.keys(players).map((id) => {
+    const p = players[id];
+    const st = p.alive === true ? (p.bot ? "🤖" : "🟢") : "💀";
+    const tag = id === room.host ? " 👑" : "";
+    const me = id === uid ? ` <span class="hint">${mt("you")}</span>` : "";
+    return `<div class="row"><div class="ico">${st}</div><div class="info"><div class="name">${esc(p.name)}${tag}${me}</div></div></div>`;
+  }).join("");
+}
+
+function mfChatHtml() {
+  const msgs = MF.chat.slice(-40).map((m) => `<div class="m"><b>${esc(m.n)}:</b> ${esc(m.m)}</div>`).join("") || `<div class="hint">${mt("noMsg")}</div>`;
+  return `<div class="mf-chat">${msgs}</div>
+    <div class="field"><input class="input" data-draft="mfChat" maxlength="200" placeholder="${mt("chatPh")}" value="${esc(ui.draft.mfChat || "")}"/>${btn(mt("send"), "mf:chat", { small: true })}</div>`;
+}
+
+function viewMafia() {
+  const uid = mfUid();
+  const errHtml = MF.err ? `<div class="hint" style="color:#ff7b7b">${esc(MF.err)}</div>` : "";
+  if (!uid) return `<section class="panel"><h3>${mt("title")}</h3><p class="hint">${mt("needAcc")}</p></section>`;
+  if (!MF.code) {
+    return `
+    <section class="hero-home"><div class="eyebrow">Verox Games</div><h2>${mt("title")}</h2>
+      <p>${mt("intro", MF_MIN, MF_MAX)}</p></section>
+    <section class="panel"><h3>${mt("onlineTitle")}</h3>
+      <p class="hint">${mt("onlineHint")}</p>
+      <div class="field">${btn(mt("createBtn"), "mf:create", { cls: "btn-gold" })}</div>
+      <div class="field"><input class="input" data-draft="mfCode" maxlength="6" placeholder="${mt("codePh")}" value="${esc(ui.draft.mfCode || "")}"/>${btn(mt("joinBtn"), "mf:join", { cls: "btn-teal" })}</div></section>
+    <section class="panel"><h3>${mt("botTitle")}</h3>
+      <p class="hint">${mt("botHint")}</p>
+      <div class="field">${btn(mt("botBtn"), "mf:botroom", { cls: "btn-gold" })}</div></section>
+    ${errHtml}`;
+  }
+  if (!MF.room) return `<section class="panel"><p class="hint">${mt("loading")}</p></section>${errHtml}`;
+  const room = MF.room, players = room.players || {};
+  const ids = Object.keys(players);
+  const alive = ids.filter((id) => players[id].alive === true);
+  const isHost = room.host === uid;
+  const me = players[uid] || {};
+  const amAlive = me.alive === true;
+  const phaseName = mt("phase")[room.phase] || room.phase;
+  const timer = room.phase !== "lobby" && room.phase !== "over" && room.ends ? `<span class="mf-timer" data-mfend="${room.ends}"></span>` : "";
+  const head = `<section class="hero-home"><div class="eyebrow">${mt("codeLabel")} · ${room.mode === "bot" ? mt("modeBot") : mt("modeOnline")}</div><div class="mf-code">${esc(MF.code)}</div>
+    <div class="field">${btn(mt("copyBtn"), "mf:copy", { small: true })}</div>
+    <p><b>${phaseName}</b> ${room.day && room.phase !== "lobby" ? `· ${mt("dayN", room.day)}` : ""} ${timer}</p></section>`;
+
+  let roleCard = "";
+  if (room.phase !== "lobby" && MF.role) {
+    const r = mfRole(MF.role);
+    const mates = MF.mates.length ? `<div class="sub">${mt("mates", MF.mates.map((id) => esc(mfNameOf(id))).join(", "))}</div>` : "";
+    const checks = Object.keys(MF.checks || {}).sort((x, y) => x - y).map((d) => `<div class="sub">${mt("check", d, esc(MF.checks[d].n), mfRole(MF.checks[d].r).n)}</div>`).join("");
+    roleCard = `<section class="panel"><h3>${mt("roleTitle", r.n)}</h3><p class="hint">${r.d}</p>${mates}${MF.role === "detective" ? (checks || `<div class="sub">${mt("noChecks")}</div>`) : ""}</section>`;
+  }
+
+  let action = "";
+  if (room.phase === "lobby") {
+    action = isHost
+      ? `<p class="hint">${mt("hostHint", ids.length, MF_MIN)}</p>
+         ${room.mode === "bot" ? `<div class="field">${btn(mt("addBot"), "mf:addbot", { small: true, dis: ids.length >= MF_MAX })}${btn(mt("removeBots"), "mf:rmbots", { small: true, dis: !ids.some((id) => players[id].bot) })}</div>` : ""}<div class="field">${btn(mt("startBtn"), "mf:start", { cls: "btn-gold", dis: ids.length < MF_MIN })}</div>`
+      : `<p class="hint">${mt("waitHost")}</p>`;
+  } else if (room.phase === "night") {
+    if (!amAlive) action = `<p class="hint">${mt("dead")}</p>`;
+    else if (!["mafia", "doctor", "detective"].includes(MF.role)) action = `<p class="hint">${mt("nightNone")}</p>`;
+    else {
+      const act = MF.role === "mafia" ? "kill" : MF.role === "doctor" ? "save" : "check";
+      const mine = room.night && room.night[uid];
+      action = `<p class="hint">${mt("pick", mt("act")[act])}</p><div class="field">` +
+        alive.filter((id) => act === "save" || id !== uid).map((id) => btn(`${(mine && mine.t === id) ? "✔️ " : ""}${esc(players[id].name)}`, `mf:night:${id}`, { small: true })).join("") + `</div>`;
+    }
+  } else if (room.phase === "day") {
+    action = amAlive ? `<p class="hint">${mt("dayHint")}</p>` : `<p class="hint">${mt("deadDay")}</p>`;
+  } else if (room.phase === "vote") {
+    const mine = (room.votes || {})[uid];
+    if (!amAlive) action = `<p class="hint">${mt("deadDay")}</p>`;
+    else action = `<p class="hint">${mt("voteHint")}</p><div class="field">` +
+      alive.filter((id) => id !== uid).map((id) => btn(`${mine === id ? "✔️ " : ""}${esc(players[id].name)}`, `mf:vote:${id}`, { small: true })).join("") +
+      btn(`${mine === "skip" ? "✔️ " : ""}${mt("nobody")}`, "mf:vote:skip", { small: true }) + `</div>`;
+  } else if (room.phase === "over") {
+    const win = room.winner === "mafia" ? mt("winMafia") : mt("winCiv");
+    const rev = room.reveal || {};
+    action = `<section class="panel"><h3>${win}</h3><div class="lines">` +
+      ids.map((id) => `<div><span>${esc(players[id].name)}</span><b>${rev[id] ? mfRole(rev[id]).n : "?"}</b></div>`).join("") +
+      `</div></section>` +
+      (isHost ? `<div class="field">${btn(mt("newGame"), "mf:again", { cls: "btn-gold" })}</div>` : "");
+  }
+
+  const logHtml = room.log ? Object.keys(room.log).sort().slice(-12).map((k) => `<div>${esc(mfLogText(room.log[k]))}</div>`).join("") : "";
+  const leave = `<div class="field mt">${btn(mt("leave"), "mf:leave", { small: true })}</div>`;
+  const chatBlock = `<section class="panel"><h3>${mt("chat")}</h3>${mfChatHtml()}</section>`;
+  const tail = room.phase === "lobby" ? "" : `<section class="panel"><h3>${mt("logT")}</h3><div class="mf-log">${logHtml || `<div class="hint">${mt("noLog")}</div>`}</div></section>`;
+  const teamHead = room.phase === "lobby"
+    ? `<section class="panel"><h3>${mt("players", ids.length, MF_MAX)}</h3>${mfPlayerRows(room, uid)}</section>`
+    : `<section class="panel"><h3>${mt("alive", alive.length, ids.length)}</h3>${mfPlayerRows(room, uid)}</section>`;
+  return head + teamHead + roleCard + `<section class="panel"><h3>${mt("action")}</h3>${action}</section>` + tail + chatBlock + errHtml + leave;
+}
+
+
 function render() {
   const app = document.getElementById("app");
   const locked = !loadAccount();  // hisob yaratilmagan: faqat "Hisob" bo'limi ochiq, qolgani yopiq
@@ -2753,6 +3429,7 @@ function render() {
   document.body.dataset.skin = S.cafe.skin || "classic";
   document.querySelectorAll(".tab").forEach((b) => {
     b.classList.toggle("on", b.dataset.screen === ui.screen);
+    if (b.dataset.screen === ui.screen) b.scrollIntoView({ inline: "center", block: "nearest" });
     b.disabled = locked && b.dataset.screen !== "acc";
     b.classList.toggle("dim", b.disabled);
   });
@@ -2761,11 +3438,12 @@ function render() {
   if (ui.screen === "owner" && !isOwner()) ui.screen = "home";
   let html;
   if (ui.screen === "owner") html = viewOwner();
-  else if (ui.screen === "home") html = eventBanner() + viewHome();
+  else if (ui.screen === "home") html = cafeNameLine() + eventBanner() + nextEventLine() + tipLine() + viewHome();
   else if (ui.screen === "cafe") html = viewCafe();
   else if (ui.screen === "club") html = viewClub();
   else if (ui.screen === "acc") html = viewAccount();
   else if (ui.screen === "lb") html = viewLB();
+  else if (ui.screen === "mf") html = viewMafia();
   else html = viewHelp();
   if (isBanned()) html = viewBanned();
   if (ui.spinning) html = `<div class="spinning">🎡 G'ildirak aylanmoqda...<br>🔄 🔄 🔄</div>` + html;
@@ -3016,13 +3694,13 @@ function handleAct(act) {
   const parts = act.split(":");
   const verb = parts[0], a = parts[1], b = parts[2];
   if (isBanned() && !(verb === "go" || (verb === "reg" && a === "reset"))) return toast("🚫 Hisob bloklangan", "bad");
-  const authVerb = verb === "set" || verb === "lb" || verb === "reg" || verb === "signin" || verb === "authtab" || verb === "terms" || verb === "logout" || (verb === "go" && a === "acc");
+  const authVerb = verb === "set" || verb === "lb" || verb === "lbf" || verb === "reg" || verb === "signin" || verb === "authtab" || verb === "terms" || verb === "logout" || (verb === "go" && a === "acc");
   if (!loadAccount() && !authVerb) {
     toast("Avval hisob yarating: 👤 Hisob bo'limi", "bad");  // hisobsiz hech qanday amal bajarilmaydi
     return;
   }
   switch (verb) {
-    case "go": if (a === "owner" && !isOwner()) break; ui.screen = a; ui.err = null; if (a === "acc") refreshReferrals(); if (a === "lb") fetchLB(); break;
+    case "go": if (a === "owner" && !isOwner()) break; ui.screen = a; ui.err = null; if (a === "acc") refreshReferrals(); if (a === "lb") fetchLB(); if (a === "mf") mfEnter(); break;
     case "owner": ownerAct(a, b); break;
     case "reg": if (a === "reset") resetAccount(); else doRegister(); break;
     case "signin": doSignIn(); break;
@@ -3034,6 +3712,8 @@ function handleAct(act) {
     case "auto": toggleAuto(a); break;
     case "lb": if (a === "refresh") fetchLB(); break;
     case "skin": skinAct(a, b); break;
+    case "lbf": ui.lbF = a; break;
+    case "mf": mfAct(a, b); break;
     case "modal": closeModal(); break;
     case "day": if (a === "start") beginDay("cafe"); break;
     case "buy": buyUpgrade(a); break;
@@ -3376,7 +4056,7 @@ const I18N = {
     home: "Bosh", cafe: "Kafe", club: "Club", lb: "Reyting", help: "Qoidalar", acc: "Hisob", owner: "Ega",
     settings: "Sozlamalar", lang: "Til", sound: "Tovush", motion: "Animatsiya", tour: "Qo'llanmani ko'rish",
     share: "Do'stga ulashish", backup: "Zaxira nusxa", restore: "Tiklash", auto: "Avto-rejim", on: "Yoqilgan", off: "O'chiq",
-    lbTitle: "Reyting (top 20)", lbHint: "Umumiy balans bo'yicha: kafe + club.", lbEmpty: "Hali ma'lumot yo'q",
+    lbTitle: "Reyting (top 20)", lbHint: "Umumiy balans bo'yicha: kafe + club.", me: "Siz", outTop: "top 20 dan tashqarida", fAll: "Umumiy", fCafe: "Kafe", fClub: "Club", lbEmpty: "Hali ma'lumot yo'q",
     lbOff: "Reyting hozir mavjud emas (internet yoki ruxsat)", refresh: "Yangilash",
     restoreHint: "Zaxira nusxani shu yerga qo'yib «Tiklash» ni bosing. Joriy o'yin almashtiriladi.",
   },
@@ -3384,7 +4064,7 @@ const I18N = {
     home: "Главная", cafe: "Кафе", club: "Клуб", lb: "Рейтинг", help: "Правила", acc: "Аккаунт", owner: "Владелец",
     settings: "Настройки", lang: "Язык", sound: "Звук", motion: "Анимация", tour: "Показать обучение",
     share: "Поделиться с другом", backup: "Резервная копия", restore: "Восстановить", auto: "Авторежим", on: "Вкл", off: "Выкл",
-    lbTitle: "Рейтинг (топ 20)", lbHint: "По общему балансу: кафе + клуб.", lbEmpty: "Пока нет данных",
+    lbTitle: "Рейтинг (топ 20)", lbHint: "По общему балансу: кафе + клуб.", me: "Вы", outTop: "вне топ-20", fAll: "Общий", fCafe: "Кафе", fClub: "Клуб", lbEmpty: "Пока нет данных",
     lbOff: "Рейтинг сейчас недоступен (интернет или доступ)", refresh: "Обновить",
     restoreHint: "Вставьте резервную копию и нажмите «Восстановить». Текущая игра будет заменена.",
   },
@@ -3392,7 +4072,7 @@ const I18N = {
     home: "Home", cafe: "Cafe", club: "Club", lb: "Ranking", help: "Rules", acc: "Account", owner: "Owner",
     settings: "Settings", lang: "Language", sound: "Sound", motion: "Animations", tour: "Show tutorial",
     share: "Share with a friend", backup: "Backup", restore: "Restore", auto: "Auto mode", on: "On", off: "Off",
-    lbTitle: "Ranking (top 20)", lbHint: "By total balance: cafe + club.", lbEmpty: "No data yet",
+    lbTitle: "Ranking (top 20)", lbHint: "By total balance: cafe + club.", me: "You", outTop: "outside top 20", fAll: "Overall", fCafe: "Cafe", fClub: "Club", lbEmpty: "No data yet",
     lbOff: "Ranking unavailable (internet or access)", refresh: "Refresh",
     restoreHint: "Paste a backup here and press «Restore». The current game will be replaced.",
   },
@@ -3493,29 +4173,36 @@ function setAct(a, b) {
   if (a === "tour") return startTour(true);
   if (a === "share") return shareRef("cafe");
   if (a === "export") return showBackup();
+  if (a === "cname") { if (ui.draft.cname === undefined) return; S.cafe.cname = String(ui.draft.cname).trim().slice(0, 20); saveState(); return toast("✅ Kafe nomi saqlandi", "good"); }
+  if (a === "card") return shareCard();
   if (a === "import") return importBackup(ui.draft.impText);
 }
 function settingsBlock() {
   const motionOn = !isNoMotion();
   return `<section class="panel">
     <h3><i class="ic">⚙️</i> ${T("settings")}</h3>
-    <p class="hint">${T("lang")}</p>
+    <div class="sub-h">${T("lang")}</div>
     <div class="seg">${Object.entries(LANGS).map(([k, n]) => `<button class="${k === LANG ? "on" : ""}" data-act="set:lang:${k}">${n}</button>`).join("")}</div>
-    <div class="field mt">
+    <div class="sub-h">🎨 Ko'rinish</div>
+    <div class="field">
       ${btn("🔊 " + T("sound") + ": " + (FX_ON ? T("on") : T("off")), "set:sound", { small: true })}
       ${btn("✨ " + T("motion") + ": " + (motionOn ? T("on") : T("off")), "set:motion", { small: true })}
     </div>
-    <div class="field mt">
+    <div class="sub-h">📚 Qo'llanma va ulashish</div>
+    <div class="field">
       ${btn("📖 " + T("tour"), "set:tour", { small: true })}
       ${btn("📤 " + T("share"), "set:share", { small: true })}
-      ${btn("💾 " + T("backup"), "set:export", { small: true })}
     </div>
+    <div class="sub-h">💾 Zaxira nusxa</div>
+    <div class="field">${btn("💾 " + T("backup"), "set:export", { small: true })}</div>
     <p class="hint mt">${T("restoreHint")}</p>
-    <textarea class="input" data-draft="impText" rows="3" placeholder="{ ... }">${esc(ui.draft.impText || "")}</textarea>
-    <div class="mt">${btn("♻️ " + T("restore"), "set:import", { small: true, cls: "btn-ghost" })}</div>
+    <div class="field">
+      <textarea class="input" data-draft="impText" rows="3" placeholder="{ ... }">${esc(ui.draft.impText || "")}</textarea>
+      ${btn("♻️ " + T("restore"), "set:import", { small: true, cls: "btn-ghost" })}
+    </div>
   </section>`;
 }
-function viewAccount() { return viewAccountMain() + settingsBlock(); }
+function viewAccount() { return viewAccountMain() + profileBlock() + settingsBlock(); }
 
 // ---- Reyting (top 20) ----
 function lbScore() { return (S.cafe.money || 0) + (S.club.open ? S.club.money || 0 : 0); }
@@ -3524,8 +4211,8 @@ let LB_SIG = "";
 async function pushLB() {
   const acc = loadAccount();
   if (!acc || !FIREBASE_URL || !syncOn() || isOwner()) return;
-  const body = { name: acc.login, score: Math.round(lbScore()), cafeP: S.cafe.prestige || 0, clubP: S.club.prestige || 0, at: Date.now() };
-  const sig = JSON.stringify([body.score, body.cafeP, body.clubP]);
+  const body = { name: acc.login, score: Math.round(lbScore()), cafeScore: Math.round(S.cafe.money || 0), clubScore: S.club.open ? Math.round(S.club.money || 0) : 0, cafeP: S.cafe.prestige || 0, clubP: S.club.prestige || 0, at: Date.now() };
+  const sig = JSON.stringify([body.score, body.cafeScore, body.clubScore, body.cafeP, body.clubP]);
   if (sig === LB_SIG) return;
   try {
     await fbEnsure();
@@ -3535,33 +4222,41 @@ async function pushLB() {
 }
 async function fetchLB() {
   if (!FIREBASE_URL) { ui.lb = { err: true, rows: [] }; return render(); }
-  ui.lb = { loading: true, rows: (ui.lb && ui.lb.rows) || [] };
+  ui.lb = { loading: true, rows: (ui.lb && ui.lb.rows) || [], all: (ui.lb && ui.lb.all) || [] };
   try {
     await fbEnsure();
-    const r = await fetchT(fbUrl("/lb.json?orderBy=%22score%22&limitToLast=20"));
+    const r = await fetchT(fbUrl("/lb.json"));
     if (!r.ok) throw new Error("HTTP " + r.status);
     const d = (await r.json()) || {};
     const rows = Object.values(d).filter((x) => x && typeof x.name === "string")
       .sort((x, y) => (Number(y.score) || 0) - (Number(x.score) || 0));
-    ui.lb = { rows, at: Date.now() };
-  } catch (e) { ui.lb = { err: true, rows: (ui.lb && ui.lb.rows) || [] }; }
+    ui.lb = { rows, all: rows, at: Date.now() };
+  } catch (e) { ui.lb = { err: true, rows: (ui.lb && ui.lb.rows) || [], all: (ui.lb && ui.lb.all) || [] }; }
   if (ui.screen === "lb") render();
 }
 function viewLB() {
   const L = ui.lb || {};
   const me = loadAccount();
+  const f = ui.lbF || "all";
+  const key = f === "cafe" ? "cafeScore" : f === "club" ? "clubScore" : "score";
+  const myVal = f === "cafe" ? S.cafe.money || 0 : f === "club" ? (S.club.open ? S.club.money || 0 : 0) : lbScore();
+  const all = (L.all || L.rows || []).slice().sort((x, y) => (Number(y[key]) || 0) - (Number(x[key]) || 0));
+  const top = all.slice(0, 20);
+  const myIdx = me ? all.findIndex((r) => r.name === me.login) : -1;
+  const mine = me ? `<div class="lb-row me"><span class="lb-n">📍</span><span class="lb-name">${T("me")}: ${esc(me.login)}</span>
+      <b>${myIdx >= 0 ? "#" + (myIdx + 1) : T("outTop")} · ${fmt(Math.round(myVal))}</b></div>` : "";
+  const tabs = `<div class="seg mt">${[["all", "fAll"], ["cafe", "fCafe"], ["club", "fClub"]].map(([k, t]) => `<button class="${f === k ? "on" : ""}" data-act="lbf:${k}">${T(t)}</button>`).join("")}</div>`;
   let body;
-  if (L.err) body = `<p class="hint">${T("lbOff")}</p>`;
-  else if (!L.rows || !L.rows.length) body = `<p class="hint">${L.loading ? "⏳ ..." : T("lbEmpty")}</p>`;
-  else body = `<div class="lb">${L.rows.map((r, i) => `<div class="lb-row${me && me.login === r.name ? " me" : ""}">
+  if (!top.length && L.err) body = `<p class="hint">${T("lbOff")}</p>`;
+  else if (!top.length) body = `<p class="hint">${L.loading ? "⏳ ..." : T("lbEmpty")}</p>`;
+  else body = `<div class="lb">${top.map((r, i) => `<div class="lb-row${me && me.login === r.name ? " me" : ""}">
       <span class="lb-n">${i + 1}</span>
       <span class="lb-name">${esc(r.name)}${(r.cafeP || r.clubP) ? ` <small class="muted">🏢${(r.cafeP || 0) + (r.clubP || 0)}</small>` : ""}</span>
-      <b>${fmt(r.score || 0)}</b></div>`).join("")}</div>`;
+      <b>${fmt(Math.round(Number(r[key]) || 0))}</b></div>`).join("")}</div>`;
   return `<section class="panel"><h3><i class="ic">🏆</i> ${T("lbTitle")}</h3>
-    <p class="hint">${T("lbHint")}</p>${body}
-    <div class="mt">${btn("🔄 " + T("refresh"), "lb:refresh", { small: true })}</div></section>`;
+    ${tabs}<p class="hint">${T("lbHint")}</p>${mine}${body}
+    <div class="field mt">${btn("🔄 " + T("refresh"), "lb:refresh", { small: true })}${btn("📤 " + T("share"), "set:share", { small: true })}</div></section>`;
 }
-
 // ---- Avto-rejim (5 ta do'st taklif qilinganda ochiladi) ----
 function autoUnlocked() {
   const r = ui.ref;
@@ -3638,7 +4333,7 @@ function skinsBlock() {
     ${Object.entries(SKINS).map(([k, s]) => {
       const has = owned.includes(k);
       const right = cur === k ? '<span class="chip ok">Tanlangan</span>'
-        : has ? btn("Tanlash", "skin:use:" + k, { small: true }) : btn(fmt(s.cost), "skin:buy:" + k, { small: true });
+        : has ? btn("👆 Tanlash", "skin:use:" + k, { small: true }) : btn(fmt(s.cost), "skin:buy:" + k, { small: true });
       return row("🎨", s.n, has ? "Sotib olingan" : "Narxi: " + fmt(s.cost), right);
     }).join("")}
   </section>`;
@@ -3681,6 +4376,41 @@ function histChart(game, title) {
 }
 
 // ---- Egasi: blok boshqaruvi ----
+// Egasi: barcha o'yinchilar ro'yxati (qidirish, sahifalash, tez blok)
+async function ownerLoadAll() {
+  if (!FIREBASE_URL) return toast("Firebase ulanmagan", "bad");
+  try {
+    await fbEnsure();
+    const r = await fetchT(fbUrl("/lb.json"));
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    const d = (await r.json()) || {};
+    const rows = Object.values(d).filter((x) => x && typeof x.name === "string")
+      .sort((x, y) => (Number(y.score) || 0) - (Number(x.score) || 0));
+    ui.ownLB = { rows };
+    toast(`👥 ${rows.length} ta o'yinchi yuklandi`, "good");
+  } catch (e) { toast("❌ Ro'yxat olinmadi (ruxsat yoki internet)", "bad"); }
+}
+function ownerPlayersBlock() {
+  const L = ui.ownLB || null;
+  const q = String(ui.draft.ownSearch || "").trim().toLowerCase();
+  const rows = L ? L.rows.filter((r) => !q || r.name.toLowerCase().includes(q)) : [];
+  const pages = Math.max(1, Math.ceil(rows.length / 20));
+  const cur = Math.min(Math.max(0, ui.ownPage || 0), pages - 1);
+  const slice = rows.slice(cur * 20, cur * 20 + 20);
+  const list = !L ? `<p class="hint">Avval «Yuklash» ni bosing</p>`
+    : !slice.length ? `<p class="hint">Topilmadi</p>`
+    : slice.map((r, i) => `<div class="lb-row">
+        <span class="lb-n">${cur * 20 + i + 1}</span>
+        <span class="lb-name">${esc(r.name)}</span>
+        <b>${fmt(Math.round(Number(r.score) || 0))}</b>
+        <button class="btn btn-ghost" data-act="owner:quick:${esc(r.name)}" title="1 yilga bloklash">🚫</button>
+      </div>`).join("");
+  return `<h3>👥 O'yinchilar${L ? " (" + L.rows.length + ")" : ""}</h3>
+    <div class="field"><input class="input" data-draft="ownSearch" placeholder="Login qidirish" value="${esc(ui.draft.ownSearch || "")}"></div>
+    <div class="seg mt"><button data-act="owner:list:load">🔄 Yuklash / qidirish</button></div>
+    <div class="seg mt"><button data-act="owner:list:prev">◀️</button><button data-act="owner:list:next">▶️</button><span class="hint">${cur + 1} / ${pages}</span></div>
+    <div class="lb mt">${list}</div>`;
+}
 async function ownerCheck(login) {
   if (!FIREBASE_URL) return toast("Firebase ulanmagan", "bad");
   try {
@@ -3719,6 +4449,173 @@ function banAdminBlock() {
 }
 
 
+/* ===================== QO'SHIMCHA: KONFETI, KARTOCHKA, MASLAHAT, TADBIR SANOG'I ===================== */
+function confetti() {
+  if (isNoMotion()) return;
+  const cv = document.createElement("canvas");
+  cv.className = "confetti";
+  cv.width = innerWidth; cv.height = innerHeight;
+  document.body.appendChild(cv);
+  const x = cv.getContext("2d");
+  const colors = ["#f2b441", "#4ade80", "#60a5fa", "#f472b6", "#fde68a"];
+  const P = Array.from({ length: 120 }, () => ({ x: Math.random() * cv.width, y: -20 - Math.random() * 200, vx: (Math.random() - 0.5) * 4, vy: 2 + Math.random() * 4, s: 6 + Math.random() * 6, r: Math.random() * 6, c: colors[Math.floor(Math.random() * colors.length)] }));
+  const t0 = performance.now();
+  const step = (now) => {
+    x.clearRect(0, 0, cv.width, cv.height);
+    P.forEach((p) => { p.x += p.vx; p.y += p.vy; p.vy += 0.05; p.r += 0.2; x.save(); x.translate(p.x, p.y); x.rotate(p.r); x.fillStyle = p.c; x.fillRect(-p.s / 2, -p.s / 4, p.s, p.s / 2); x.restore(); });
+    if (now - t0 < 2600) requestAnimationFrame(step); else cv.remove();
+  };
+  requestAnimationFrame(step);
+}
+function cafeNameLine() {
+  return S.cafe && S.cafe.cname ? `<div class="cafe-name">🏪 ${esc(S.cafe.cname)}</div>` : "";
+}
+// Keyingi tadbirgacha necha kun qolgani (bugun boshlanmagan bo'lsa)
+function nextEventLine() {
+  if (activeEvent()) return "";
+  const now = new Date(Date.now() + 5 * 3600000);  // Toshkent vaqti
+  const y = now.getUTCFullYear();
+  const today = Date.UTC(y, now.getUTCMonth(), now.getUTCDate());
+  let best = null;
+  for (const e of EVENTS) {
+    const [m, d] = e.from.split("-").map(Number);
+    for (const yy of [y, y + 1]) {
+      const st = Date.UTC(yy, m - 1, d);
+      if (st >= today) { if (!best || st < best.st) best = { e, st }; break; }
+    }
+  }
+  if (!best) return "";
+  const days = Math.round((best.st - today) / 86400000);
+  return `<div class="event-soon">⏳ <span>${best.e.n}</span>: ${days} kundan keyin</div>`;
+}
+const TIPS = [
+  "Bonusni har kuni yig'ing: seriya oshgan sari mukofot ham oshadi.",
+  "Charxni har 8 soatda aylantiring. Jekpot ham bor!",
+  "5 ta do'st taklif qilsangiz, avto-rejim ochiladi.",
+  "Interyer faqat ko'rinishni o'zgartiradi, daromadga ta'siri yo'q.",
+  "Franchayzingdan keyin ham daraja va yutuqlaringiz saqlanadi.",
+  "Reytingda o'rin olish uchun balansingizni o'stiring.",
+  "Bir telefonda ikki hisob bo'lsa, ulardan birini taklif qilish taqiqlanadi.",
+  "Zaxira nusxani Hisob bo'limidan olib saqlab qo'ying.",
+];
+function tipLine() {
+  return `<div class="tip">💡 ${esc(TIPS[Math.floor(Date.now() / 86400000) % TIPS.length])}</div>`;
+}
+function profileBlock() {
+  return `<section class="panel"><h3><i class="ic">🏪</i> Kafe nomi va kartochka</h3>
+    <div class="field"><input class="input" data-draft="cname" maxlength="20" placeholder="Kafe nomi (ixtiyoriy)" value="${esc(ui.draft.cname !== undefined ? ui.draft.cname : (S.cafe.cname || ""))}"></div>
+    <div class="field mt">${btn("✅ Saqlash", "set:cname", { small: true })}${btn("📸 Kartochka", "set:card", { small: true })}</div>
+  </section>`;
+}
+// Statistika kartochkasi (PNG): ulashish yoki yuklab olish
+function shareCard() {
+  const acc = loadAccount();
+  if (!acc) return toast("Avval hisob yarating", "bad");
+  const c = document.createElement("canvas");
+  c.width = 900; c.height = 500;
+  const x = c.getContext("2d");
+  const g = x.createLinearGradient(0, 0, 900, 500);
+  g.addColorStop(0, "#1b1007"); g.addColorStop(1, "#3b1f00");
+  x.fillStyle = g; x.fillRect(0, 0, 900, 500);
+  x.fillStyle = "#f2b441"; x.font = "bold 40px sans-serif"; x.fillText("VEROX GAMES", 50, 80);
+  x.fillStyle = "#fff7e6"; x.font = "bold 46px sans-serif"; x.fillText(S.cafe.cname || acc.login, 50, 160);
+  const rows = [
+    ["☕ Kafe balansi", fmt(S.cafe.money || 0)],
+    ["🎮 Club balansi", S.club.open ? fmt(S.club.money || 0) : "—"],
+    ["📅 Kafe kunlari", String(S.cafe.days || 0)],
+    ["🏅 Yutuqlar", `${(S.cafe.ach || []).length}/${ACHS.length}`],
+  ];
+  x.font = "32px sans-serif";
+  rows.forEach((r, i) => {
+    const yy = 255 + i * 62;
+    x.textAlign = "left"; x.fillStyle = "#a99a88"; x.fillText(r[0], 50, yy);
+    x.textAlign = "right"; x.fillStyle = "#4ade80"; x.fillText(r[1], 850, yy);
+  });
+  x.textAlign = "left"; x.fillStyle = "#a99a88"; x.font = "24px sans-serif";
+  x.fillText("@" + acc.login + " · VEROX GAMES", 50, 470);
+  c.toBlob((blob) => {
+    if (!blob) return toast("❌ Kartochka yaratilmadi", "bad");
+    const file = new File([blob], "verox-kartochka.png", { type: "image/png" });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      return navigator.share({ files: [file], title: "VEROX GAMES" }).catch(() => {});
+    }
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = "verox-kartochka.png";
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
+    toast("📸 Kartochka tayyor", "good");
+  }, "image/png");
+}
+
+/* ===================== TARJIMA LUG'ATI (ru / en) ===================== */
+// Kalit: o'zbekcha matn (boshidagi emoji va oxiridagi bo'shliqsiz). Ekrandagi matn til bo'yicha almashtiriladi.
+const UI_TR = {"ru": {"1 ta kunni yakunlang": "Завершите 1 день", "10 ta kun ishlang": "Проработайте 10 дней", "50 ta kun ishlang": "Проработайте 50 дней", "1 ta club kunini yakunlang": "Завершите 1 день клуба", "10 ta club kunini yakunlang": "Завершите 10 дней клуба", "10 ta o'yin joyiga ega bo'ling": "Имейте 10 игровых мест", "1000 ta mijozga xizmat qiling": "Обслужите 1000 клиентов", "2026 aksiyasi": "Акция 2026", "2026 club aksiyasi": "Акция клуба 2026", "5 ta do'st taklif qilsangiz, avto-rejim ochiladi.": "Пригласите 5 друзей — откроется авторежим.", "5 ta xodim yollang": "Наймите 5 сотрудников", "Auto mode": "Авторежим", "Avval bu taomni menyuga qo'shing": "Сначала добавьте это блюдо в меню", "Avval game clubni oching": "Сначала откройте игровой клуб", "Avval hisob yarating": "Сначала создайте аккаунт", "Avval hisob yarating: 👤 Hisob bo'limi": "Сначала создайте аккаунт: раздел 👤 Аккаунт", "Bir telefonda ikki hisob bo'lsa, ulardan birini taklif qilish taqiqlanadi.": "Если на одном телефоне два аккаунта, приглашать один другим запрещено.", "Birinchi kun": "Первый день", "Birinchi o'yin": "Первая игра", "Bitta xodim bo'shatildi. Oylik xarajat kamaydi (keyingi kundan)": "Один сотрудник уволен. Расходы на зарплату снизились (со следующего дня)", "Blok (gacha)": "Блок до", "Bo'shatish": "Уволить", "Bog'": "Сад", "Bonusni har kuni yig'ing: seriya oshgan sari mukofot ham oshadi.": "Собирайте бонус каждый день: чем длиннее серия, тем больше награда.", "Bosh": "Главная", "Boshlang'ich sovg'a": "Стартовый подарок", "Boy tadbirkor": "Богатый предприниматель", "Bu aksiya allaqachon tayyor ✅": "Эта акция уже активна ✅", "Bu kod allaqachon mavjud": "Этот код уже существует", "Bu kredit faol emas": "Этот кредит не активен", "Bu kuchaytirgich allaqachon tayyor ✅": "Этот усилитель уже готов ✅", "Bu mavzu allaqachon bor": "Эта тема уже есть", "Bu taom allaqachon menyuda ✅": "Это блюдо уже в меню ✅", "Bufet ustasi": "Мастер буфета", "Bulutda saqlangan": "Сохранено в облаке", "Charxni har 8 soatda aylantiring. Jekpot ham bor!": "Крутите колесо каждые 8 часов. Есть и джекпот!", "Club": "Клуб", "Club franchayzingi": "Франшиза клуба", "Club franchayzingi clubni boshidan boshlaydi: PC, PlayStation, VIP, bufet, reklama va administrator qaytadan. Yutuqlar, vazifalar va statistika saqlanadi. Kafega ta'sir qilmaydi.": "Франшиза клуба начинает клуб с нуля: ПК, PlayStation, VIP, буфет, реклама и администратор — заново. Достижения, задания и статистика сохраняются. На кафе не влияет.", "Club kunini yakunlang: {n}": "Завершите день клуба: {n}", "Club ochilish sovg'asi": "Подарок за открытие клуба", "Davom etish uchun shartlar va maxfiylik siyosatiga rozilik bildiring": "Чтобы продолжить, примите условия и политику конфиденциальности", "Do'kondan {n} ta narsa sotib oling": "Купите {n} предметов в магазине", "Do'stga ulashish": "Поделиться с другом", "Do'stlarimga ham tavsiya qilaman!": "Рекомендую друзьям!", "Doimiy ish": "Постоянная работа", "Doimiy o'yinchi": "Постоянный игрок", "Ega": "Владелец", "Ega promokodi": "Промокод владельца", "Firebase ulanmagan": "Firebase не подключен", "Franchayzing kafeni yangi bosqichga olib chiqadi: taomlar, xodimlar, reklama, interyer va jihozlar boshidan boshlanadi. Daraja, yutuqlar va statistika saqlanadi.": "Франшиза выводит кафе на новый этап: блюда, сотрудники, реклама, интерьер и оборудование начинаются заново. Уровень, достижения и статистика сохраняются.", "Franchayzingdan keyin ham daraja va yutuqlaringiz saqlanadi.": "После франшизы уровень и достижения сохраняются.", "Hali ma'lumot yo'q": "Данных пока нет", "Happy hour": "Счастливый час", "Havolani qo'lda nusxalang:": "Скопируйте ссылку вручную:", "Hisob": "Аккаунт", "Hisobingizda pul yetarli emas": "На счёте недостаточно средств", "Hozir club kuni davom etmayapti": "Сейчас день клуба не идёт", "Hozir kun davom etmayapti": "Сейчас день не идёт", "Internet bilan aloqa yo'q": "Нет связи с интернетом", "Interyer faqat ko'rinishni o'zgartiradi, daromadga ta'siri yo'q.": "Интерьер меняет только внешний вид, на доход не влияет.", "Ishonchingiz past: hozircha bank kredit bermaydi": "Низкое доверие: банк пока не выдаёт кредит", "Jonli musiqa": "Живая музыка", "Joy yetishmadi, boshqa safar kelaman.": "Не хватило места, приду в другой раз.", "Juda zaif": "Очень слабо", "Kafe": "Кафе", "Ko'proq xodim kerak ekan.": "Нужно больше сотрудников.", "Kod 3–20 ta lotin harf, raqam, _ yoki - bo'lsin": "Код: 3–20 латинских букв, цифр, _ или -", "Konsol ishqibozi": "Любитель консолей", "Lag'mon": "Лагман", "Login 3–20 belgi: faqat a–z, 0–9 va _ belgisi": "Логин 3–20 символов: только a–z, 0–9 и _", "Login noto'g'ri": "Неверный логин", "Login va parolni to'liq kiriting": "Введите логин и пароль полностью", "Mahalliy (hisob yo'q)": "Локально (нет аккаунта)", "Maksimal darajaga yetgansiz ✅": "Вы достигли максимального уровня ✅", "Mashhur club": "Известный клуб", "Mashhur kafe": "Известное кафе", "Maxsus promokod": "Специальный промокод", "Mijozlarga xizmat qiling: {n}": "Обслужите клиентов: {n}", "Million o'yin": "Миллион игр", "Mohir oshpaz": "Опытный повар", "Muddat noto'g'ri": "Неверный срок", "Mukofot 0 dan katta bo'lsin": "Награда должна быть больше 0", "Narxi ham, sifati ham yoqdi.": "И цена, и качество понравились.", "Narxni raqamda yozing": "Введите цену цифрами", "Navbat juda uzun edi, ancha kutdim.": "Очередь была очень длинной, долго ждал.", "O'chiq": "Выкл", "O'rtacha": "Средний", "O'yin soatlarini soting: {n}": "Продайте игровые часы: {n}", "Oddiy PC": "Обычный ПК", "Omonat uchun club hisobida pul yetarli emas": "На счёте клуба недостаточно средств для вклада", "Omonat uchun pul yetarli emas": "Недостаточно средств для вклада", "Osh (palov)": "Плов", "Oxirgi kirish": "Последний вход", "PC'lar qizib qolmaydi: buzilish xavfi kamayadi": "ПК не перегреваются: риск поломок снижается", "Parol kamida 6 belgi bo'lsin (boshida va oxirida bo'sh joy bo'lmasin)": "Пароль не менее 6 символов (без пробелов в начале и конце)", "Parollar bir xil emas": "Пароли не совпадают", "PlayStation qo'shing": "Добавьте PlayStation", "Pro PC": "Про ПК", "Pro PC, VIP xona va PlayStation ochilgan": "Открыты Pro ПК, VIP-зал и PlayStation", "Promokod 3–20 ta lotin harf, raqam, _ yoki - dan iborat bo'lishi kerak": "Промокод: 3–20 латинских букв, цифр, _ или -", "Pul qaytmaydi": "Деньги не возвращаются", "Qo'llanmani ko'rish": "Показать обучение", "Qoidalar": "Правила", "Reyting": "Рейтинг", "Reyting (top 20)": "Рейтинг (топ-20)", "Reyting balansi": "Баланс в рейтинге", "Reyting hozir mavjud emas (internet yoki ruxsat)": "Рейтинг сейчас недоступен (интернет или доступ)", "Reytingda o'rin olish uchun balansingizni o'stiring.": "Чтобы попасть в рейтинг, увеличивайте баланс.", "Sayt sozlanmagan: FIREBASE_URL yo'q": "Сайт не настроен: нет FIREBASE_URL", "Shartlar bajarilmagan": "Условия не выполнены", "Shinam joy, mazali taom. Rahmat!": "Уютное место, вкусная еда. Спасибо!", "Sho'rva": "Шурпа", "Sof foyda qiling: {n}": "Получите чистую прибыль: {n}", "Taom yaxshi, lekin xizmat sekin.": "Блюда хорошие, но обслуживание медленное.", "Taomlar juda mazali, albatta yana kelaman!": "Блюда очень вкусные, обязательно приду снова!", "Til: O'zbekcha": "Язык: O'zbekcha", "To'liq menyu": "Полное меню", "To'liq zal": "Полный зал", "Ulug'bek": "Улугбек", "VEROX GAMES: kafe oching va o'ynang!": "VEROX GAMES: откройте кафе и играйте!", "VEROX GAMES — o'ynash": "VEROX GAMES — играть", "VIP mehmon": "VIP-гость", "VIP taklif": "VIP-приглашение", "VIP xona": "VIP-зал", "VIP xonani oching": "Откройте VIP-зал", "Xizmat a'lo darajada!": "Обслуживание на высоте!", "Xodimni bo'shatish": "Уволить сотрудника", "Yetkazib berish": "Доставка", "Yulduzli club": "Звёздный клуб", "Yulduzli kafe": "Звёздное кафе", "Zaxira nusxa": "Резервная копия", "Zaxira nusxani Hisob bo'limidan olib saqlab qo'ying.": "Сохраните резервную копию из раздела «Аккаунт».", "Zaxira nusxani shu yerga qo'yib «Tiklash» ni bosing. Joriy o'yin almashtiriladi.": "Вставьте резервную копию сюда и нажмите «Восстановить». Текущая игра будет заменена.", "barcha taomlarni oching": "откройте все блюда", "bir kunda 1 000 000 so'm sof foyda": "чистая прибыль 1 000 000 сум за день", "birinchi franchayzingni boshlang": "начните первую франшизу", "bufetni 3-darajaga yetkazing": "доведите буфет до 3 уровня", "choychaqa ko'payadi, reputatsiya +0.05": "чаевых больше, репутация +0.05", "har bir daraja kuniga ~3 mijoz ko'proq olib keladi": "каждый уровень приносит ~3 клиента в день", "har biri +8 mijozga xizmat qiladi (oyligi kuniga 15 000)": "каждый обслуживает +8 клиентов (зарплата 15 000 в день)", "har daraja kuniga +4 ta yetkazib berish buyurtmasi": "каждый уровень +4 заказа доставки в день", "har daraja kuniga ~1 mijoz ko'proq": "каждый уровень ~1 клиент в день", "hisobda 1 000 000 so'm": "на счёте 1 000 000 сум", "hisobda 50 000 000 so'm": "на счёте 50 000 000 сум", "kunda albatta VIP mehmon keladi": "каждый день приходит VIP-гость", "kunlik oyligi 40 000; buzilish va shikoyatlarni kamaytiradi": "дневная зарплата 40 000; снижает поломки и жалобы", "mijozlar +20%": "клиенты +20%", "mijozlar +25%": "клиенты +25%", "mijozlar +30%": "клиенты +30%", "mijozlar +35% (sig'im yetishi kerak!)": "клиенты +35% (нужна вместимость!)", "mijozlar +50% (bir kunlik turnir)": "клиенты +50% (однодневный турнир)", "mijozlar ichimlik va snack sotib olishadi": "клиенты покупают напитки и снеки", "mijozlar, choychaqa va reputatsiya oshadi (ijara qimmatlashadi)": "клиенты, чаевые и репутация растут (аренда дорожает)", "narx +25%, mijozlar -15%": "цена +25%, клиенты -15%", "narxlar +20%, mijozlar -15%. Navbat uzun bo'lsa foydali": "цены +20%, клиенты -15%. Полезно при длинной очереди", "narxlar -15%, mijozlar +20%. Xodimlar ko'p bo'lsa foydali": "цены -15%, клиенты +20%. Полезно при большом штате", "noma'lum": "неизвестно", "o'rtacha narx va mijozlar": "средняя цена и клиенты", "reputatsiya 4.5 ga yetsin": "репутация должна достичь 4.5", "soatbay narx -20%, mijozlar +25%": "почасовая цена -20%, клиенты +25%", "soatiga 12 000 so'm, kuchli kompyuter": "12 000 сум в час, мощный компьютер", "soatiga 15 000 so'm, konsol o'yinlari": "15 000 сум в час, консольные игры", "soatiga 20 000 so'm, alohida xona": "20 000 сум в час, отдельная комната", "soatiga 6 000 so'm, eng ko'p talab": "6 000 сум в час, самый спрос", "standart tarif": "стандартный тариф", "taom xarajati -25%": "расходы на блюда -25%", "taom xarajati -5%, buzilish xavfi kamayadi": "расходы на блюда -5%, риск поломок снижается", "tarif -25%, mijozlar +30%": "тариф -25%, клиенты +30%", "top 20 dan tashqarida": "вне топ-20", "Kun": "День", "Oddiy kun": "Обычный день", "Kafe balansi": "Баланс кафе", "Kafe: «Kunni boshlash» ni bosing. Mijozlar real vaqtda keladi.": "Кафе: нажмите «Начать день». Клиенты приходят в реальном времени.", "O'yin tiklandi": "Игра восстановлена", "Rostdan ham club franchayzingini boshlaysizmi?": "Вы точно хотите начать франшизу клуба?", "Rostdan ham franchayzingni boshlaysizmi?": "Вы точно хотите начать франшизу?", "Elektr o'chdi! 1 soat mijoz qabul qilinmaydi": "Электричество отключено! 1 час клиенты не принимаются", "Kafe nomi saqlandi": "Название кафе сохранено", "Bu hisob uchun o'yin ma'lumoti topilmadi. «Ro'yxatdan o'tish» ni tanlang.": "Игровые данные для этого аккаунта не найдены. Выберите «Регистрация».", "Bu login band. Boshqa login tanlang yoki «Kirish» ni bosing.": "Этот логин занят. Выберите другой или нажмите «Вход».", "Bu zaxira nusxa emas": "Это не резервная копия", "Bunday promokod topilmadi": "Такой промокод не найден", "Internet bilan aloqa yo'q. Qayta urinib ko'ring": "Нет связи с интернетом. Попробуйте снова", "Juda ko'p urinish. Keyinroq qayta urining": "Слишком много попыток. Попробуйте позже", "Kartochka yaratilmadi": "Карточка не создана", "Login yoki parol noto'g'ri. Hisob yo'q bo'lsa, «Ro'yxatdan o'tish» ni tanlang.": "Неверный логин или пароль. Если аккаунта нет, выберите «Регистрация».", "Ma'lumot olinmadi": "Данные не получены", "Matn noto'g'ri (JSON emas)": "Неверный текст (не JSON)", "Oxirgi o'zgarish bulutga yetmadi. Internetni tekshirib, qayta urinib ko'ring": "Последнее изменение не попало в облако. Проверьте интернет и попробуйте снова", "Promokod ishlatish limiti tugagan.": "Лимит использования промокода исчерпан.", "Promokod muddati tugagan.": "Срок действия промокода истёк.", "Ro'yxat olinmadi (ruxsat yoki internet)": "Список не получен (доступ или интернет)", "Siz bu promokodni allaqachon ishlatgansiz": "Вы уже использовали этот промокод", "Xatolik: qayta urinib ko'ring": "Ошибка: попробуйте снова", "Yozib bo'lmadi (ruxsat yoki internet)": "Не удалось записать (доступ или интернет)", "Omonatni yechish (": "Снять вклад (", "Reputatsiya": "Репутация", "Mustaqillik kuni": "День независимости", "Mashhur bloger kafengizga keldi! Mijozlar oqimi oshdi": "Известный блогер пришёл в ваше кафе! Поток клиентов вырос", "Mashhur bloger keldi! Mijozlar oqimi oshdi": "Известный блогер пришёл! Поток клиентов вырос", "Yomg'irli kun: mijozlar kamroq": "Дождливый день: клиентов меньше", "Navro'z": "Навруз", "Tushlik vaqti! Mijozlar oqimi kuchaydi": "Время обеда! Поток клиентов вырос", "Club bonusi": "Бонус клуба", "Kunlik bonus": "Ежедневный бонус", "Yangi yil": "Новый год", "Dam olish kuni: mijozlar ko'proq": "Выходной: клиентов больше", "Hali vaqt bo'lmadi": "Время ещё не пришло", "Omad charxi: har 8 soatda aylantirasiz. Jekpot ham bor!": "Колесо удачи: крутите каждые 8 часов. Есть джекпот!", "Taklif qilingan VIP mehmon keldi!": "Приглашённый VIP-гость пришёл!", "VIP mehmon keldi!": "VIP-гость пришёл!", "Club balansi": "Баланс клуба", "Game club ochildi!": "Игровой клуб открыт!", "Vazifa": "Задание", "Voqealar": "События", "Jonli musiqa mijozlarga juda yoqdi!": "Живая музыка понравилась клиентам!", "Club: yangi yutuq:": "Клуб: новое достижение:", "Yangi yutuq:": "Новое достижение:", "Yutuqlar": "Достижения", "Reyting: eng boy kafe va clublar ro'yxati.": "Рейтинг: список самых богатых кафе и клубов.", "Ijara": "Аренда", "Franchayzing": "Франшиза", "Omonat foizi": "Процент по вкладу", "Administratorlar": "Администраторы", "Mijozlar": "Клиенты", "Xizmat ko'rsatildi": "Обслужено", "Xodimlar oyligi": "Зарплата персонала", "Bonus va pul": "Бонус и деньги", "Pul": "Деньги", "To'lov qabul qilindi": "Оплата получена", "Tushum": "Выручка", "Kafe kunlari": "Дни кафе", "Sof foyda": "Чистая прибыль", "Menyu": "Меню", "Menyu: taom sotib oling va narxini o'zingiz belgilang.": "Меню: покупайте блюда и назначайте цену сами.", "Club ochildi, birinchi mijozlar kutilmoqda...": "Клуб открыт, ждём первых клиентов...", "Kafe ochildi, birinchi mijozlar kutilmoqda...": "Кафе открыто, ждём первых клиентов...", "Hisob yaratish": "Создать аккаунт", "Kartochka tayyor": "Карточка готова", "Elektr": "Электричество", "Havola nusxalandi": "Ссылка скопирована", "Yaxshilash": "Улучшить", "Ketib qoldi": "Ушёл", "Navbat uzun, mijoz ketib qoldi": "Очередь длинная, клиент ушёл", "Hisob bloklangan": "Аккаунт заблокирован", "Do'stlarni taklif qiling: 5 ta taklifdan keyin avto-rejim ochiladi.": "Пригласите друзей: после 5 приглашений откроется авторежим.", "Snack xarajati": "Расходы на снеки", "Mahsulot xarajati": "Расходы на продукты", "Eng ko'p": "Больше всего", "1 yilga bloklash": "Заблокировать на 1 год", "1. O'yin virtual: haqiqiy pul, to'lov yoki haqiqiy mukofot berilmaydi.": "1. Игра виртуальная: реальные деньги, платежи и реальные призы не выдаются.", "2. Login va parolni o'zingiz saqlang. Parol ochiq holda saqlanmaydi, faqat xeshi tekshiriladi. Parolni yo'qotsangiz, uni tiklab bo'lmaydi.": "2. Храните логин и пароль сами. Пароль не хранится в открытом виде, проверяется только хеш. Если потеряете пароль, восстановить его нельзя.", "4. Promokodlarni noqonuniy yo'l bilan olish, sotish yoki o'yinni buzish hisobning bloklanishiga olib keladi.": "4. Незаконное получение или продажа промокодов и взлом игры приводят к блокировке аккаунта.", "5. Qoidalar va narxlar o'yin davomida o'zgarishi mumkin.": "5. Правила и цены могут меняться во время игры.", "Aksiyalar": "Акции", "Avval «Yuklash» ni bosing": "Сначала нажмите «Загрузить»", "Bank krediti": "Банковский кредит", "Bank pul beradi. Muddat tugasa, qarz avtomatik undiriladi. To'liq to'lanmasa, ishonch va reputatsiya tushadi.": "Банк выдаёт деньги. По истечении срока долг списывается автоматически. Если погашен не полностью, доверие и репутация падают.", "Birinchi kun yakunlangach grafik chiqadi.": "График появится после первого завершённого дня.", "Bonus": "Бонус", "Bonus va g'ildirak": "Бонус и колесо", "Bu hisob qoidalarni buzgani uchun vaqtincha bloklangan. O'yin to'xtatilgan.": "Аккаунт временно заблокирован за нарушение правил. Игра остановлена.", "Club bepul ochiladi, o'z hisobi bor. Kompyuterlar soatbay ijaraga olinadi.": "Клуб открывается бесплатно, у него свой счёт. Компьютеры арендуются почасово.", "Club hisobi": "Счёт клуба", "Club hisobi, kompyuterlar, bufet, reklama, administrator va konditsioner boshidan boshlanadi. Kafega ta'siri yo'q.": "Счёт клуба, компьютеры, буфет, реклама, администратор и кондиционер начинаются заново. На кафе не влияет.", "Club o'z hisobi, daraja, reytingi va franchayzingi bilan kafedan alohida ishlaydi.": "Клуб работает отдельно от кафе: со своим счётом, уровнем, рейтингом и франшизой.", "Club ochilgandan keyin club mukofotlari shu balansga tushadi.": "После открытия клуба награды клуба поступают на этот баланс.", "Club omonati": "Вклад клуба", "Club statistikasi": "Статистика клуба", "Club yaxshilash": "Улучшение клуба", "Do'stlarni taklif qilish": "Пригласить друзей", "Faqat ko'rinish o'zgaradi, o'yinga ta'siri yo'q.": "Меняется только внешний вид, на игру не влияет.", "Game club": "Игровой клуб", "Game clubni ochish": "Открыть игровой клуб", "Har club kuni omonat 1% ga o'sadi. Club franchayzingida nolga tushadi.": "Каждый день клуба вклад растёт на 1%. При франшизе клуба обнуляется.", "Har kafe kuni omonat 1% ga o'sadi. Franchayzingda nolga tushadi.": "Каждый день кафе вклад растёт на 1%. При франшизе обнуляется.", "Har kuni kirsangiz bonus oshadi.": "Чем чаще заходите каждый день, тем больше бонус.", "Har o'yinda promokodlar alohida. Har kod bir marta ishlaydi.": "В каждой игре промокоды отдельные. Каждый код работает один раз.", "Har promokod bir marta ishlaydi. Kafe va club uchun promokodlar alohida.": "Каждый промокод работает один раз. Промокоды для кафе и клуба отдельные.", "Hisob bulutda saqlanadi. Boshqa telefon yoki brauzerda shu login va parol bilan kirsangiz o'yiningiz qaytadi.": "Аккаунт хранится в облаке. Войдя с этим логином и паролем на другом телефоне или в браузере, вы вернёте свою игру.", "Hisob bulutda saqlanadi: istalgan qurilmadan shu login va parol bilan kirasiz.": "Аккаунт в облаке: входите с любого устройства с этим логином и паролем.", "Hisob va o'yin holati bulutda saqlanadi. Reyting va o'yinchilar o'rtasida qarz almashish hali to'liq ishlamaydi.": "Аккаунт и состояние игры хранятся в облаке. Рейтинг и обмен долгами между игроками пока работают не полностью.", "Hisobingiz": "Ваш аккаунт", "Hisobingiz bor bo'lsa, login va parolni kiriting. O'yiningiz bulutdan olinadi.": "Если аккаунт есть, введите логин и пароль. Игра загрузится из облака.", "Hozirgi club franchayzingi:": "Текущая франшиза клуба:", "Hozirgi franchayzing:": "Текущая франшиза:", "Ijara, elektr va administrator xarajatlari har kun hisoblanadi. Buzilish va elektr o'chishi ham bo'lishi mumkin.": "Аренда, электричество и расходы на администратора считаются каждый день. Возможны поломки и отключения электричества.", "Ikki alohida o'yin: kafe — taom va mijozlar, club — kompyuter zali. Har birining o'z hisobi, darajasi va franchayzingi bor.": "Две отдельные игры: кафе — блюда и клиенты, клуб — компьютерный зал. У каждой свой счёт, уровень и франшиза.", "Interyer mavzusi": "Тема интерьера", "Jarayonda": "В процессе", "Kafe nomi (ixtiyoriy)": "Название кафе (необязательно)", "Kafe nomi va kartochka": "Название кафе и карточка", "Kafe o'yini": "Игра «Кафе»", "Kafe oching, taomlar sotib oling, mijozlarni kutib oling": "Откройте кафе, покупайте блюда, принимайте клиентов", "Kafeni yaxshilang": "Улучшите кафе", "Kafeni yaxshilash": "Улучшение кафе", "Ketma-ket kunlar": "Дни подряд", "Kirish": "Вход", "Ko'rinish": "Вид", "Kod (masalan: SALE2026)": "Код (например: SALE2026)", "Kompyuter xonangizni oching va soatlik o'yin bilan pul ishlang.": "Откройте компьютерный зал и зарабатывайте на почасовой игре.", "Kuchaytirgichlar": "Усилители", "Kunlik vazifalar": "Ежедневные задания", "Kunni boshlang": "Начните день", "Login": "Логин", "Login (a–z, 0–9, _)": "Логин (a–z, 0–9, _)", "Login qidirish": "Поиск по логину", "Login va parolni o'zingiz tanlang. Shu login va parol bilan istalgan qurilmadan kirasiz. Parolni yo'qotsangiz, uni tiklab bo'lmaydi.": "Логин и пароль выбираете сами. С ними можно войти с любого устройства. Если потеряете пароль, восстановить его нельзя.", "Login:": "Логин:", "MAX": "MAX", "Masalan: START": "Например: START", "Menyuda": "В меню", "Menyuga taom qo'shing": "Добавьте блюдо в меню", "Mukofot (masalan: 500000)": "Награда (например: 500000)", "Narx siyosati": "Ценовая политика", "Necha kun amal qiladi (0 = cheksiz)": "Сколько дней действует (0 = без ограничений)", "Necha marta ishlaydi (0 = cheksiz)": "Сколько раз работает (0 = без ограничений)", "Noto'g'ri bloklangan deb hisoblasangiz, egasi bilan bog'laning.": "Если считаете, что блокировка ошибочна, свяжитесь с владельцем.", "Olingan": "Получено", "Omonat": "Вклад", "PC, PlayStation va VIP xona ijarasi, soatbay to'lov": "Аренда ПК, PlayStation и VIP-зала, оплата почасово", "Parol": "Пароль", "Parol (kamida 6 belgi)": "Пароль (не менее 6 символов)", "Parolni takrorlang": "Повторите пароль", "Promokod": "Промокод", "Pul, taomlar, xodimlar, reklama, interyer va jihozlar boshidan boshlanadi. Daraja, yutuqlar va statistika saqlanadi.": "Деньги, блюда, сотрудники, реклама, интерьер и оборудование начинаются заново. Уровень, достижения и статистика сохраняются.", "Qaytarish summasi:": "Сумма возврата:", "Qo'llanma va ulashish": "Обучение и поделиться", "Quyidagi matnni nusxalab, xavfsiz joyda saqlang.": "Скопируйте текст ниже и сохраните в надёжном месте.", "Ro'yxatdan o'tish": "Регистрация", "Saqlash": "Сохранить", "Sotib olingan aksiya keyingi club kunida ishlaydi va sarflanadi.": "Купленная акция сработает в следующий день клуба и будет израсходована.", "Sotib olingan kuchaytirgich keyingi boshlangan kunda ishlaydi va sarflanadi.": "Купленный усилитель сработает в следующий начатый день и будет израсходован.", "Statistika": "Статистика", "Tanlangan": "Выбрано", "Tarif": "Тариф", "Tayyor": "Готово", "To'langan": "Оплачено", "Topilmadi": "Не найдено", "Tushunarli": "Понятно", "Yangi club kuni": "Новый день клуба", "Yangi daraja keyingi kundan kuchga kiradi.": "Новый уровень действует со следующего дня.", "Yangi kun": "Новый день", "Yangi xarid keyingi club kunidan kuchga kiradi.": "Новая покупка действует со следующего дня клуба.", "Yopish": "Закрыть", "Yozib yuborildi": "Отправлено", "bir kunlik imkoniyat beradi: aksiya, mohir oshpaz, jonli musiqa, VIP taklif.": "даёт возможность на один день: акция, опытный повар, живая музыка, VIP-приглашение.", "har kafe kunida 1% o'sadi.": "растёт на 1% каждый день кафе.", "Band:": "· 🖥️ Занято:", "Qoldi": "⏳ Осталось", "Kafe uchun yaratish": "☕ Создать для кафе", "Kafe va 🎮 club uchun havolalar alohida: mukofot o'sha o'yin balansiga tushadi.": "☕ Ссылки для кафе и 🎮 клуба отдельные: награда попадает на баланс той же игры.", "Bir telefonda ikkita hisob bo'lsa, ulardan birini ikkinchisiga taklif qilish taqiqlanadi: ikkala hisob 1 yilga bloklanadi.": "⚠️ Если на одном телефоне два аккаунта, приглашать один другим запрещено: оба аккаунта блокируются на 1 год.", "Eslatma": "⚠️ Примечание", "Blokdan chiqarish": "✅ Разблокировать", "Ha, boshlash": "✅ Да, начать", "Qanday o'ynaladi": "❓ Как играть", "Yo'q": "⬅️ Нет", "Aylantirish": "🎡 Крутить", "G'ildirak aylanmoqda...": "🎡 Колесо крутится...", "Promokod yaratish": "🎫 Создать промокод", "Promokodlar": "🎫 Промокоды", "Club uchun yaratish": "🎮 Создать для клуба", "Jekpot ehtimoli:": "🎰 Шанс джекпота:", "Ega paneli": "👑 Панель владельца", "Hisob bo'limidagi havolani do'stingizga yuboring. Havola orqali yangi o'yinchi ro'yxatdan o'tsa, mukofot olasiz.": "👤 Отправьте другу ссылку из раздела «Аккаунт». Если новый игрок зарегистрируется по ней, вы получите награду.", "Pul va kredit": "💰 Деньги и кредит", "Bajarilgan vazifa bor: mukofotni oling.": "📜 Есть выполненное задание: получите награду.", "Foydalanish shartlari va maxfiylik": "📜 Условия использования и конфиденциальность", "Men shartlar va maxfiylik siyosatiga roziman": "Я согласен с условиями и политикой конфиденциальности", "Bulut bilan sinxron: balans, kunlar, ketayotgan kun va butun o'yin holati ikkala joyda bir xil.": "🔄 Синхронизация с облаком: баланс, дни, текущий день и всё состояние игры одинаковы в обоих местах.", "Bulut sinxronlashi hali sozlanmagan.": "🔄 Синхронизация с облаком ещё не настроена.", "Sinxronlashni yoqish uchun pastdagi «Boshqa hisob yaratish» tugmasi orqali shu login va parol bilan qayta kiring.": "🔄 Чтобы включить синхронизацию, войдите снова с этим логином и паролем через кнопку «Создать другой аккаунт» внизу.", "Yuklash / qidirish": "🔄 Загрузить / искать", "Tekshirish": "🔎 Проверить", "Soat:": "🕐 Время:", "PC, PlayStation va VIP xona sotib olib, tarif va aksiya bilan daromadni oshiring.": "🖥️ Покупайте ПК, PlayStation и VIP-зал, повышайте доход тарифами и акциями.", "Blok boshqaruvi": "🚫 Управление блокировкой", "O'yin progressi hozircha shu brauzerda saqlanadi (brauzer ma'lumotlarini tozalasangiz, noldan boshlanadi). Hisob (login) esa bulutda saqlanadi: 👤 Hisob bo'limiga qarang.": "Игровой прогресс пока сохраняется в этом браузере (если очистите данные браузера, начнёте с нуля). Аккаунт (логин) хранится в облаке: см. раздел 👤 Аккаунт.", "Sizning kafe": "Ваше кафе", "Sig'im": "Вместимость", "{n} mijoz": "{n} клиентов", "Kun 90–120 soniya davom etadi. Mijozlar real vaqtda keladi, natija kun tugagach hisoblanadi.": "День длится 90–120 секунд. Клиенты приходят в реальном времени, результат считается по окончании дня.", "Keyingi kun uchun kuchaytirgichlar: yo'q": "Усилители на следующий день: нет", "Boshlang'ich hisob": "Начальный счёт", "Boshlang'ich PC": "Начальные ПК", "{n} ta": "{n} шт.", "Alohida o'yin": "Отдельная игра", "Kun 90–120 soniya davom etadi, mijozlar real vaqtda keladi.": "День длится 90–120 секунд, клиенты приходят в реальном времени.", "Har taom sotiladi va xarajati bor. Taom qancha ko'p bo'lsa, mijozlar ham ko'p.": "Каждое блюдо продаётся и имеет расходы. Чем больше блюд, тем больше клиентов.", "xodimlar (sig'im), reklama, interyer, yetkazib berish va jihozlar.": "сотрудники (вместимость), реклама, интерьер, доставка и оборудование.", "arzon tanlasangiz mijozlar ko'p, qimmat tanlasangiz har bir mijozdan ko'proq olasiz.": "если выберете дешёвую цену — клиентов больше, дорогую — с каждого клиента берёте больше.", "Kunlik bonus va 🎡 g'ildirak (har 8 soatda) pul beradi.": "Ежедневный бонус и 🎡 колесо (каждые 8 часов) дают деньги.", "kamida 2 500 000 so'm. Muddat: 1 kun (5%), 3 kun (10%), 7 kun (20%). Muddat tugasa, pul avtomatik undiriladi. To'liq to'lanmasa 🛡️ ishonch va ⭐ reputatsiya tushadi. Bir vaqtda 3 tadan ko'p kredit bo'lmaydi.": "минимум 2 500 000 сум. Срок: 1 день (5%), 3 дня (10%), 7 дней (20%). По истечении срока деньги списываются автоматически. Если погашено не полностью, падают 🛡️ доверие и ⭐ репутация. Одновременно не больше 3 кредитов.", "Barcha taomlar ochilib, 375 000 000 so'm to'plangach, kafeni franchayzing qilish mumkin. Kafe boshidan boshlanadi, lekin har franchayzing uchun doimiy +30% mijoz va +20% daromad beradi.": "Когда откроете все блюда и накопите 375 000 000 сум, можно сделать франшизу кафе. Кафе начнётся с нуля, но каждая франшиза даёт постоянные +30% клиентов и +20% дохода.", "Pro PC, VIP xona va PlayStation ochilib, 250 000 000 so'm to'plangach, club franchayzing qilinadi.": "Когда откроете Pro ПК, VIP-зал и PlayStation и накопите 250 000 000 сум, клуб можно сделать франшизой.", "1–9 ta taklif uchun har biri 5 000 000 so'm, 10-taklifdan boshlab har biri 10 000 000 so'm.": "за 1–9 приглашений по 5 000 000 сум каждое, начиная с 10-го — по 10 000 000 сум каждое.", "Havola orqali ro'yxatdan o'tgan har bir yangi o'yinchi uchun mukofot: 1–9 ta taklif 5 000 000 so'm, 10-taklifdan boshlab 10 000 000 so'm har biri. Mukofot o'sha o'yin balansiga tushadi.": "Награда за каждого нового игрока, зарегистрировавшегося по ссылке: 1–9 приглашений по 5 000 000 сум, начиная с 10-го — по 10 000 000 сум каждое. Награда поступает на баланс той же игры.", "{n} kundan keyin": "через {n} дн.", "va": "и"}, "en": {"1 ta kunni yakunlang": "Finish 1 day", "10 ta kun ishlang": "Work 10 days", "50 ta kun ishlang": "Work 50 days", "1 ta club kunini yakunlang": "Finish 1 club day", "10 ta club kunini yakunlang": "Finish 10 club days", "10 ta o'yin joyiga ega bo'ling": "Own 10 game seats", "1000 ta mijozga xizmat qiling": "Serve 1000 customers", "2026 aksiyasi": "2026 promo", "2026 club aksiyasi": "2026 club promo", "5 ta do'st taklif qilsangiz, avto-rejim ochiladi.": "Invite 5 friends to unlock auto mode.", "5 ta xodim yollang": "Hire 5 staff", "Auto mode": "Auto mode", "Avval bu taomni menyuga qo'shing": "Add this dish to the menu first", "Avval game clubni oching": "Open the game club first", "Avval hisob yarating": "Create an account first", "Avval hisob yarating: 👤 Hisob bo'limi": "Create an account first: 👤 Account section", "Bir telefonda ikki hisob bo'lsa, ulardan birini taklif qilish taqiqlanadi.": "If two accounts are on one phone, inviting one with the other is forbidden.", "Birinchi kun": "First day", "Birinchi o'yin": "First game", "Bitta xodim bo'shatildi. Oylik xarajat kamaydi (keyingi kundan)": "One employee dismissed. Salary costs reduced (from next day)", "Blok (gacha)": "Blocked until", "Bo'shatish": "Dismiss", "Bog'": "Garden", "Bonusni har kuni yig'ing: seriya oshgan sari mukofot ham oshadi.": "Collect the bonus daily: the longer the streak, the bigger the reward.", "Bosh": "Home", "Boshlang'ich sovg'a": "Starter gift", "Boy tadbirkor": "Rich entrepreneur", "Bu aksiya allaqachon tayyor ✅": "This promo is already active ✅", "Bu kod allaqachon mavjud": "This code already exists", "Bu kredit faol emas": "This loan is not active", "Bu kuchaytirgich allaqachon tayyor ✅": "This booster is already ready ✅", "Bu mavzu allaqachon bor": "This theme is already owned", "Bu taom allaqachon menyuda ✅": "This dish is already on the menu ✅", "Bufet ustasi": "Buffet master", "Bulutda saqlangan": "Saved to cloud", "Charxni har 8 soatda aylantiring. Jekpot ham bor!": "Spin the wheel every 8 hours. There's a jackpot too!", "Club": "Club", "Club franchayzingi": "Club franchise", "Club franchayzingi clubni boshidan boshlaydi: PC, PlayStation, VIP, bufet, reklama va administrator qaytadan. Yutuqlar, vazifalar va statistika saqlanadi. Kafega ta'sir qilmaydi.": "Club franchise restarts the club from scratch: PCs, PlayStation, VIP, buffet, ads and admin. Achievements, quests and stats are kept. Does not affect the cafe.", "Club kunini yakunlang: {n}": "Finish club day: {n}", "Club ochilish sovg'asi": "Club opening gift", "Davom etish uchun shartlar va maxfiylik siyosatiga rozilik bildiring": "To continue, accept the terms and privacy policy", "Do'kondan {n} ta narsa sotib oling": "Buy {n} items from the shop", "Do'stga ulashish": "Share with a friend", "Do'stlarimga ham tavsiya qilaman!": "I recommend it to my friends!", "Doimiy ish": "Steady job", "Doimiy o'yinchi": "Regular player", "Ega": "Owner", "Ega promokodi": "Owner promo code", "Firebase ulanmagan": "Firebase not connected", "Franchayzing kafeni yangi bosqichga olib chiqadi: taomlar, xodimlar, reklama, interyer va jihozlar boshidan boshlanadi. Daraja, yutuqlar va statistika saqlanadi.": "Franchise takes the cafe to a new stage: dishes, staff, ads, interior and equipment start over. Level, achievements and stats are kept.", "Franchayzingdan keyin ham daraja va yutuqlaringiz saqlanadi.": "Your level and achievements are kept after a franchise.", "Hali ma'lumot yo'q": "No data yet", "Happy hour": "Happy hour", "Havolani qo'lda nusxalang:": "Copy the link manually:", "Hisob": "Account", "Hisobingizda pul yetarli emas": "Not enough money in your account", "Hozir club kuni davom etmayapti": "Club day is not running now", "Hozir kun davom etmayapti": "Day is not running now", "Internet bilan aloqa yo'q": "No internet connection", "Interyer faqat ko'rinishni o'zgartiradi, daromadga ta'siri yo'q.": "Interior only changes the look, no effect on income.", "Ishonchingiz past: hozircha bank kredit bermaydi": "Low trust: the bank won't lend for now", "Jonli musiqa": "Live music", "Joy yetishmadi, boshqa safar kelaman.": "No room, I'll come another time.", "Juda zaif": "Very weak", "Kafe": "Cafe", "Ko'proq xodim kerak ekan.": "More staff is needed.", "Kod 3–20 ta lotin harf, raqam, _ yoki - bo'lsin": "Code: 3–20 Latin letters, digits, _ or -", "Konsol ishqibozi": "Console fan", "Lag'mon": "Lagman", "Login 3–20 belgi: faqat a–z, 0–9 va _ belgisi": "Login 3–20 chars: only a–z, 0–9 and _", "Login noto'g'ri": "Invalid login", "Login va parolni to'liq kiriting": "Enter login and password fully", "Mahalliy (hisob yo'q)": "Local (no account)", "Maksimal darajaga yetgansiz ✅": "You've reached the max level ✅", "Mashhur club": "Famous club", "Mashhur kafe": "Famous cafe", "Maxsus promokod": "Special promo code", "Mijozlarga xizmat qiling: {n}": "Serve customers: {n}", "Million o'yin": "Million games", "Mohir oshpaz": "Skilled chef", "Muddat noto'g'ri": "Invalid period", "Mukofot 0 dan katta bo'lsin": "Reward must be greater than 0", "Narxi ham, sifati ham yoqdi.": "Both price and quality were great.", "Narxni raqamda yozing": "Enter the price in digits", "Navbat juda uzun edi, ancha kutdim.": "The queue was very long, I waited a long time.", "O'chiq": "Off", "O'rtacha": "Average", "O'yin soatlarini soting: {n}": "Sell game hours: {n}", "Oddiy PC": "Basic PC", "Omonat uchun club hisobida pul yetarli emas": "Not enough money in the club account for the deposit", "Omonat uchun pul yetarli emas": "Not enough money for the deposit", "Osh (palov)": "Plov", "Oxirgi kirish": "Last login", "PC'lar qizib qolmaydi: buzilish xavfi kamayadi": "PCs don't overheat: breakdown risk drops", "Parol kamida 6 belgi bo'lsin (boshida va oxirida bo'sh joy bo'lmasin)": "Password at least 6 characters (no spaces at start or end)", "Parollar bir xil emas": "Passwords don't match", "PlayStation qo'shing": "Add PlayStation", "Pro PC": "Pro PC", "Pro PC, VIP xona va PlayStation ochilgan": "Pro PCs, VIP room and PlayStation unlocked", "Promokod 3–20 ta lotin harf, raqam, _ yoki - dan iborat bo'lishi kerak": "Promo code: 3–20 Latin letters, digits, _ or -", "Pul qaytmaydi": "Money is not refunded", "Qo'llanmani ko'rish": "Show tutorial", "Qoidalar": "Rules", "Reyting": "Ranking", "Reyting (top 20)": "Ranking (top 20)", "Reyting balansi": "Ranking balance", "Reyting hozir mavjud emas (internet yoki ruxsat)": "Ranking unavailable right now (internet or access)", "Reytingda o'rin olish uchun balansingizni o'stiring.": "Grow your balance to climb the ranking.", "Sayt sozlanmagan: FIREBASE_URL yo'q": "Site not configured: FIREBASE_URL missing", "Shartlar bajarilmagan": "Conditions not met", "Shinam joy, mazali taom. Rahmat!": "Cozy place, tasty food. Thank you!", "Sho'rva": "Shurpa", "Sof foyda qiling: {n}": "Make net profit: {n}", "Taom yaxshi, lekin xizmat sekin.": "Good food, but slow service.", "Taomlar juda mazali, albatta yana kelaman!": "Food is delicious, I'll definitely come back!", "Til: O'zbekcha": "Language: O'zbekcha", "To'liq menyu": "Full menu", "To'liq zal": "Full hall", "Ulug'bek": "Ulugbek", "VEROX GAMES: kafe oching va o'ynang!": "VEROX GAMES: open a cafe and play!", "VEROX GAMES — o'ynash": "VEROX GAMES — play", "VIP mehmon": "VIP guest", "VIP taklif": "VIP invite", "VIP xona": "VIP room", "VIP xonani oching": "Open the VIP room", "Xizmat a'lo darajada!": "Service is excellent!", "Xodimni bo'shatish": "Dismiss staff", "Yetkazib berish": "Delivery", "Yulduzli club": "Star club", "Yulduzli kafe": "Star cafe", "Zaxira nusxa": "Backup", "Zaxira nusxani Hisob bo'limidan olib saqlab qo'ying.": "Save a backup from the Account section.", "Zaxira nusxani shu yerga qo'yib «Tiklash» ni bosing. Joriy o'yin almashtiriladi.": "Paste the backup here and press «Restore». The current game will be replaced.", "barcha taomlarni oching": "open all dishes", "bir kunda 1 000 000 so'm sof foyda": "1 000 000 sum net profit in one day", "birinchi franchayzingni boshlang": "start your first franchise", "bufetni 3-darajaga yetkazing": "upgrade the buffet to level 3", "choychaqa ko'payadi, reputatsiya +0.05": "more tips, reputation +0.05", "har bir daraja kuniga ~3 mijoz ko'proq olib keladi": "each level brings ~3 more customers per day", "har biri +8 mijozga xizmat qiladi (oyligi kuniga 15 000)": "each serves +8 customers (salary 15 000 per day)", "har daraja kuniga +4 ta yetkazib berish buyurtmasi": "each level +4 delivery orders per day", "har daraja kuniga ~1 mijoz ko'proq": "each level ~1 more customer per day", "hisobda 1 000 000 so'm": "1 000 000 sum in account", "hisobda 50 000 000 so'm": "50 000 000 sum in account", "kunda albatta VIP mehmon keladi": "a VIP guest comes every day", "kunlik oyligi 40 000; buzilish va shikoyatlarni kamaytiradi": "daily salary 40 000; reduces breakdowns and complaints", "mijozlar +20%": "customers +20%", "mijozlar +25%": "customers +25%", "mijozlar +30%": "customers +30%", "mijozlar +35% (sig'im yetishi kerak!)": "customers +35% (capacity needed!)", "mijozlar +50% (bir kunlik turnir)": "customers +50% (one-day tournament)", "mijozlar ichimlik va snack sotib olishadi": "customers buy drinks and snacks", "mijozlar, choychaqa va reputatsiya oshadi (ijara qimmatlashadi)": "customers, tips and reputation rise (rent gets pricier)", "narx +25%, mijozlar -15%": "price +25%, customers -15%", "narxlar +20%, mijozlar -15%. Navbat uzun bo'lsa foydali": "prices +20%, customers -15%. Useful when the queue is long", "narxlar -15%, mijozlar +20%. Xodimlar ko'p bo'lsa foydali": "prices -15%, customers +20%. Useful with many staff", "noma'lum": "unknown", "o'rtacha narx va mijozlar": "average price and customers", "reputatsiya 4.5 ga yetsin": "reputation must reach 4.5", "soatbay narx -20%, mijozlar +25%": "hourly price -20%, customers +25%", "soatiga 12 000 so'm, kuchli kompyuter": "12 000 sum/hour, powerful PC", "soatiga 15 000 so'm, konsol o'yinlari": "15 000 sum/hour, console games", "soatiga 20 000 so'm, alohida xona": "20 000 sum/hour, private room", "soatiga 6 000 so'm, eng ko'p talab": "6 000 sum/hour, most in demand", "standart tarif": "standard rate", "taom xarajati -25%": "food costs -25%", "taom xarajati -5%, buzilish xavfi kamayadi": "food costs -5%, breakdown risk drops", "tarif -25%, mijozlar +30%": "rate -25%, customers +30%", "top 20 dan tashqarida": "outside top 20", "Kun": "Day", "Oddiy kun": "Regular day", "Kafe balansi": "Cafe balance", "Kafe: «Kunni boshlash» ni bosing. Mijozlar real vaqtda keladi.": "Cafe: press «Start day». Customers arrive in real time.", "O'yin tiklandi": "Game restored", "Rostdan ham club franchayzingini boshlaysizmi?": "Are you sure you want to start the club franchise?", "Rostdan ham franchayzingni boshlaysizmi?": "Are you sure you want to start the franchise?", "Elektr o'chdi! 1 soat mijoz qabul qilinmaydi": "Power outage! No customers for 1 hour", "Kafe nomi saqlandi": "Cafe name saved", "Bu hisob uchun o'yin ma'lumoti topilmadi. «Ro'yxatdan o'tish» ni tanlang.": "No game data for this account. Choose «Sign up».", "Bu login band. Boshqa login tanlang yoki «Kirish» ni bosing.": "This login is taken. Choose another or press «Log in».", "Bu zaxira nusxa emas": "This is not a backup", "Bunday promokod topilmadi": "Promo code not found", "Internet bilan aloqa yo'q. Qayta urinib ko'ring": "No internet connection. Try again", "Juda ko'p urinish. Keyinroq qayta urining": "Too many attempts. Try again later", "Kartochka yaratilmadi": "Card was not created", "Login yoki parol noto'g'ri. Hisob yo'q bo'lsa, «Ro'yxatdan o'tish» ni tanlang.": "Wrong login or password. If you have no account, choose «Sign up».", "Ma'lumot olinmadi": "Data not received", "Matn noto'g'ri (JSON emas)": "Invalid text (not JSON)", "Oxirgi o'zgarish bulutga yetmadi. Internetni tekshirib, qayta urinib ko'ring": "The last change didn't reach the cloud. Check internet and retry", "Promokod ishlatish limiti tugagan.": "Promo code usage limit reached.", "Promokod muddati tugagan.": "Promo code has expired.", "Ro'yxat olinmadi (ruxsat yoki internet)": "List not received (access or internet)", "Siz bu promokodni allaqachon ishlatgansiz": "You have already used this promo code", "Xatolik: qayta urinib ko'ring": "Error: try again", "Yozib bo'lmadi (ruxsat yoki internet)": "Could not save (access or internet)", "Omonatni yechish (": "Withdraw deposit (", "Reputatsiya": "Reputation", "Mustaqillik kuni": "Independence Day", "Mashhur bloger kafengizga keldi! Mijozlar oqimi oshdi": "A famous blogger visited your cafe! Customer flow increased", "Mashhur bloger keldi! Mijozlar oqimi oshdi": "A famous blogger came! Customer flow increased", "Yomg'irli kun: mijozlar kamroq": "Rainy day: fewer customers", "Navro'z": "Navruz", "Tushlik vaqti! Mijozlar oqimi kuchaydi": "Lunch time! Customer flow increased", "Club bonusi": "Club bonus", "Kunlik bonus": "Daily bonus", "Yangi yil": "New Year", "Dam olish kuni: mijozlar ko'proq": "Day off: more customers", "Hali vaqt bo'lmadi": "Not time yet", "Omad charxi: har 8 soatda aylantirasiz. Jekpot ham bor!": "Wheel of Luck: spin every 8 hours. There's a jackpot!", "Taklif qilingan VIP mehmon keldi!": "Invited VIP guest arrived!", "VIP mehmon keldi!": "A VIP guest arrived!", "Club balansi": "Club balance", "Game club ochildi!": "Game club opened!", "Vazifa": "Quest", "Voqealar": "Events", "Jonli musiqa mijozlarga juda yoqdi!": "Live music was a hit with customers!", "Club: yangi yutuq:": "Club: new achievement:", "Yangi yutuq:": "New achievement:", "Yutuqlar": "Achievements", "Reyting: eng boy kafe va clublar ro'yxati.": "Ranking: list of the richest cafes and clubs.", "Ijara": "Rent", "Franchayzing": "Franchise", "Omonat foizi": "Deposit rate", "Administratorlar": "Administrators", "Mijozlar": "Customers", "Xizmat ko'rsatildi": "Served", "Xodimlar oyligi": "Staff salaries", "Bonus va pul": "Bonus and money", "Pul": "Money", "To'lov qabul qilindi": "Payment received", "Tushum": "Revenue", "Kafe kunlari": "Cafe days", "Sof foyda": "Net profit", "Menyu": "Menu", "Menyu: taom sotib oling va narxini o'zingiz belgilang.": "Menu: buy dishes and set your own prices.", "Club ochildi, birinchi mijozlar kutilmoqda...": "Club opened, waiting for first customers...", "Kafe ochildi, birinchi mijozlar kutilmoqda...": "Cafe opened, waiting for first customers...", "Hisob yaratish": "Create account", "Kartochka tayyor": "Card ready", "Elektr": "Electricity", "Havola nusxalandi": "Link copied", "Yaxshilash": "Upgrade", "Ketib qoldi": "Left", "Navbat uzun, mijoz ketib qoldi": "Queue too long, customer left", "Hisob bloklangan": "Account blocked", "Do'stlarni taklif qiling: 5 ta taklifdan keyin avto-rejim ochiladi.": "Invite friends: auto mode unlocks after 5 invites.", "Snack xarajati": "Snack costs", "Mahsulot xarajati": "Ingredient costs", "Eng ko'p": "Most", "1 yilga bloklash": "Block for 1 year", "1. O'yin virtual: haqiqiy pul, to'lov yoki haqiqiy mukofot berilmaydi.": "1. The game is virtual: no real money, payments or real prizes are given.", "2. Login va parolni o'zingiz saqlang. Parol ochiq holda saqlanmaydi, faqat xeshi tekshiriladi. Parolni yo'qotsangiz, uni tiklab bo'lmaydi.": "2. Keep your login and password safe. The password is not stored in plain text, only its hash is checked. If you lose it, it cannot be recovered.", "4. Promokodlarni noqonuniy yo'l bilan olish, sotish yoki o'yinni buzish hisobning bloklanishiga olib keladi.": "4. Obtaining or selling promo codes illegally, or cheating the game, leads to account blocking.", "5. Qoidalar va narxlar o'yin davomida o'zgarishi mumkin.": "5. Rules and prices may change during the game.", "Aksiyalar": "Promotions", "Avval «Yuklash» ni bosing": "Press «Load» first", "Bank krediti": "Bank loan", "Bank pul beradi. Muddat tugasa, qarz avtomatik undiriladi. To'liq to'lanmasa, ishonch va reputatsiya tushadi.": "The bank lends money. When the term ends, the debt is collected automatically. If not fully repaid, trust and reputation drop.", "Birinchi kun yakunlangach grafik chiqadi.": "The chart appears after the first finished day.", "Bonus": "Bonus", "Bonus va g'ildirak": "Bonus and wheel", "Bu hisob qoidalarni buzgani uchun vaqtincha bloklangan. O'yin to'xtatilgan.": "This account is temporarily blocked for breaking the rules. The game is paused.", "Club bepul ochiladi, o'z hisobi bor. Kompyuterlar soatbay ijaraga olinadi.": "The club opens for free and has its own account. Computers are rented by the hour.", "Club hisobi": "Club account", "Club hisobi, kompyuterlar, bufet, reklama, administrator va konditsioner boshidan boshlanadi. Kafega ta'siri yo'q.": "Club account, computers, buffet, ads, admin and air conditioning start over. No effect on the cafe.", "Club o'z hisobi, daraja, reytingi va franchayzingi bilan kafedan alohida ishlaydi.": "The club works separately from the cafe, with its own account, level, ranking and franchise.", "Club ochilgandan keyin club mukofotlari shu balansga tushadi.": "After the club opens, club rewards go to this balance.", "Club omonati": "Club deposit", "Club statistikasi": "Club statistics", "Club yaxshilash": "Club upgrades", "Do'stlarni taklif qilish": "Invite friends", "Faqat ko'rinish o'zgaradi, o'yinga ta'siri yo'q.": "Only the look changes, no effect on the game.", "Game club": "Game club", "Game clubni ochish": "Open game club", "Har club kuni omonat 1% ga o'sadi. Club franchayzingida nolga tushadi.": "Each club day the deposit grows by 1%. Resets to zero on club franchise.", "Har kafe kuni omonat 1% ga o'sadi. Franchayzingda nolga tushadi.": "Each cafe day the deposit grows by 1%. Resets to zero on franchise.", "Har kuni kirsangiz bonus oshadi.": "The bonus grows the more days you log in.", "Har o'yinda promokodlar alohida. Har kod bir marta ishlaydi.": "Promo codes are separate per game. Each code works once.", "Har promokod bir marta ishlaydi. Kafe va club uchun promokodlar alohida.": "Each promo code works once. Cafe and club promo codes are separate.", "Hisob bulutda saqlanadi. Boshqa telefon yoki brauzerda shu login va parol bilan kirsangiz o'yiningiz qaytadi.": "The account is stored in the cloud. Log in with this login and password on another phone or browser to get your game back.", "Hisob bulutda saqlanadi: istalgan qurilmadan shu login va parol bilan kirasiz.": "The account is stored in the cloud: log in from any device with this login and password.", "Hisob va o'yin holati bulutda saqlanadi. Reyting va o'yinchilar o'rtasida qarz almashish hali to'liq ishlamaydi.": "Account and game state are stored in the cloud. Ranking and debt exchange between players don't fully work yet.", "Hisobingiz": "Your account", "Hisobingiz bor bo'lsa, login va parolni kiriting. O'yiningiz bulutdan olinadi.": "If you have an account, enter login and password. Your game will load from the cloud.", "Hozirgi club franchayzingi:": "Current club franchise:", "Hozirgi franchayzing:": "Current franchise:", "Ijara, elektr va administrator xarajatlari har kun hisoblanadi. Buzilish va elektr o'chishi ham bo'lishi mumkin.": "Rent, electricity and admin costs are counted daily. Breakdowns and power outages may also happen.", "Ikki alohida o'yin: kafe — taom va mijozlar, club — kompyuter zali. Har birining o'z hisobi, darajasi va franchayzingi bor.": "Two separate games: cafe — food and customers, club — computer hall. Each has its own account, level and franchise.", "Interyer mavzusi": "Interior theme", "Jarayonda": "In progress", "Kafe nomi (ixtiyoriy)": "Cafe name (optional)", "Kafe nomi va kartochka": "Cafe name and card", "Kafe o'yini": "Cafe game", "Kafe oching, taomlar sotib oling, mijozlarni kutib oling": "Open a cafe, buy dishes, welcome customers", "Kafeni yaxshilang": "Upgrade your cafe", "Kafeni yaxshilash": "Cafe upgrades", "Ketma-ket kunlar": "Consecutive days", "Kirish": "Log in", "Ko'rinish": "Appearance", "Kod (masalan: SALE2026)": "Code (e.g. SALE2026)", "Kompyuter xonangizni oching va soatlik o'yin bilan pul ishlang.": "Open your computer hall and earn from hourly play.", "Kuchaytirgichlar": "Boosters", "Kunlik vazifalar": "Daily quests", "Kunni boshlang": "Start the day", "Login": "Login", "Login (a–z, 0–9, _)": "Login (a–z, 0–9, _)", "Login qidirish": "Search login", "Login va parolni o'zingiz tanlang. Shu login va parol bilan istalgan qurilmadan kirasiz. Parolni yo'qotsangiz, uni tiklab bo'lmaydi.": "You choose the login and password. Use them to log in from any device. If you lose the password, it cannot be recovered.", "Login:": "Login:", "MAX": "MAX", "Masalan: START": "E.g. START", "Menyuda": "In menu", "Menyuga taom qo'shing": "Add a dish to the menu", "Mukofot (masalan: 500000)": "Reward (e.g. 500000)", "Narx siyosati": "Pricing policy", "Necha kun amal qiladi (0 = cheksiz)": "How many days it's valid (0 = unlimited)", "Necha marta ishlaydi (0 = cheksiz)": "How many times it works (0 = unlimited)", "Noto'g'ri bloklangan deb hisoblasangiz, egasi bilan bog'laning.": "If you think the block is wrong, contact the owner.", "Olingan": "Received", "Omonat": "Deposit", "PC, PlayStation va VIP xona ijarasi, soatbay to'lov": "Rental of PCs, PlayStation and VIP room, hourly pay", "Parol": "Password", "Parol (kamida 6 belgi)": "Password (at least 6 characters)", "Parolni takrorlang": "Repeat password", "Promokod": "Promo code", "Pul, taomlar, xodimlar, reklama, interyer va jihozlar boshidan boshlanadi. Daraja, yutuqlar va statistika saqlanadi.": "Money, dishes, staff, ads, interior and equipment start over. Level, achievements and stats are kept.", "Qaytarish summasi:": "Refund amount:", "Qo'llanma va ulashish": "Guide and sharing", "Quyidagi matnni nusxalab, xavfsiz joyda saqlang.": "Copy the text below and keep it somewhere safe.", "Ro'yxatdan o'tish": "Sign up", "Saqlash": "Save", "Sotib olingan aksiya keyingi club kunida ishlaydi va sarflanadi.": "The purchased promo applies on the next club day and is used up.", "Sotib olingan kuchaytirgich keyingi boshlangan kunda ishlaydi va sarflanadi.": "The purchased booster applies on the next started day and is used up.", "Statistika": "Statistics", "Tanlangan": "Selected", "Tarif": "Rate", "Tayyor": "Done", "To'langan": "Paid", "Topilmadi": "Not found", "Tushunarli": "Got it", "Yangi club kuni": "New club day", "Yangi daraja keyingi kundan kuchga kiradi.": "The new level takes effect from the next day.", "Yangi kun": "New day", "Yangi xarid keyingi club kunidan kuchga kiradi.": "The new purchase takes effect from the next club day.", "Yopish": "Close", "Yozib yuborildi": "Saved and sent", "bir kunlik imkoniyat beradi: aksiya, mohir oshpaz, jonli musiqa, VIP taklif.": "gives a one-day opportunity: promo, skilled chef, live music, VIP invite.", "har kafe kunida 1% o'sadi.": "grows by 1% each cafe day.", "Band:": "· 🖥️ Busy:", "Qoldi": "⏳ Left", "Kafe uchun yaratish": "☕ Create for cafe", "Kafe va 🎮 club uchun havolalar alohida: mukofot o'sha o'yin balansiga tushadi.": "☕ Cafe and 🎮 club links are separate: rewards go to that game's balance.", "Bir telefonda ikkita hisob bo'lsa, ulardan birini ikkinchisiga taklif qilish taqiqlanadi: ikkala hisob 1 yilga bloklanadi.": "⚠️ If two accounts are on one phone, inviting one with the other is forbidden: both accounts are blocked for 1 year.", "Eslatma": "⚠️ Note", "Blokdan chiqarish": "✅ Unblock", "Ha, boshlash": "✅ Yes, start", "Qanday o'ynaladi": "❓ How to play", "Yo'q": "⬅️ No", "Aylantirish": "🎡 Spin", "G'ildirak aylanmoqda...": "🎡 The wheel is spinning...", "Promokod yaratish": "🎫 Create promo code", "Promokodlar": "🎫 Promo codes", "Club uchun yaratish": "🎮 Create for club", "Jekpot ehtimoli:": "🎰 Jackpot chance:", "Ega paneli": "👑 Owner panel", "Hisob bo'limidagi havolani do'stingizga yuboring. Havola orqali yangi o'yinchi ro'yxatdan o'tsa, mukofot olasiz.": "👤 Send your friend the link from the Account section. If a new player signs up through it, you get a reward.", "Pul va kredit": "💰 Money and credit", "Bajarilgan vazifa bor: mukofotni oling.": "📜 You have a completed quest: claim the reward.", "Foydalanish shartlari va maxfiylik": "📜 Terms of use and privacy", "Men shartlar va maxfiylik siyosatiga roziman": "I agree to the terms and privacy policy", "Bulut bilan sinxron: balans, kunlar, ketayotgan kun va butun o'yin holati ikkala joyda bir xil.": "🔄 Cloud sync: balance, days, the current day and the full game state are the same in both places.", "Bulut sinxronlashi hali sozlanmagan.": "🔄 Cloud sync is not set up yet.", "Sinxronlashni yoqish uchun pastdagi «Boshqa hisob yaratish» tugmasi orqali shu login va parol bilan qayta kiring.": "🔄 To enable sync, log in again with this login and password using the «Create another account» button below.", "Yuklash / qidirish": "🔄 Load / search", "Tekshirish": "🔎 Check", "Soat:": "🕐 Time:", "PC, PlayStation va VIP xona sotib olib, tarif va aksiya bilan daromadni oshiring.": "🖥️ Buy PCs, PlayStation and a VIP room, raise income with rates and promos.", "Blok boshqaruvi": "🚫 Block management", "O'yin progressi hozircha shu brauzerda saqlanadi (brauzer ma'lumotlarini tozalasangiz, noldan boshlanadi). Hisob (login) esa bulutda saqlanadi: 👤 Hisob bo'limiga qarang.": "Game progress is currently saved in this browser (if you clear browser data, you start over). The account (login) is stored in the cloud: see 👤 Account section.", "Sizning kafe": "Your cafe", "Sig'im": "Capacity", "{n} mijoz": "{n} customers", "Kun 90–120 soniya davom etadi. Mijozlar real vaqtda keladi, natija kun tugagach hisoblanadi.": "A day lasts 90–120 seconds. Customers arrive in real time; the result is calculated when the day ends.", "Keyingi kun uchun kuchaytirgichlar: yo'q": "Boosters for the next day: none", "Boshlang'ich hisob": "Starting balance", "Boshlang'ich PC": "Starting PCs", "{n} ta": "{n} pcs", "Alohida o'yin": "Separate game", "Kun 90–120 soniya davom etadi, mijozlar real vaqtda keladi.": "A day lasts 90–120 seconds, customers arrive in real time.", "Har taom sotiladi va xarajati bor. Taom qancha ko'p bo'lsa, mijozlar ham ko'p.": "Each dish sells and has a cost. The more dishes, the more customers.", "xodimlar (sig'im), reklama, interyer, yetkazib berish va jihozlar.": "staff (capacity), ads, interior, delivery and equipment.", "arzon tanlasangiz mijozlar ko'p, qimmat tanlasangiz har bir mijozdan ko'proq olasiz.": "a low price brings more customers, a high price earns more from each customer.", "Kunlik bonus va 🎡 g'ildirak (har 8 soatda) pul beradi.": "The daily bonus and 🎡 wheel (every 8 hours) give money.", "kamida 2 500 000 so'm. Muddat: 1 kun (5%), 3 kun (10%), 7 kun (20%). Muddat tugasa, pul avtomatik undiriladi. To'liq to'lanmasa 🛡️ ishonch va ⭐ reputatsiya tushadi. Bir vaqtda 3 tadan ko'p kredit bo'lmaydi.": "minimum 2 500 000 sum. Term: 1 day (5%), 3 days (10%), 7 days (20%). When the term ends, money is collected automatically. If not fully repaid, 🛡️ trust and ⭐ reputation drop. No more than 3 loans at a time.", "Barcha taomlar ochilib, 375 000 000 so'm to'plangach, kafeni franchayzing qilish mumkin. Kafe boshidan boshlanadi, lekin har franchayzing uchun doimiy +30% mijoz va +20% daromad beradi.": "After opening all dishes and saving 375 000 000 sum, you can franchise the cafe. The cafe starts over, but each franchise gives a permanent +30% customers and +20% income.", "Pro PC, VIP xona va PlayStation ochilib, 250 000 000 so'm to'plangach, club franchayzing qilinadi.": "After opening Pro PCs, the VIP room and PlayStation and saving 250 000 000 sum, the club can be franchised.", "1–9 ta taklif uchun har biri 5 000 000 so'm, 10-taklifdan boshlab har biri 10 000 000 so'm.": "for 1–9 invites 5 000 000 sum each, from the 10th invite 10 000 000 sum each.", "Havola orqali ro'yxatdan o'tgan har bir yangi o'yinchi uchun mukofot: 1–9 ta taklif 5 000 000 so'm, 10-taklifdan boshlab 10 000 000 so'm har biri. Mukofot o'sha o'yin balansiga tushadi.": "Reward for each new player who signs up via the link: 1–9 invites 5 000 000 sum each, from the 10th invite 10 000 000 sum each. The reward goes to the balance of the same game.", "{n} kundan keyin": "in {n} days", "va": "and"}};
+const UI_TR_PAT = Object.entries(UI_TR.ru).filter(([k]) => k.includes("{n}"));
+const UI_TR_SUB = Object.keys(UI_TR.ru).filter((k) => k.length >= 12 && !k.includes("{n}")).sort((a, b) => b.length - a.length);
+const UI_CORE = /^(\s*[^A-Za-zʻ’'‘ÀÖÇĞŞÜ0-9{]*)([\s\S]*?)(\s*)$/;
+function trCore(core, lang) {
+  const d = UI_TR[lang];
+  if (d[core] !== undefined) return d[core];
+  let out = core, hit = false;
+  for (const [k] of UI_TR_PAT) {
+    const re = new RegExp(k.split("{n}").map((x) => x.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("(\\d[\\d\\s.,]*)"));
+    if (re.test(out)) { out = out.replace(re, (all, n) => d[k].replace("{n}", n.trim())); hit = true; }
+  }
+  for (const k of UI_TR_SUB) if (out.includes(k)) { out = out.split(k).join(d[k]); hit = true; }
+  return hit ? out : null;
+}
+function trUI(str) {
+  if (LANG === "uz" || !UI_TR[LANG]) return str;
+  const m = String(str).match(UI_CORE);
+  const out = m ? trCore(m[2].replace(/\s+/g, " ").trim(), LANG) : null;
+  const txt = out === null ? String(str) : m[1] + out + m[3];
+  const cur = LANG === "en" ? "sum" : "сум";
+  return txt.replace(/\bso['’ʻ‘]m\b/g, cur);
+}
+
+/* ===================== O'ZBEK LOTIN ALIFBOSI (faqat uz rejimi, ekrandagi matn) ===================== */
+// sh→ş, ch→ç, o'→ö, g'→ğ. Kod va tugmalar o'zgarmaydi: faqat ko'rinadigan matn (text node) almashtiriladi.
+const UZ_APOS = "['’ʻ‘`]";
+function uzLatin(str) {
+  return String(str)
+    .replace(/[Ss][Hh]/g, (m) => (m[0] === "S" ? "Ş" : "ş"))
+    .replace(/[Cc][Hh]/g, (m) => (m[0] === "C" ? "Ç" : "ç"))
+    .replace(new RegExp("[Oo]" + UZ_APOS, "g"), (m) => (m[0] === "O" ? "Ö" : "ö"))
+    .replace(new RegExp("[Gg]" + UZ_APOS, "g"), (m) => (m[0] === "G" ? "Ğ" : "ğ"));
+}
+function uzFixText(n) {
+  const tag = n.parentNode && n.parentNode.tagName;
+  if (tag === "SCRIPT" || tag === "STYLE" || tag === "TEXTAREA") return;
+  const v = n.nodeValue;
+  const t = LANG === "uz" ? uzLatin(v) : trUI(v);
+  if (t !== v) n.nodeValue = t;
+}
+function uzFixAttrs(el) {
+  for (const attr of ["placeholder", "title"]) {
+    const v = el.getAttribute(attr);
+    if (!v) continue;
+    const t = LANG === "uz" ? uzLatin(v) : trUI(v);
+    if (t !== v) el.setAttribute(attr, t);
+  }
+}
+function uzFixNode(root) {
+  if (!root) return;
+  if (root.nodeType === 3) return uzFixText(root);
+  if (root.nodeType === 1) uzFixAttrs(root);
+  if (root.nodeType !== 1 && root.nodeType !== 9) return;
+  if (root.querySelectorAll) root.querySelectorAll("[placeholder],[title]").forEach(uzFixAttrs);
+  const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  let n;
+  while ((n = w.nextNode())) uzFixText(n);
+}
+function uzWatch() {
+  uzFixNode(document.body);
+  new MutationObserver((muts) => {
+    for (const m of muts) m.addedNodes.forEach((n) => uzFixNode(n));
+  }).observe(document.body, { childList: true, subtree: true });
+}
+
 function boot() {
   S = loadState();
   migrateState();
@@ -3729,6 +4626,7 @@ function boot() {
   if (_acc) touchDevice(_acc.login);
   loadPromoCatalog();
   applyLang();
+  uzWatch();
   applyMotion();
   if (loadAccount()) startTour(false);
   flushRefClaim();
